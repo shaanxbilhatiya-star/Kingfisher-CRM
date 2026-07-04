@@ -670,9 +670,9 @@
               <select id="manualLoanType">
                 <option value="">-- Select Package --</option>
                 <option value="Kitty_Party">Kitty Party</option>
-                <option value="Family_Fun_Day">Family Fun Day</option>
+                <option value="Family_Fun_Day">Family Fun Day- Water Park</option>
                 <option value="Dream_Wedding">Dream Wedding</option>
-                <option value="Pool_Party">Pool Party</option>
+                <option value="Pool_Party">Private Pool Party</option>
               </select>
             </div>
             <div class="field">
@@ -761,9 +761,9 @@
       <select id="followupLoanType">
         <option value="">-- Select Package --</option>
         <option value="Kitty_Party">Kitty Party</option>
-        <option value="Family_Fun_Day">Family Fun Day</option>
+        <option value="Family_Fun_Day">Family Fun Day- Water Park</option>
         <option value="Dream_Wedding">Dream Wedding</option>
-        <option value="Pool_Party">Pool Party</option>
+        <option value="Pool_Party">Private Pool Party</option>
       </select>
     </div>
     <button class="btn-confirm blue" onclick="confirmFollowup()">Confirm Followup</button>
@@ -786,9 +786,9 @@
       <select id="interestedLoanType">
         <option value="">-- Select Package --</option>
         <option value="Kitty_Party">Kitty Party</option>
-        <option value="Family_Fun_Day">Family Fun Day</option>
+        <option value="Family_Fun_Day">Family Fun Day- Water Park</option>
         <option value="Dream_Wedding">Dream Wedding</option>
-        <option value="Pool_Party">Pool Party</option>
+        <option value="Pool_Party">Private Pool Party</option>
       </select>
       <span class="field-err" id="errILoanType" style="display:none">Please select a package</span>
     </div>
@@ -1572,9 +1572,9 @@ setInterval(() => {
 
 const PACKAGE_LABELS = {
   Kitty_Party: 'Kitty Party',
-  Family_Fun_Day: 'Family Fun Day',
+  Family_Fun_Day: 'Family Fun Day- Water Park',
   Dream_Wedding: 'Dream Wedding',
-  Pool_Party: 'Pool Party'
+  Pool_Party: 'Private Pool Party'
 };
 
 function renderInterestedTable(leads) {
@@ -1640,7 +1640,7 @@ const PACKAGE_WHATSAPP_MESSAGES = {
 - Make it Special: Option to add personalized touches
 
 📞 For booking, contact Kingfisher Mandla Resort & Entertainment today!`,
-  Family_Fun_Day: `🎢 *FAMILY FUN DAY* 🎢
+  Family_Fun_Day: `🎢 *FAMILY FUN DAY- WATER PARK* 🎢
 *Water Park + Movie + Food*
 *Kingfisher Mandla Resort & Entertainment*
 
@@ -1682,7 +1682,7 @@ Inclusions:
 
 ⚠️ Package valid for one day only.
 
-📞 Book your Family Fun Day now!`,
+📞 Book your Family Fun Day- Water Park now!`,
   Dream_Wedding: `💍 *YOUR DREAM WEDDING VENUE* 💍
 *Kingfisher Mandla Resort & Entertainment*
 📍 Mandla Raipur Road, Pondi Maharajpur, Mandla (M.P.) 481665
@@ -1723,7 +1723,7 @@ Inclusions:
 - DJ & Anchor combo
 
 📞 Let's plan your dream wedding — contact us today!`,
-  Pool_Party: `🏊 *EXCLUSIVE POOL PARTY PACKAGE* 🏊
+  Pool_Party: `🏊 *PRIVATE POOL PARTY PACKAGE* 🏊
 *Kingfisher Mandla Resort & Entertainment*
 
 "Celebrate - Enjoy - Make Memories"
@@ -1767,7 +1767,7 @@ Perfect For: Birthday parties, Friend get-togethers, Family celebrations, Kitty 
 - Clean & Green Environment
 - Best Amenities
 
-📞 Book your Pool Party now!`
+📞 Book your Private Pool Party now!`
 };
 
 async function updateInterestedPackage(numberId, loanType) {
