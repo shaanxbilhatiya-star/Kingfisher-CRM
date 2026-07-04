@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kingfisher x Ruralift — Agent</title>
+<script src="/socket.io/socket.io.js"></script>
+<style>
+  :root{
+    --bg:#0f1115; --panel:#171a21; --panel2:#1e222b; --border:#2a2f3a;
+    --text:#e8eaed; --muted:#9aa3af; --accent:#f5a623; --accent2:#e08e00;
+    --green:#2ecc71; --red:#e74c3c; --blue:#4a9eff;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--text);}
+  .topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:var(--panel);border-bottom:1px solid var(--border);}
+  .topbar h1{font-size:16px;margin:0;}
+  .topbar h1 span{color:var(--accent);}
+  #agentBadge{font-size:13px;color:var(--muted);}
+  .container{max-width:960px;margin:0 auto;padding:20px;}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:20px;}
+  h2{font-size:15px;margin:0 0 12px;display:flex;align-items:center;justify-content:space-between;}
+  .btn{background:var(--accent);color:#1a1a1a;border:none;padding:9px 14px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;}
+  .btn:hover{background:var(--accent2);}
+  .btn.secondary{background:var(--panel2);color:var(--text);border:1px solid var(--border);}
+  .btn.green{background:var(--green);color:#08210f;}
+  .btn.red{background:var(--red);color:#fff;}
+  .btn.blue{background:var(--blue);color:#08152b;}
+  .btn.small{padding:6px 10px;font-size:12px;}
+  input,select,textarea{width:100%;padding:9px 10px;border-radius:8px;border:1px solid var(--border);background:var(--panel2);color:var(--text);font-size:13px;margin-bottom:10px;}
+  label{font-size:12px;color:var(--muted);display:block;margin-bottom:4px;}
+  .lead{background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:10px;}
+  .lead-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;}
+  .lead-name{font-weight:600;font-size:14px;}
+  .lead-mobile{font-size:12px;color:var(--muted);}
+  .pkg-tag{display:inline-block;background:#3a2c0f;color:var(--accent);font-size:11px;padding:3px 8px;border-radius:20px;margin-top:6px;}
+  .lead-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;}
+  .empty{color:var(--muted);font-size:13px;text-align:center;padding:20px 0;}
+  .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);align-items:center;justify-content:center;z-index:50;}
+  .modal-bg.active{display:flex;}
+  .modal{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:20px;width:92%;max-width:420px;max-height:88vh;overflow-y:auto;}
+  .modal h3{margin-top:0;font-size:15px;}
+  .modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:14px;}
+  .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--panel2);border:1px solid var(--border);padding:10px 18px;border-radius:10px;font-size:13px;z-index:100;display:none;}
+  .toast.show{display:block;}
+  .dispo-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;}
+  .followup-time{font-size:11px;color:var(--blue);margin-top:4px;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>🐦 Kingfisher <span>x</span> Ruralift — Agent</h1>
+  <div id="agentBadge"></div>
+</div>
+
+<div class="container" id="app" style="display:none;">
+
+  <div class="card">
+    <h2>➕ New Lead / Disposition</h2>
+    <label>Full Name</label>
+    <input id="dFullName" placeholder="Optional for quick disposition">
+    <label>Mobile No *</label>
+    <input id="dMobile" placeholder="10-digit mobile number">
+    <label>Disposition *</label>
+    <select id="dDisposition" onchange="onDispoChange()">
+      <option value="interested">⭐ Interested</option>
+      <option value="followup">📅 Followup</option>
+      <option value="not_interested">Not Interested</option>
+      <option value="dead">Dead / Invalid</option>
+    </select>
+    <div id="dPackageWrap">
+      <label>Package Type *</label>
+      <select id="dPackage"></select>
+    </div>
+    <div id="dFollowupWrap" style="display:none;">
+      <label>Followup Date & Time</label>
+      <input id="dFollowupAt" type="datetime-local">
+      <label>Note (optional)</label>
+      <textarea id="dFollowupNote" rows="2"></textarea>
+    </div>
+    <button class="btn" onclick="submitDisposition()">Save Disposition</button>
+  </div>
+
+  <div class="card">
+    <h2>⭐ My Interested Leads <button class="btn small" onclick="openManualAdd()">➕ Add Interested Lead Manually</button></h2>
+    <div id="interestedList" class="empty">Loading...</div>
+  </div>
+
+  <div class="card">
+    <h2>📅 My Followups</h2>
+    <div id="followupList" class="empty">Loading...</div>
+  </div>
+
+  <div class="card">
+    <h2>✅ Converted Customers</h2>
+    <div id="convertedList" class="empty">Loading...</div>
+  </div>
+
+</div>
+
+<!-- Login -->
+<div class="modal-bg active" id="loginModal">
+  <div class="modal">
+    <h3>Agent Login</h3>
+    <label>Your Name</label>
+    <input id="loginName" placeholder="Enter your name">
+    <div class="modal-actions">
+      <button class="btn" onclick="login()">Continue</button>
+    </div>
+  </div>
+</div>
+
+<!-- Manual Add Modal -->
+<div class="modal-bg" id="manualModal">
+  <div class="modal">
+    <h3>➕ Add Interested Lead Manually</h3>
+    <label>Full Name *</label>
+    <input id="mFullName">
+    <label>Package Type *</label>
+    <select id="mPackage"></select>
+    <label>Mobile No *</label>
+    <input id="mMobile">
+    <div class="modal-actions">
+      <button class="btn secondary" onclick="closeModal('manualModal')">Cancel</button>
+      <button class="btn" onclick="submitManualAdd()">Add Lead</button>
+    </div>
+  </div>
+</div>
+
+<!-- Followup Modal -->
+<div class="modal-bg" id="followupModal">
+  <div class="modal">
+    <h3>📅 Set Followup</h3>
+    <input type="hidden" id="fuLeadId">
+    <label>Package Type *</label>
+    <select id="fuPackage"></select>
+    <label>Followup Date & Time</label>
+    <input id="fuAt" type="datetime-local">
+    <label>Note (optional)</label>
+    <textarea id="fuNote" rows="2"></textarea>
+    <div class="modal-actions">
+      <button class="btn secondary" onclick="closeModal('followupModal')">Cancel</button>
+      <button class="btn" onclick="submitFollowup()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Change Package Modal -->
+<div class="modal-bg" id="pkgModal">
+  <div class="modal">
+    <h3>Change Package</h3>
+    <input type="hidden" id="pkgLeadId">
+    <select id="pkgSelect"></select>
+    <div class="modal-actions">
+      <button class="btn secondary" onclick="closeModal('pkgModal')">Cancel</button>
+      <button class="btn" onclick="submitPackageChange()">Update</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let agentId = localStorage.getItem('kf_agentId');
+let agentName = localStorage.getItem('kf_agentName');
+let PACKAGES = [];
+const socket = io();
+
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2500);
+}
+
+function closeModal(id){ document.getElementById(id).classList.remove('active'); }
+function openModal(id){ document.getElementById(id).classList.add('active'); }
+
+async function login(){
+  const name = document.getElementById('loginName').value.trim();
+  if(!name) return toast('Enter your name');
+  const r = await fetch('/api/agent/register', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ name })
+  });
+  const data = await r.json();
+  agentId = data.agentId; agentName = data.name;
+  localStorage.setItem('kf_agentId', agentId);
+  localStorage.setItem('kf_agentName', agentName);
+  boot();
+}
+
+async function loadPackages(){
+  const r = await fetch('/api/packages');
+  PACKAGES = await r.json();
+  const opts = PACKAGES.map(p => `<option value="${p.id}">${p.name} — ${p.price}</option>`).join('');
+  ['dPackage','mPackage','fuPackage','pkgSelect'].forEach(id=>{
+    document.getElementById(id).innerHTML = opts;
+  });
+}
+
+function onDispoChange(){
+  const v = document.getElementById('dDisposition').value;
+  document.getElementById('dPackageWrap').style.display = (v==='interested'||v==='followup') ? 'block' : 'none';
+  document.getElementById('dFollowupWrap').style.display = (v==='followup') ? 'block' : 'none';
+}
+
+async function submitDisposition(){
+  const fullName = document.getElementById('dFullName').value.trim();
+  const mobile = document.getElementById('dMobile').value.trim();
+  const disposition = document.getElementById('dDisposition').value;
+  const packageId = document.getElementById('dPackage').value;
+  const followupAt = document.getElementById('dFollowupAt').value;
+  const followupNote = document.getElementById('dFollowupNote').value;
+
+  if(!mobile) return toast('Mobile number required');
+
+  const body = { agentId, fullName, mobile, disposition, packageId, followupAt, followupNote };
+  const r = await fetch('/api/agent/disposition', {
+    method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)
+  });
+  const data = await r.json();
+  if(!r.ok) return toast(data.error || 'Failed');
+  toast('Disposition saved');
+  document.getElementById('dFullName').value='';
+  document.getElementById('dMobile').value='';
+  document.getElementById('dFollowupAt').value='';
+  document.getElementById('dFollowupNote').value='';
+  refreshAll();
+}
+
+function openManualAdd(){
+  document.getElementById('mFullName').value='';
+  document.getElementById('mMobile').value='';
+  openModal('manualModal');
+}
+
+async function submitManualAdd(){
+  const fullName = document.getElementById('mFullName').value.trim();
+  const packageId = document.getElementById('mPackage').value;
+  const mobile = document.getElementById('mMobile').value.trim();
+  if(!fullName || !mobile) return toast('Full Name and Mobile No required');
+  const r = await fetch('/api/agent/add-interested-manual', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ agentId, fullName, mobile, packageId })
+  });
+  const data = await r.json();
+  if(!r.ok) return toast(data.error || 'Failed');
+  toast('Lead added');
+  closeModal('manualModal');
+  refreshAll();
+}
+
+function openFollowupModal(leadId, currentPackageId){
+  document.getElementById('fuLeadId').value = leadId;
+  document.getElementById('fuPackage').value = currentPackageId || PACKAGES[0].id;
+  document.getElementById('fuAt').value='';
+  document.getElementById('fuNote').value='';
+  openModal('followupModal');
+}
+
+async function submitFollowup(){
+  const leadId = document.getElementById('fuLeadId').value;
+  const packageId = document.getElementById('fuPackage').value;
+  const followupAt = document.getElementById('fuAt').value;
+  const followupNote = document.getElementById('fuNote').value;
+  const r = await fetch('/api/agent/set-followup', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ agentId, leadId, packageId, followupAt, followupNote })
+  });
+  const data = await r.json();
+  if(!r.ok) return toast(data.error || 'Failed');
+  toast('Followup set');
+  closeModal('followupModal');
+  refreshAll();
+}
+
+function openPkgModal(leadId, currentPackageId){
+  document.getElementById('pkgLeadId').value = leadId;
+  document.getElementById('pkgSelect').value = currentPackageId;
+  openModal('pkgModal');
+}
+
+async function submitPackageChange(){
+  const leadId = document.getElementById('pkgLeadId').value;
+  const packageId = document.getElementById('pkgSelect').value;
+  const r = await fetch('/api/agent/update-lead-package', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ agentId, leadId, packageId })
+  });
+  const data = await r.json();
+  if(!r.ok) return toast(data.error || 'Failed');
+  toast('Package updated');
+  closeModal('pkgModal');
+  refreshAll();
+}
+
+async function copyWhatsapp(leadId, packageId, leadName){
+  const r = await fetch(`/api/packages/${packageId}/whatsapp?name=${encodeURIComponent(leadName||'')}`);
+  const data = await r.json();
+  try{
+    await navigator.clipboard.writeText(data.message);
+    toast('WhatsApp message copied ✅');
+  }catch(e){
+    prompt('Copy this message:', data.message);
+  }
+}
+
+async function convertLead(leadId){
+  if(!confirm('Mark this lead as Converted?')) return;
+  const r = await fetch('/api/agent/convert-lead', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ agentId, leadId })
+  });
+  const data = await r.json();
+  if(!r.ok) return toast(data.error || 'Failed');
+  toast('Lead converted 🎉');
+  refreshAll();
+}
+
+async function removeLead(leadId){
+  if(!confirm('Remove this lead completely?')) return;
+  const r = await fetch('/api/agent/remove-lead', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ agentId, leadId })
+  });
+  if(!r.ok) return toast('Failed');
+  toast('Lead removed');
+  refreshAll();
+}
+
+function fmtDate(iso){
+  if(!iso) return '—';
+  const d = new Date(iso);
+  return d.toLocaleString('en-IN', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' });
+}
+
+async function refreshInterested(){
+  const r = await fetch(`/api/agent/interested/${agentId}`);
+  const leads = await r.json();
+  const el = document.getElementById('interestedList');
+  if(!leads.length){ el.className='empty'; el.textContent='No interested leads yet.'; return; }
+  el.className='';
+  el.innerHTML = leads.map(l => `
+    <div class="lead">
+      <div class="lead-top">
+        <div>
+          <div class="lead-name">${l.fullName || '(no name)'}</div>
+          <div class="lead-mobile">${l.mobile}</div>
+          <span class="pkg-tag">${l.packageName || 'No package'}</span>
+        </div>
+      </div>
+      <div class="lead-actions">
+        <button class="btn small green" onclick="copyWhatsapp('${l.id}','${l.packageId}','${(l.fullName||'').replace(/'/g,"")}')">💬 Copy WhatsApp</button>
+        <button class="btn small secondary" onclick="openPkgModal('${l.id}','${l.packageId}')">Change Package</button>
+        <button class="btn small blue" onclick="openFollowupModal('${l.id}','${l.packageId}')">📅 Followup</button>
+        <button class="btn small" onclick="convertLead('${l.id}')">✅ Converted</button>
+        <button class="btn small red" onclick="removeLead('${l.id}')">Remove</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function refreshFollowups(){
+  const r = await fetch(`/api/agent/followups/${agentId}`);
+  const leads = await r.json();
+  const el = document.getElementById('followupList');
+  if(!leads.length){ el.className='empty'; el.textContent='No followups scheduled.'; return; }
+  el.className='';
+  el.innerHTML = leads.map(l => `
+    <div class="lead">
+      <div class="lead-top">
+        <div>
+          <div class="lead-name">${l.fullName || '(no name)'}</div>
+          <div class="lead-mobile">${l.mobile}</div>
+          <span class="pkg-tag">${l.packageName || 'No package'}</span>
+          <div class="followup-time">⏰ ${fmtDate(l.followupAt)}</div>
+          ${l.followupNote ? `<div style="font-size:12px;color:var(--muted);margin-top:4px;">${l.followupNote}</div>` : ''}
+        </div>
+      </div>
+      <div class="lead-actions">
+        <button class="btn small green" onclick="copyWhatsapp('${l.id}','${l.packageId}','${(l.fullName||'').replace(/'/g,"")}')">💬 Copy WhatsApp</button>
+        <button class="btn small blue" onclick="openFollowupModal('${l.id}','${l.packageId}')">Reschedule</button>
+        <button class="btn small" onclick="convertLead('${l.id}')">✅ Converted</button>
+        <button class="btn small red" onclick="removeLead('${l.id}')">Remove</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function refreshConverted(){
+  const r = await fetch(`/api/agent/converted/${agentId}`);
+  const leads = await r.json();
+  const el = document.getElementById('convertedList');
+  if(!leads.length){ el.className='empty'; el.textContent='No conversions yet.'; return; }
+  el.className='';
+  el.innerHTML = leads.map(l => `
+    <div class="lead">
+      <div class="lead-top">
+        <div>
+          <div class="lead-name">${l.fullName || '(no name)'}</div>
+          <div class="lead-mobile">${l.mobile}</div>
+          <span class="pkg-tag">${l.packageName || 'No package'}</span>
+          <div class="followup-time">✅ Converted on ${fmtDate(l.convertedAt)}</div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function refreshAll(){
+  refreshInterested();
+  refreshFollowups();
+  refreshConverted();
+}
+
+socket.on('state-updated', refreshAll);
+
+async function boot(){
+  document.getElementById('loginModal').classList.remove('active');
+  document.getElementById('app').style.display='block';
+  document.getElementById('agentBadge').textContent = agentName;
+  await loadPackages();
+  onDispoChange();
+  refreshAll();
+}
+
+if(agentId && agentName){
+  boot();
+}
+</script>
+</body>
+</html>

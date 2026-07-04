@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kingfisher x Ruralift — Admin</title>
+<script src="/socket.io/socket.io.js"></script>
+<style>
+  :root{
+    --bg:#0f1115; --panel:#171a21; --panel2:#1e222b; --border:#2a2f3a;
+    --text:#e8eaed; --muted:#9aa3af; --accent:#f5a623; --red:#e74c3c;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--text);}
+  .topbar{display:flex;justify-content:space-between;align-items:center;padding:14px 20px;background:var(--panel);border-bottom:1px solid var(--border);}
+  .topbar h1{font-size:16px;margin:0;}
+  .topbar h1 span{color:var(--accent);}
+  .container{max-width:1100px;margin:0 auto;padding:20px;}
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:20px;}
+  .stat{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center;}
+  .stat .n{font-size:22px;font-weight:700;color:var(--accent);}
+  .stat .l{font-size:11px;color:var(--muted);margin-top:4px;}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:20px;}
+  h2{font-size:15px;margin:0 0 12px;}
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--border);}
+  th{color:var(--muted);font-weight:500;font-size:11px;text-transform:uppercase;}
+  .pkg-tag{display:inline-block;background:#3a2c0f;color:var(--accent);font-size:11px;padding:3px 8px;border-radius:20px;}
+  .empty{color:var(--muted);font-size:13px;text-align:center;padding:20px 0;}
+  .tabs{display:flex;gap:8px;margin-bottom:14px;}
+  .tab{padding:8px 14px;border-radius:8px;background:var(--panel2);border:1px solid var(--border);cursor:pointer;font-size:13px;}
+  .tab.active{background:var(--accent);color:#1a1a1a;}
+  .btn{background:var(--accent);color:#1a1a1a;border:none;padding:6px 10px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;}
+  .btn.red{background:var(--red);color:#fff;}
+  select{padding:5px 8px;border-radius:6px;border:1px solid var(--border);background:var(--panel2);color:var(--text);font-size:12px;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>🐦 Kingfisher <span>x</span> Ruralift — Admin</h1>
+  <button class="btn red" onclick="hardReset()">Hard Reset (wipe all leads)</button>
+</div>
+
+<div class="container">
+  <div class="stats" id="stats"></div>
+
+  <div class="card">
+    <div class="tabs">
+      <div class="tab active" data-tab="interested" onclick="switchTab('interested')">⭐ Interested</div>
+      <div class="tab" data-tab="followups" onclick="switchTab('followups')">📅 Followups</div>
+      <div class="tab" data-tab="converted" onclick="switchTab('converted')">✅ Converted</div>
+    </div>
+    <div id="tableWrap"></div>
+  </div>
+</div>
+
+<script>
+const socket = io();
+let currentTab = 'interested';
+let agentsList = [];
+
+function fmtDate(iso){
+  if(!iso) return '—';
+  return new Date(iso).toLocaleString('en-IN', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' });
+}
+
+async function loadAgents(){
+  const r = await fetch('/api/agents-list');
+  agentsList = await r.json();
+}
+
+async function loadStats(){
+  const r = await fetch('/api/tl/stats');
+  const s = await r.json();
+  document.getElementById('stats').innerHTML = `
+    <div class="stat"><div class="n">${s.totalLeads}</div><div class="l">Total Leads</div></div>
+    <div class="stat"><div class="n">${s.interested}</div><div class="l">Interested</div></div>
+    <div class="stat"><div class="n">${s.followup}</div><div class="l">Followups</div></div>
+    <div class="stat"><div class="n">${s.converted}</div><div class="l">Converted</div></div>
+    <div class="stat"><div class="n">${s.notInterested}</div><div class="l">Not Interested</div></div>
+    <div class="stat"><div class="n">${s.dead}</div><div class="l">Dead</div></div>
+  `;
+}
+
+function switchTab(tab){
+  currentTab = tab;
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab===tab));
+  loadTable();
+}
+
+async function loadTable(){
+  const r = await fetch(`/api/tl/${currentTab}`);
+  const leads = await r.json();
+  const wrap = document.getElementById('tableWrap');
+  if(!leads.length){ wrap.innerHTML = '<div class="empty">No leads here.</div>'; return; }
+
+  let extraCol = '';
+  if(currentTab === 'followups') extraCol = '<th>Followup At</th>';
+  if(currentTab === 'converted') extraCol = '<th>Converted At</th>';
+
+  const agentOptions = agentsList.map(a => `<option value="${a.id}">${a.name}</option>`).join('');
+
+  wrap.innerHTML = `
+    <table>
+      <thead><tr><th>Name</th><th>Mobile</th><th>Package</th><th>Agent</th>${extraCol}<th>Actions</th></tr></thead>
+      <tbody>
+        ${leads.map(l => `
+          <tr>
+            <td>${l.fullName || '(no name)'}</td>
+            <td>${l.mobile}</td>
+            <td><span class="pkg-tag">${l.packageName || '—'}</span></td>
+            <td>
+              <select onchange="reassign('${l.id}', this.value)">
+                <option value="">${l.agentName}</option>
+                ${agentOptions}
+              </select>
+            </td>
+            ${currentTab==='followups' ? `<td>${fmtDate(l.followupAt)}</td>` : ''}
+            ${currentTab==='converted' ? `<td>${fmtDate(l.convertedAt)}</td>` : ''}
+            <td><button class="btn red" onclick="removeLead('${l.id}')">Remove</button></td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  `;
+}
+
+async function reassign(leadId, newAgentId){
+  if(!newAgentId) return;
+  await fetch('/api/admin/reassign-lead', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ leadId, newAgentId })
+  });
+}
+
+async function removeLead(leadId){
+  if(!confirm('Remove this lead completely?')) return;
+  await fetch('/api/admin/remove-lead', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ leadId })
+  });
+}
+
+async function hardReset(){
+  if(!confirm('This wipes ALL Kingfisher leads permanently. Continue?')) return;
+  if(!confirm('Are you absolutely sure? This cannot be undone.')) return;
+  await fetch('/api/admin/hard-reset', { method:'POST' });
+}
+
+function refreshAll(){ loadStats(); loadTable(); }
+socket.on('state-updated', refreshAll);
+loadAgents().then(refreshAll);
+</script>
+</body>
+</html>
