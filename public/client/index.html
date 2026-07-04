@@ -92,9 +92,9 @@
   input, select, textarea { background: var(--surface2) !important; color: var(--text) !important; border-color: var(--border) !important; }
   input:focus, select:focus, textarea:focus { border-color: var(--accent) !important; outline: none !important; }
 
-  /* ── Login screen ── */
+  /* ── Login screen (disabled — client opens directly like admin) ── */
   #loginScreen {
-    min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 24px;
+    display: none;
   }
   .login-wrap { width: 100%; max-width: 420px; }
   .login-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 36px; box-shadow: 0 2px 16px rgba(0,0,0,.5); }
@@ -108,7 +108,7 @@
   .btn-login { width: 100%; padding: 14px; border-radius: 10px; border: none; background: var(--accent); color: #fff; font-family: var(--sans); font-size: 16px; font-weight: 700; cursor: pointer; transition: all .2s; margin-top: 4px; }
   .btn-login:hover { background: var(--accent2); transform: translateY(-1px); }
 
-  #mainScreen { display: none; }
+  #mainScreen { display: block; }
 
   #toast { position: fixed; bottom: 28px; right: 28px; background: var(--surface); border: 1px solid var(--border); color: var(--text); border-radius: 10px; padding: 14px 20px; font-size: 14px; transform: translateY(100px); opacity: 0; transition: all .3s; z-index: 999; box-shadow: 0 4px 20px rgba(0,0,0,.5); }
   #toast.show { transform: translateY(0); opacity: 1; }
@@ -180,7 +180,6 @@
   <div style="display:flex;align-items:center;gap:14px">
     <span class="today-badge" id="liveClock" style="min-width:96px;text-align:center">--:--:--</span>
     <span class="badge">CLIENT</span>
-    <button onclick="clientLogout()" style="background:none;border:1px solid var(--border);color:var(--muted);padding:5px 12px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--sans)">Logout</button>
   </div>
 </header>
 
@@ -458,13 +457,15 @@ function showMainScreen() {
   initDashboard();
 }
 
-document.getElementById('clientEmpId').addEventListener('keydown', function(e) {
-  if (e.key === 'Enter') clientLogin();
-});
-
-if (clientEmpIdVal && clientAgentId) {
-  showMainScreen();
+const _clientEmpIdInput = document.getElementById('clientEmpId');
+if (_clientEmpIdInput) {
+  _clientEmpIdInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') clientLogin();
+  });
 }
+
+// No login required — open the dashboard directly, like the admin panel.
+showMainScreen();
 
 // ── Dashboard init ────────────────────────────────────────────────────────────
 let _dashboardInitialized = false;
