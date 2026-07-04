@@ -2132,22 +2132,23 @@ function generateReportPDF(isDummy) {
   const dateStr = String(today.getDate()).padStart(2,'0') + '-' + String(today.getMonth()+1).padStart(2,'0') + '-' + today.getFullYear();
   const fileName = dateStr + '_Kingfisher Report.pdf';
   
-  let y = 15;
+  let y = 20;
   
-  // Header
-  doc.setFontSize(18);
+  // Header - Purple banner
+  doc.setFillColor(108, 43, 217);
+  doc.rect(0, 0, 210, 38, 'F');
+  
+  doc.setFontSize(20);
   doc.setFont('helvetica', 'bold');
-  doc.text('Kingfisher Mandla Resort & Entertainment', 105, y, { align: 'center' });
-  y += 8;
-  doc.setFontSize(12);
+  doc.setTextColor(255, 255, 255);
+  doc.text('KINGFISHER MANDLA RESORT & ENTERTAINMENT', 105, 14, { align: 'center' });
+  doc.setFontSize(11);
   doc.setFont('helvetica', 'normal');
-  doc.text('Daily Agent Report - ' + dateStr, 105, y, { align: 'center' });
-  y += 6;
-  doc.text('Agent: ' + (isDummy ? 'Demo Agent (EID: 1234)' : (document.getElementById('displayAgentName').textContent || 'N/A')), 105, y, { align: 'center' });
-  y += 10;
-  doc.setDrawColor(108, 43, 217);
-  doc.line(14, y, 196, y);
-  y += 10;
+  doc.text('Daily Agent Report  |  ' + dateStr, 105, 24, { align: 'center' });
+  doc.text('Agent: ' + (isDummy ? 'Demo Agent (EID: 1234)' : (document.getElementById('displayAgentName').textContent || 'N/A')), 105, 32, { align: 'center' });
+  
+  doc.setTextColor(0, 0, 0);
+  y = 48;
 
   if (isDummy) {
     // DUMMY DATA
@@ -2261,9 +2262,11 @@ function checkPage(doc, y, needed) {
 
 function addDispoStats(doc, y, stats) {
   y = checkPage(doc, y, 50);
-  doc.setFontSize(14);
+  doc.setFontSize(13);
   doc.setFont('helvetica', 'bold');
-  doc.text('📊 Disposition Stats (Today)', 14, y);
+  doc.setTextColor(108, 43, 217);
+  doc.text('DISPOSITION STATS (Today)', 14, y);
+  doc.setTextColor(0, 0, 0);
   y += 8;
   
   doc.autoTable({
@@ -2280,111 +2283,128 @@ function addDispoStats(doc, y, stats) {
       ['DND', String(stats.dnd)],
       ['Discard', String(stats.discard)]
     ],
-    theme: 'grid',
-    headStyles: { fillColor: [108, 43, 217] },
+    theme: 'striped',
+    headStyles: { fillColor: [108, 43, 217], fontStyle: 'bold', fontSize: 10 },
     margin: { left: 14, right: 14 },
-    styles: { fontSize: 10 }
+    styles: { fontSize: 10, cellPadding: 4 },
+    alternateRowStyles: { fillColor: [245, 243, 255] }
   });
   return doc.lastAutoTable.finalY + 12;
 }
 
 function addInterestedSection(doc, y, leads) {
   y = checkPage(doc, y, 40);
-  doc.setFontSize(14);
+  doc.setFontSize(13);
   doc.setFont('helvetica', 'bold');
-  doc.text('⭐ Interested Leads (Today)', 14, y);
+  doc.setTextColor(5, 150, 105);
+  doc.text('INTERESTED LEADS (Today)', 14, y);
+  doc.setTextColor(0, 0, 0);
   y += 8;
   
   doc.autoTable({
     startY: y,
-    head: [['Phone', 'Name', 'Package', 'Revenue (₹)']],
+    head: [['Phone', 'Name', 'Package', 'Revenue (Rs.)']],
     body: leads.map(l => [l.phone, l.name, l.loanType, l.revenue]),
-    theme: 'grid',
-    headStyles: { fillColor: [5, 150, 105] },
+    theme: 'striped',
+    headStyles: { fillColor: [5, 150, 105], fontStyle: 'bold', fontSize: 9 },
     margin: { left: 14, right: 14 },
-    styles: { fontSize: 9 }
+    styles: { fontSize: 9, cellPadding: 4 },
+    alternateRowStyles: { fillColor: [236, 253, 245] }
   });
   return doc.lastAutoTable.finalY + 12;
 }
 
 function addFollowupsSection(doc, y, leads) {
   y = checkPage(doc, y, 40);
-  doc.setFontSize(14);
+  doc.setFontSize(13);
   doc.setFont('helvetica', 'bold');
-  doc.text('📅 Followups (Today)', 14, y);
+  doc.setTextColor(37, 99, 235);
+  doc.text('FOLLOWUPS (Today)', 14, y);
+  doc.setTextColor(0, 0, 0);
   y += 8;
   
   doc.autoTable({
     startY: y,
     head: [['Phone', 'Name', 'Package', 'Date', 'Time']],
     body: leads.map(l => [l.phone, l.name, l.pkg || '', l.date, l.time]),
-    theme: 'grid',
-    headStyles: { fillColor: [37, 99, 235] },
+    theme: 'striped',
+    headStyles: { fillColor: [37, 99, 235], fontStyle: 'bold', fontSize: 9 },
     margin: { left: 14, right: 14 },
-    styles: { fontSize: 9 }
+    styles: { fontSize: 9, cellPadding: 4 },
+    alternateRowStyles: { fillColor: [239, 246, 255] }
   });
   return doc.lastAutoTable.finalY + 12;
 }
 
 function addDndSection(doc, y, numbers) {
   y = checkPage(doc, y, 40);
-  doc.setFontSize(14);
+  doc.setFontSize(13);
   doc.setFont('helvetica', 'bold');
-  doc.text('🔕 DND Numbers (All Time)', 14, y);
+  doc.setTextColor(198, 40, 40);
+  doc.text('DND NUMBERS (All Time)', 14, y);
+  doc.setTextColor(0, 0, 0);
   y += 8;
   
   doc.autoTable({
     startY: y,
     head: [['#', 'Phone Number']],
     body: numbers.map((n, i) => [String(i+1), n.phone]),
-    theme: 'grid',
-    headStyles: { fillColor: [198, 40, 40] },
+    theme: 'striped',
+    headStyles: { fillColor: [198, 40, 40], fontStyle: 'bold', fontSize: 9 },
     margin: { left: 14, right: 14 },
-    styles: { fontSize: 9 }
+    styles: { fontSize: 9, cellPadding: 4 },
+    alternateRowStyles: { fillColor: [254, 242, 242] }
   });
   return doc.lastAutoTable.finalY + 12;
 }
 
 function addConvertedSection(doc, y, leads) {
   y = checkPage(doc, y, 40);
-  doc.setFontSize(14);
+  doc.setFontSize(13);
   doc.setFont('helvetica', 'bold');
-  doc.text('✅ Converted Customers (Today)', 14, y);
+  doc.setTextColor(108, 43, 217);
+  doc.text('CONVERTED CUSTOMERS (Today)', 14, y);
+  doc.setTextColor(0, 0, 0);
   y += 8;
   
   const totalRev = leads.reduce((s, l) => s + (Number(l.revenue) || 0), 0);
   doc.setFontSize(11);
-  doc.setFont('helvetica', 'normal');
+  doc.setFont('helvetica', 'bold');
   doc.text('Total Revenue Generated: Rs. ' + totalRev.toLocaleString('en-IN'), 14, y);
+  doc.setFont('helvetica', 'normal');
   y += 7;
   
   doc.autoTable({
     startY: y,
-    head: [['Phone', 'Name', 'Package', 'Revenue (₹)', 'Date']],
+    head: [['Phone', 'Name', 'Package', 'Revenue (Rs.)', 'Date']],
     body: leads.map(l => [l.phone, l.name, l.loanType, l.revenue, l.date || '']),
-    theme: 'grid',
-    headStyles: { fillColor: [108, 43, 217] },
+    theme: 'striped',
+    headStyles: { fillColor: [108, 43, 217], fontStyle: 'bold', fontSize: 9 },
     margin: { left: 14, right: 14 },
-    styles: { fontSize: 9 }
+    styles: { fontSize: 9, cellPadding: 4 },
+    alternateRowStyles: { fillColor: [245, 243, 255] }
   });
   return doc.lastAutoTable.finalY + 12;
 }
 
 function addDialedLogSection(doc, y, log) {
   y = checkPage(doc, y, 40);
-  doc.setFontSize(14);
+  doc.setFontSize(13);
   doc.setFont('helvetica', 'bold');
-  doc.text('📞 All Dialed Numbers (Today)', 14, y);
+  doc.setTextColor(71, 85, 105);
+  doc.text('ALL DIALED NUMBERS (Today)', 14, y);
+  doc.setTextColor(0, 0, 0);
   y += 8;
   
   doc.autoTable({
     startY: y,
     head: [['#', 'Phone', 'Disposition', 'Time']],
     body: log.map((l, i) => [String(i+1), l.phone, l.disposition, l.time || '']),
-    theme: 'grid',
-    headStyles: { fillColor: [71, 85, 105] },
+    theme: 'striped',
+    headStyles: { fillColor: [71, 85, 105], fontStyle: 'bold', fontSize: 9 },
     margin: { left: 14, right: 14 },
-    styles: { fontSize: 9 }
+    styles: { fontSize: 9, cellPadding: 4 },
+    alternateRowStyles: { fillColor: [241, 245, 249] }
   });
   return doc.lastAutoTable.finalY + 12;
 }
@@ -2414,22 +2434,23 @@ function generateLiveReportPDF() {
   const dateStr = String(today.getDate()).padStart(2,'0') + '-' + String(today.getMonth()+1).padStart(2,'0') + '-' + today.getFullYear();
   const fileName = dateStr + '_Kingfisher Report.pdf';
   
-  let y = 15;
+  let y = 20;
   
-  // Header
-  doc.setFontSize(18);
+  // Header - Purple banner
+  doc.setFillColor(108, 43, 217);
+  doc.rect(0, 0, 210, 38, 'F');
+  
+  doc.setFontSize(20);
   doc.setFont('helvetica', 'bold');
-  doc.text('Kingfisher Mandla Resort & Entertainment', 105, y, { align: 'center' });
-  y += 8;
-  doc.setFontSize(12);
+  doc.setTextColor(255, 255, 255);
+  doc.text('KINGFISHER MANDLA RESORT & ENTERTAINMENT', 105, 14, { align: 'center' });
+  doc.setFontSize(11);
   doc.setFont('helvetica', 'normal');
-  doc.text('Daily Agent Report - ' + dateStr, 105, y, { align: 'center' });
-  y += 6;
-  doc.text('Agent: ' + (document.getElementById('displayAgentName').textContent || 'N/A'), 105, y, { align: 'center' });
-  y += 10;
-  doc.setDrawColor(108, 43, 217);
-  doc.line(14, y, 196, y);
-  y += 10;
+  doc.text('Daily Agent Report  |  ' + dateStr, 105, 24, { align: 'center' });
+  doc.text('Agent: ' + (document.getElementById('displayAgentName').textContent || 'N/A'), 105, 32, { align: 'center' });
+  
+  doc.setTextColor(0, 0, 0);
+  y = 48;
 
   // Dispo stats
   const stats = window._liveDispoStats || {};
