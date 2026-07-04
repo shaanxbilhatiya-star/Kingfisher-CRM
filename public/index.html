@@ -16,11 +16,11 @@
   .section-title{font-size:16px;font-weight:700;color:#94a3b8;margin:36px 0 16px;letter-spacing:.5px;text-transform:uppercase}
   .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px}
   .card{background:#0d1525;border:1px solid #1a2d45;border-radius:16px;padding:28px 24px;text-decoration:none;color:#e2e8f0;transition:all .2s;display:block}
-  .card:hover{border-color:#7c3aed;transform:translateY(-3px);box-shadow:0 8px 28px rgba(124,58,237,.18)}
+  .card:hover{border-color:#2563eb;transform:translateY(-3px);box-shadow:0 8px 28px rgba(37,99,235,.18)}
   .card .icon{font-size:36px;margin-bottom:12px}
   .card h2{font-size:17px;font-weight:700;margin-bottom:4px}
   .card p{color:#4a6080;font-size:12px;margin:0}
-  .card .badge{display:inline-block;background:#1e293b;color:#7c3aed;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;margin-top:10px}
+  .card .badge{display:inline-block;background:#1e293b;color:#2563eb;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;margin-top:10px}
 
   /* WhatsApp tool */
   .wa-tool{background:#0d1525;border:1px solid #1a2d45;border-radius:16px;padding:28px;margin-top:36px}
@@ -29,19 +29,19 @@
   .wa-form label{font-size:12px;color:#94a3b8;display:block;margin-bottom:4px}
   .wa-form .field{flex:1;min-width:180px}
   .wa-form input,.wa-form select{width:100%;background:#1e293b;border:1px solid #334155;color:#e2e8f0;padding:10px 14px;border-radius:8px;font-family:inherit;font-size:14px}
-  .wa-form input:focus,.wa-form select:focus{outline:none;border-color:#7c3aed}
-  .wa-form button{background:#7c3aed;color:#fff;border:none;padding:10px 22px;border-radius:8px;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap;transition:background .2s}
-  .wa-form button:hover{background:#6d28d9}
+  .wa-form input:focus,.wa-form select:focus{outline:none;border-color:#2563eb}
+  .wa-form button{background:#2563eb;color:#fff;border:none;padding:10px 22px;border-radius:8px;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap;transition:background .2s}
+  .wa-form button:hover{background:#1d4ed8}
   .wa-output{margin-top:16px;display:none}
   .wa-output pre{background:#1e293b;border:1px solid #334155;border-radius:8px;padding:16px;font-size:12px;line-height:1.6;color:#cbd5e1;white-space:pre-wrap;word-break:break-word;max-height:400px;overflow-y:auto}
   .wa-output .btn-row{display:flex;gap:10px;margin-top:10px}
   .wa-output .btn-row button{background:#1e293b;border:1px solid #334155;color:#e2e8f0;padding:8px 16px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s}
-  .wa-output .btn-row button:hover{border-color:#7c3aed;color:#7c3aed}
+  .wa-output .btn-row button:hover{border-color:#2563eb;color:#2563eb}
 
   /* Footer links */
   .footer-links{display:flex;justify-content:center;gap:24px;margin-top:48px;padding-top:24px;border-top:1px solid #1a2d45}
   .footer-links a{color:#64748b;text-decoration:none;font-size:13px;font-weight:600;transition:color .2s}
-  .footer-links a:hover{color:#7c3aed}
+  .footer-links a:hover{color:#2563eb}
 
   @media(max-width:600px){
     body{padding:20px 12px}
@@ -104,6 +104,11 @@
       <h2>Agent Dialer</h2>
       <p>Login and start dialing leads</p>
     </a>
+    <a href="/client" class="card">
+      <div class="icon">&#128200;</div>
+      <h2>Client Panel</h2>
+      <p>View disposition stats, leads &amp; followups</p>
+    </a>
   </div>
 
   <!-- WhatsApp Checklist Generator Tool -->
@@ -138,6 +143,7 @@
   <div class="footer-links">
     <a href="/admin">Admin</a>
     <a href="/agent">Agent Dialer</a>
+    <a href="/client">Client Panel</a>
   </div>
 </div>
 

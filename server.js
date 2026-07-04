@@ -249,6 +249,22 @@ if (!appState.allowedEids) {
 if (!appState.dndNumbers) {
   appState.dndNumbers = [];
 }
+
+// ─── Auto-create the default "kingfisher" client-panel user ───────────────────
+// The Client Panel (public/client/index.html) needs at least one working login
+// out of the box, without requiring the admin to manually add an EID first.
+// This only ever runs once: if a "kingfisher" user already exists (any EID),
+// or the reserved EID below is already taken by something else, it's a no-op.
+(function ensureDefaultKingfisherUser() {
+  const alreadyExists = Object.values(appState.allowedEids).some(
+    v => getEidName(v).toLowerCase() === 'kingfisher'
+  );
+  const RESERVED_EID = '9000';
+  if (!alreadyExists && !appState.allowedEids[RESERVED_EID]) {
+    appState.allowedEids[RESERVED_EID] = { name: 'kingfisher', photo: null, role: 'client' };
+    console.log('\uD83D\uDC64 Auto-created default Client Panel login -> EID ' + RESERVED_EID + ' ("kingfisher")');
+  }
+})();
 appState = checkDailyReset(appState);
 
 for (const id in appState.agents) {
@@ -1720,8 +1736,8 @@ function getEidRole(eidVal) {
   return 'agent';
 }
 
-// Helper: resolve who added a DND number to a display name + role (agent / tl / admin)
-// so admin.html and tl.html (TL mode) can show a note like "Added by Rohan (TL)".
+// Helper: resolve who added a DND number to a display name + role (agent / client / admin)
+// so admin.html and client.html can show a note like "Added by Rohan (Client)".
 function resolveDndAddedBy(rawId) {
   if (!rawId || rawId === 'admin') {
     return { id: 'admin', name: 'Admin', role: 'admin' };
@@ -1765,42 +1781,16 @@ app.delete('/api/admin/eids/:eid', (req, res) => {
   res.json({ success: true });
 });
 
-// ─── Assign TL Role ────────────────────────────────────────────────────────────
-app.post('/api/admin/eids/assign-tl', (req, res) => {
-  const { eid } = req.body;
-  if (!eid) return res.status(400).json({ error: 'EID required' });
-  if (!appState.allowedEids[eid]) return res.status(404).json({ error: 'EID not found' });
-  const existing = appState.allowedEids[eid];
-  const name = getEidName(existing);
-  const photo = getEidPhoto(existing);
-  appState.allowedEids[eid] = { name, photo: photo || null, role: 'tl' };
-  saveState(appState);
-  res.json({ success: true, eid, role: 'tl' });
-});
-
-// ─── Remove TL Role ────────────────────────────────────────────────────────────
-app.post('/api/admin/eids/remove-tl', (req, res) => {
-  const { eid } = req.body;
-  if (!eid) return res.status(400).json({ error: 'EID required' });
-  if (!appState.allowedEids[eid]) return res.status(404).json({ error: 'EID not found' });
-  const existing = appState.allowedEids[eid];
-  const name = getEidName(existing);
-  const photo = getEidPhoto(existing);
-  appState.allowedEids[eid] = { name, photo: photo || null, role: 'agent' };
-  saveState(appState);
-  res.json({ success: true, eid, role: 'agent' });
-});
-
-// ─── TL Auth — check if EID has TL role ───────────────────────────────────────
-app.post('/api/tl/auth', (req, res) => {
+// ─── Client Panel Auth — check if EID has client/admin role ──────────────────
+function handleClientAuth(req, res) {
   let { employeeId, name } = req.body;
   if (!employeeId) return res.status(400).json({ error: 'employeeId required' });
   const eidData = appState.allowedEids[employeeId];
   if (!eidData) return res.status(403).json({ error: 'Employee ID not recognised. Please contact your admin.' });
   if (!name || !name.trim()) { name = getEidName(eidData); }
   const role = getEidRole(eidData);
-  if (role !== 'tl' && role !== 'admin') {
-    return res.status(403).json({ error: 'You do not have TL access. Contact your admin.' });
+  if (role !== 'client' && role !== 'admin' && role !== 'tl') {
+    return res.status(403).json({ error: 'You do not have Client Panel access. Contact your admin.' });
   }
   const agentId = 'emp_' + employeeId;
   // Register/update agent if not exists
@@ -1833,7 +1823,10 @@ app.post('/api/tl/auth', (req, res) => {
   const agent = appState.agents[agentId];
   const lateLogin = (agent.firstLoginToday && agent.firstLoginToday > '10:00') || false;
   res.json({ success: true, agentId, name, employeeId, role, lateLogin });
-});
+}
+app.post('/api/client/auth', handleClientAuth);
+// Backward-compatible alias — anything still pointing at the old TL panel endpoint.
+app.post('/api/tl/auth', handleClientAuth);
 
 // ─── Agent Photo Upload ─────────────────────────────────────────────────────────
 app.post('/api/admin/agent-photo/:eid', agentPhotoUpload.single('photo'), (req, res) => {
@@ -2426,13 +2419,15 @@ app.delete('/api/agent/number/:numberId', (req, res) => {
 // ─── Page Routes ──────────────────────────────────────────────────────────────
 app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'public/admin/index.html')));
 app.get('/agent', (req, res) => res.sendFile(path.join(__dirname, 'public/agent/index.html')));
-app.get('/tl', (req, res) => res.sendFile(path.join(__dirname, 'public/tl/index.html')));
+app.get('/client', (req, res) => res.sendFile(path.join(__dirname, 'public/client/index.html')));
+// Backward-compatible alias for old bookmarks/links pointing at the previous TL panel URL.
+app.get('/tl', (req, res) => res.redirect(301, '/client'));
 
 // ─── Start ─────────────────────────────────────────────────────────────────────
 server.listen(PORT, '0.0.0.0', () => {
   console.log(`\n✅  Ruralift CRM running on http://0.0.0.0:${PORT}`);
-  console.log(`   Admin Panel : http://YOUR-LAN-IP:${PORT}/admin`);
-  console.log(`   Agent Panel : http://YOUR-LAN-IP:${PORT}/agent`);
-  console.log(`   TL Panel    : http://YOUR-LAN-IP:${PORT}/tl\n`);
+  console.log(`   Admin Panel  : http://YOUR-LAN-IP:${PORT}/admin`);
+  console.log(`   Agent Panel  : http://YOUR-LAN-IP:${PORT}/agent`);
+  console.log(`   Client Panel : http://YOUR-LAN-IP:${PORT}/client\n`);
 });
 
