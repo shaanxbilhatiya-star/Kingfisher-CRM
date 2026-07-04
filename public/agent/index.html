@@ -8,6 +8,8 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <style>
   :root {
+    /* KINGFISHER brand palette — inspired by the Common Kingfisher bird:
+       electric-blue back, teal iridescent stripe, warm orange/rufous belly */
     --bg: #f4f6f9;
     --surface: #ffffff;
     --surface2: #f8fafc;
@@ -26,6 +28,11 @@
     --warn-bg: #fffbeb;
     --warn-border: #fcd34d;
     --blue: #2563eb;
+    --teal: #0d9488;
+    --teal-dark: #0f766e;
+    --orange: #ea580c;
+    --orange-dark: #c2410c;
+    --coral: #e11d48;
     --sans: 'DM Sans', sans-serif;
     --mono: 'JetBrains Mono', monospace;
   }
@@ -41,23 +48,27 @@
     position: sticky; top: 0; z-index: 100;
     box-shadow: 0 1px 4px rgba(0,0,0,.05);
   }
+  header::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, var(--blue), var(--teal), var(--orange));
+  }
   .header-center { display: flex; flex-direction: column; align-items: center; gap: 5px; flex: 1; }
   .logo-img {
     width: 272px; height: 70px; object-fit: contain; padding: 10px 18px; border-radius: 14px;
-    border: 2px solid rgba(37,99,235,.3); background: #fff;
-    filter: drop-shadow(0 0 10px rgba(37,99,235,.55)) drop-shadow(0 0 22px rgba(37,99,235,.25));
+    border: 2px solid rgba(13,148,136,.3); background: #fff;
+    filter: drop-shadow(0 0 10px rgba(37,99,235,.4)) drop-shadow(0 0 18px rgba(234,88,12,.25));
     animation: logo-glow-agent 2.5s ease-in-out infinite;
-    box-shadow: 0 4px 16px rgba(37,99,235,.12), 0 1px 4px rgba(0,0,0,.06);
+    box-shadow: 0 4px 16px rgba(13,148,136,.14), 0 1px 4px rgba(0,0,0,.06);
   }
   @keyframes logo-glow-agent {
-    0%,100% { filter: drop-shadow(0 0 7px rgba(37,99,235,.5)) drop-shadow(0 0 14px rgba(37,99,235,.2)); }
-    50%      { filter: drop-shadow(0 0 16px rgba(37,99,235,.85)) drop-shadow(0 0 32px rgba(37,99,235,.45)); }
+    0%,100% { filter: drop-shadow(0 0 7px rgba(37,99,235,.45)) drop-shadow(0 0 14px rgba(13,148,136,.2)); }
+    50%      { filter: drop-shadow(0 0 16px rgba(37,99,235,.7)) drop-shadow(0 0 28px rgba(234,88,12,.4)); }
   }
-  .header-brand { font-size: 15px; font-weight: 700; color: var(--accent); letter-spacing: -.3px; }
+  .header-brand { font-size: 15px; font-weight: 700; letter-spacing: -.3px; background: linear-gradient(90deg, var(--blue), var(--teal-dark), var(--orange-dark)); -webkit-background-clip: text; background-clip: text; color: transparent; }
   .header-left { display: flex; align-items: center; min-width: 80px; }
   .header-right { display: flex; align-items: center; gap: 14px; }
-  .badge { background: var(--accent); color: #fff; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; letter-spacing: 1px; }
-  .today-badge { background: rgba(37,99,235,.08); color: var(--accent); border: 1px solid rgba(37,99,235,.15); border-radius: 6px; padding: 4px 12px; font-size: 12px; font-family: var(--mono); }
+  .badge { background: linear-gradient(100deg, var(--blue), var(--teal)); color: #fff; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; letter-spacing: 1px; }
+  .today-badge { background: rgba(234,88,12,.08); color: var(--orange-dark); border: 1px solid rgba(234,88,12,.2); border-radius: 6px; padding: 4px 12px; font-size: 12px; font-family: var(--mono); }
 
   /* ── Connection banner ── */
   #connBanner { display: none; padding: 8px 20px; font-size: 13px; font-weight: 600; text-align: center; }
@@ -292,9 +303,9 @@
   }
 
   /* ── Leaderboard ── */
-  .leaderboard-panel { margin-bottom: 24px; border-radius: 20px; overflow: hidden; border: 1px solid rgba(37,99,235,.2); background: var(--surface); box-shadow: 0 8px 40px rgba(37,99,235,.08); }
-  .leaderboard-header { display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; background: linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 50%, #2563eb 100%); flex-wrap: wrap; gap: 10px; }
-  .leaderboard-header h2 { margin: 0; font-size: 20px; color: #fff; font-weight: 800; letter-spacing: -.3px; text-shadow: 0 0 20px rgba(96,165,250,.6); }
+  .leaderboard-panel { margin-bottom: 24px; border-radius: 20px; overflow: hidden; border: 1px solid rgba(13,148,136,.2); background: var(--surface); box-shadow: 0 8px 40px rgba(13,148,136,.1); }
+  .leaderboard-header { display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; background: linear-gradient(100deg, #1d4ed8 0%, #0d9488 55%, #ea580c 100%); flex-wrap: wrap; gap: 10px; }
+  .leaderboard-header h2 { margin: 0; font-size: 20px; color: #fff; font-weight: 800; letter-spacing: -.3px; text-shadow: 0 0 20px rgba(255,255,255,.4); }
   .lb-period-tabs { display: flex; gap: 4px; background: rgba(255,255,255,.1); padding: 4px; border-radius: 8px; }
   .lb-period-tab { padding: 6px 16px; border-radius: 6px; border: none; background: transparent; color: rgba(255,255,255,.6); font-size: 12px; font-weight: 700; cursor: pointer; transition: all .2s; }
   .lb-period-tab:hover { color: #fff; background: rgba(255,255,255,.15); }
@@ -2128,6 +2139,8 @@ async function fetchMyStats() {
 // Brand palette + disposition metadata (RGB arrays)
 const BRAND_BLUE        = [37, 99, 235];
 const BRAND_BLUE_DARK   = [29, 78, 216];
+const BRAND_TEAL        = [13, 148, 136];
+const BRAND_ORANGE      = [234, 88, 12];
 const INK               = [30, 41, 59];
 const MUTED             = [100, 116, 139];
 
@@ -2380,8 +2393,9 @@ function buildReportPDF(d, isDummy) {
   const revenue       = d.converted.reduce((s, l) => s + (Number(String(l.revenue).replace(/[^0-9.]/g, '')) || 0), 0);
   const convRate      = totalDialed ? Math.round((convertedN / totalDialed) * 100) : 0;
 
-  // ===== HEADER =====
-  gradientRect(doc, 0, 0, 210, 42, BRAND_BLUE_DARK, BRAND_BLUE);
+  // ===== HEADER ===== (Kingfisher bird: blue -> teal -> orange)
+  gradientRect(doc, 0, 0, 105, 42, BRAND_BLUE_DARK, BRAND_TEAL);
+  gradientRect(doc, 105, 0, 105, 42, BRAND_TEAL, BRAND_ORANGE);
   // subtle accent line
   doc.setFillColor(250, 204, 21);
   doc.rect(0, 42, 210, 1.4, 'F');
