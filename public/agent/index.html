@@ -8,24 +8,27 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #f4f6f9;
+    /* AGENT theme: bright Kingfisher x TaskUs — colorful light */
+    --bg: #eef4fc;
     --surface: #ffffff;
-    --surface2: #f8fafc;
-    --border: #e2e8f0;
-    --border-strong: #cbd5e1;
-    --accent: #2563eb;
-    --accent2: #3b82f6;
-    --accent-glow: rgba(37,99,235,.10);
-    --text: #1a202c;
-    --muted: #64748b;
-    --green: #059669;
+    --surface2: #f2f8ff;
+    --border: #d5e6f5;
+    --border-strong: #b9d2ea;
+    --accent: #0aa6c2;
+    --accent2: #1668d6;
+    --accent-glow: rgba(10,166,194,.12);
+    --magenta: #e6157b;
+    --orange: #ff7a18;
+    --text: #12293f;
+    --muted: #5b7488;
+    --green: #10b981;
     --green-bg: #ecfdf5;
     --green-border: #a7f3d0;
-    --danger: #dc2626;
-    --warn: #d97706;
+    --danger: #ef4444;
+    --warn: #f59e0b;
     --warn-bg: #fffbeb;
     --warn-border: #fcd34d;
-    --blue: #2563eb;
+    --blue: #1668d6;
     --sans: 'DM Sans', sans-serif;
     --mono: 'JetBrains Mono', monospace;
   }
@@ -34,12 +37,21 @@
 
   /* ── Header ── */
   header {
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
+    background: linear-gradient(120deg, #0aa6c2 0%, #1668d6 42%, #7b2ff7 70%, #e6157b 100%);
+    border-bottom: 3px solid var(--orange);
     padding: 14px 32px;
     display: flex; align-items: center; justify-content: space-between;
     position: sticky; top: 0; z-index: 100;
-    box-shadow: 0 1px 4px rgba(0,0,0,.05);
+    box-shadow: 0 6px 24px rgba(22,104,214,.30);
+  }
+  /* Colorful header: keep text readable on the gradient */
+  header .header-brand { color: #ffffff; text-shadow: 0 1px 8px rgba(0,0,0,.28); }
+  header .today-badge { background: rgba(255,255,255,.20); color: #ffffff; border: 1px solid rgba(255,255,255,.45); }
+  header .badge { background: #ffffff; color: var(--magenta); box-shadow: 0 2px 10px rgba(0,0,0,.18); }
+  header .logo-img {
+    border: 2px solid rgba(255,255,255,.55); background: rgba(255,255,255,.14);
+    filter: drop-shadow(0 0 12px rgba(255,255,255,.55)); animation: none;
+    box-shadow: 0 4px 18px rgba(0,0,0,.22);
   }
   .header-center { display: flex; flex-direction: column; align-items: center; gap: 5px; flex: 1; }
   .logo-img {
@@ -357,6 +369,20 @@
     50% { box-shadow: 0 4px 20px rgba(245,158,11,.35), 0 0 40px rgba(245,158,11,.1); }
   }
   .rank-1-avatar { border-color: #f59e0b !important; box-shadow: 0 0 12px rgba(245,158,11,.4); }
+
+  /* ============================================================
+     KINGFISHER x TASKUS — COLORFUL THEME OVERRIDES (light)
+     ============================================================ */
+  .stat-card { position: relative; overflow: hidden; }
+  .stat-card::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: var(--accent); }
+  .stat-card:nth-child(4n+1)::before { background: linear-gradient(90deg, #0aa6c2, #22d3ee); }
+  .stat-card:nth-child(4n+2)::before { background: linear-gradient(90deg, #1668d6, #60a5fa); }
+  .stat-card:nth-child(4n+3)::before { background: linear-gradient(90deg, #e6157b, #ff7ab6); }
+  .stat-card:nth-child(4n+4)::before { background: linear-gradient(90deg, #ff7a18, #ffb454); }
+
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #0aa6c2, #1668d6); border-radius: 10px; }
+  ::-webkit-scrollbar-track { background: #e6eef8; }
 </style>
 </head>
 <body>

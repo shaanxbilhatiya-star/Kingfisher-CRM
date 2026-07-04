@@ -8,16 +8,16 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    /* CLIENT theme: pure black + Kingfisher blue */
-    --bg: #080810; --surface: #100f1e; --surface2: #17162a; --border: #25233d;
-    --accent: #2563eb; --accent2: #1d4ed8; --danger: #F44336;
-    --warn: #FF9800; --text: #E0E0E0; --muted: #9E9E9E;
-    --green: #4CAF50; --mono: 'JetBrains Mono', monospace; --sans: 'Space Grotesk', sans-serif;
+    /* CLIENT theme: bright Kingfisher x TaskUs — colorful light */
+    --bg: #eef4fc; --surface: #ffffff; --surface2: #f2f8ff; --border: #d5e6f5;
+    --accent: #0aa6c2; --accent2: #1668d6; --magenta: #e6157b; --orange: #ff7a18;
+    --danger: #ef4444; --warn: #f59e0b; --text: #12293f; --muted: #5b7488;
+    --green: #10b981; --mono: 'JetBrains Mono', monospace; --sans: 'Space Grotesk', sans-serif;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: #080810; color: var(--text); font-family: var(--sans); min-height: 100vh; }
+  body { background: linear-gradient(160deg, #eaf3fd 0%, #f2ecfb 46%, #fdeef5 100%); background-attachment: fixed; color: var(--text); font-family: var(--sans); min-height: 100vh; }
 
-  header { background: linear-gradient(135deg, #080810 0%, #100f1e 100%); border-bottom: 1px solid var(--border); box-shadow: 0 2px 20px rgba(37,99,235,.2); padding: 14px 32px; display: flex; align-items: center; justify-content: space-between; }
+  header { background: linear-gradient(120deg, #0aa6c2 0%, #1668d6 42%, #7b2ff7 70%, #e6157b 100%); border-bottom: 3px solid var(--orange); box-shadow: 0 6px 24px rgba(22,104,214,.30); padding: 14px 32px; display: flex; align-items: center; justify-content: space-between; }
   .logo { display: flex; flex-direction: column; align-items: center; gap: 5px; flex: 1; }
   .logo h1 { font-size: 15px; font-weight: 700; letter-spacing: -0.5px; color: var(--accent); }
   .logo-img {
@@ -116,6 +116,33 @@
   #toast.error { border-color: var(--danger); }
 
   @media(max-width:900px){ .stats-grid{grid-template-columns:1fr 1fr} }
+
+  /* ============================================================
+     KINGFISHER x TASKUS — COLORFUL THEME OVERRIDES (light)
+     ============================================================ */
+  header .logo h1 { color: #ffffff; text-shadow: 0 1px 8px rgba(0,0,0,.28); }
+  header .today-badge { background: rgba(255,255,255,.20); color: #ffffff; border: 1px solid rgba(255,255,255,.45); backdrop-filter: blur(4px); }
+  header .badge, .badge { background: #ffffff; color: var(--magenta); box-shadow: 0 2px 10px rgba(0,0,0,.18); letter-spacing: 1px; }
+  .logo-img { border: 2px solid rgba(255,255,255,.55); background: rgba(255,255,255,.14);
+    filter: drop-shadow(0 0 12px rgba(255,255,255,.55)); animation: none;
+    box-shadow: 0 4px 18px rgba(0,0,0,.22); }
+  .logo-dot { background: var(--orange); box-shadow: 0 0 10px var(--orange); }
+
+  .stat-card { position: relative; overflow: hidden; box-shadow: 0 4px 16px rgba(22,104,214,.08); }
+  .stat-card::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: var(--accent); }
+  .stat-card:nth-child(4n+1)::before { background: linear-gradient(90deg, #0aa6c2, #22d3ee); }
+  .stat-card:nth-child(4n+2)::before { background: linear-gradient(90deg, #1668d6, #60a5fa); }
+  .stat-card:nth-child(4n+3)::before { background: linear-gradient(90deg, #e6157b, #ff7ab6); }
+  .stat-card:nth-child(4n+4)::before { background: linear-gradient(90deg, #ff7a18, #ffb454); }
+  .stat-card:hover { box-shadow: 0 8px 26px rgba(22,104,214,.20); }
+
+  .panel-header { background: linear-gradient(90deg, rgba(10,166,194,.10), rgba(230,21,123,.06)); }
+  .panel-header h2 { color: var(--accent2); }
+
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #0aa6c2, #1668d6); border-radius: 10px; }
+  ::-webkit-scrollbar-track { background: #e6eef8; }
+
 </style>
 </head>
 <body>
