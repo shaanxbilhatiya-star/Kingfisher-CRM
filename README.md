@@ -1,48 +1,134 @@
-# Kingfisher x Ruralift — Lead CRM
+# 📞 AutoLead Showcaser
+### LAN-based Auto Lead Dialing System — Node.js
 
-Standalone CRM for Kingfisher (client) leads, run under the Ruralift brand.
-Completely separate codebase and data from the Ruralift loan-facilitation CRM.
+---
 
-## Run locally
+## Features
+- **Admin Panel**: Upload Excel/CSV files of phone numbers
+- **Auto Distribution**: Numbers assigned to agents one-by-one, never repeated
+- **Agent Dialer**: Clean UI showing one number at a time — no skip button
+- **Daily Auto-Reset**: Counts reset at midnight automatically
+- **Live Stats**: Admin sees remaining, dialed, agents active — all real-time
+- **LAN Network**: Runs on your local network, accessible from any device
+
+---
+
+## Setup & Run
+
+### 1. Install Node.js
+Download from: https://nodejs.org (LTS version)
+
+### 2. Extract project folder
+
+### 3. Install dependencies
 ```
+cd autolead
 npm install
-node server.js
 ```
-Default port: 3100 (override with `PORT` env var).
 
-Views:
-- `/agent` — agent login + disposition + My Interested Leads + My Followups + Converted Customers
-- `/tl` — all-agent read view + stats
-- `/admin` — same as TL + reassign lead to another agent, remove lead, hard reset
-
-## Data persistence
-Data is stored outside the project folder by default (`~/.kingfisher-crm/state.json`)
-so redeploys don't wipe it. On Railway/Render/etc, set:
+### 4. Start the server
 ```
-KINGFISHER_DATA_DIR=/data
+npm start
 ```
-pointed at a mounted persistent volume — same pattern as the loan CRM's `AUTOLEAD_DATA_DIR`.
 
-## Flow
-1. Agent runs a disposition on a number (Interested / Followup / Not Interested / Dead).
-   - Interested and Followup both require a **Package Type** selection.
-2. Interested leads land in **⭐ My Interested Leads**. Agent can:
-   - Copy a ready-made WhatsApp message for the selected package (editable — agent can change package first)
-   - Change the package
-   - Set a Followup (package selection required again — Followup Action always asks for it)
-   - Mark **Converted** — moves the lead straight to Converted Customers (no doc upload step, no separate form)
-   - Remove the lead
-3. Agent can also **➕ Add Interested Lead Manually** — requires Full Name, Package Type, Mobile No.
-4. **✅ Converted Customers** replaces the old "Documentation Completed" step — there is no upload flow here, just a straight move once the agent hits Converted.
+### 5. Find your LAN IP
+- **Windows**: Run `ipconfig` → look for IPv4 Address (e.g. 192.168.1.10)
+- **Mac/Linux**: Run `ifconfig` or `ip addr`
 
-## Packages (hardcoded server-side, single source of truth in `server.js`)
-1. Kitty Party Event — ₹499/lady
-2. Family Fun Day (Water Park + Movie + Food) — ₹1,499 / ₹1,799
-3. Your Dream Wedding Venue — ₹2,99,000 upward
-4. Pool Party Event — ₹3,000 / ₹4,999
+### 6. Share URLs with your team
+| Role  | URL |
+|-------|-----|
+| Admin | http://YOUR-LAN-IP:3000/admin |
+| Agent | http://YOUR-LAN-IP:3000/agent |
 
-Each has an auto-generated WhatsApp message template (`PACKAGES[id].whatsapp(leadName)` in `server.js`).
-Edit the text there directly if you want to tweak wording — no DB migration needed since packages aren't stored in the data file, just referenced by id.
+---
 
-## Deploying (same pattern as loan CRM)
-Push to a new GitHub repo, deploy to Railway, attach a persistent volume, set `KINGFISHER_DATA_DIR=/data`.
+## How to Use
+
+### Admin
+1. Open `/admin` in your browser
+2. Upload an Excel (.xlsx) or CSV file — Column A must contain phone numbers
+3. Watch the stats update as agents dial
+4. Upload multiple files — they all go into one pool
+
+### Agent
+1. Open `/agent` on their device (phone or PC)
+2. Enter their name and log in
+3. Press **Start Dialing** — a number appears
+4. Dial the number, then press **✓ Dialed — Next Number**
+5. Repeat! Daily count is shown on screen
+
+---
+
+## Excel/CSV Format
+```
+Column A
+----------
+9876543210
+9123456789
+8800001234
+...
+```
+Header row (if any) is auto-skipped.
+
+---
+
+## Auto-Reset
+Every midnight, daily dial counts reset to 0 automatically.
+Numbers are re-available the next day (unless deleted).
+
+---
+
+## Port Change
+Edit `server.js` line: `const PORT = 3000;`
+
+---
+
+## 💾 Your Data is Safe When You Update
+
+All numbers, agents, leads, DND list, and EIDs are stored **outside the project folder** —
+by default in a hidden folder in your OS user profile:
+- **Windows**: `C:\Users\<you>\.autolead-crm`
+- **Mac/Linux**: `~/.autolead-crm`
+
+This means you can safely `git pull`, re-download the ZIP, or delete and re-clone this
+repo to update the code — your data folder lives elsewhere and is never touched.
+
+If you're upgrading from an older copy of this project that *did* store data inside the
+project folder, the server automatically migrates it into the new location the first
+time you start it — just check the startup log, it'll say `📦 Migrated existing...`.
+
+**Daily backups**: a dated snapshot of `state.json` is also kept automatically in
+`.autolead-crm/backups/` (last 14 days), as a safety net against an accidental
+"Clear All" / "Hard Reset" or a corrupted file.
+
+**Custom location**: set the `AUTOLEAD_DATA_DIR` environment variable before starting
+the server if you'd rather store data somewhere specific (e.g. a backed-up drive, or a
+mounted volume if you ever move this to a cloud host):
+```
+AUTOLEAD_DATA_DIR=/path/to/your/storage node server.js
+```
+
+---
+
+## ☁️ Deploying on Railway (or Render/Heroku/Fly)
+
+**Important:** on a container host, the filesystem itself is thrown away on every
+deploy and every restart — including the "outside the project folder" home directory
+this app uses by default. That trick only protects you on a real machine (your PC, a
+LAN server, a VPS) where the disk actually sticks around. On Railway it does not,
+unless you attach a **Volume**.
+
+1. In your Railway project, select this service → **Volumes** tab (or ⌘K → "New Volume") → attach a volume to the service.
+2. Set its **mount path** to `/data`.
+3. Go to the service's **Variables** tab and add:
+   ```
+   AUTOLEAD_DATA_DIR=/data
+   ```
+4. Redeploy.
+
+That's it — the app already migrates any old in-project data into `AUTOLEAD_DATA_DIR`
+automatically on first boot, so nothing else needs to change. If you ever forget this
+step, the server will now print a loud `🚨 DATA LOSS RISK` warning in the deploy logs
+instead of failing silently.
+
