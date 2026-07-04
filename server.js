@@ -873,7 +873,8 @@ app.get('/api/admin/interested', (req, res) => {
       documentationComplete: n.documentationComplete || false,
       documentationCompletedAt: n.documentationCompletedAt || null,
       hoursRemaining: Math.round(hoursRemaining * 100) / 100,
-      overdue
+      overdue,
+      revenueGenerated: n.revenueGenerated || ''
     };
   });
   res.json(interested);
@@ -928,7 +929,8 @@ app.get('/api/agent/interested/:agentId', (req, res) => {
       interestedAt: n.interestedAt,
       documentationComplete: n.documentationComplete || false,
       documentationCompletedAt: n.documentationCompletedAt || null,
-      hoursRemaining: Math.round(hoursRemaining * 100) / 100
+      hoursRemaining: Math.round(hoursRemaining * 100) / 100,
+      revenueGenerated: n.revenueGenerated || ''
     };
   });
   res.json(interested);
@@ -979,6 +981,21 @@ app.post('/api/agent/mark-documentation-complete', (req, res) => {
   saveState(appState);
   broadcastAdminStats();
   res.json({ success: true, numberId, documentationComplete: true, documentationCompletedAt: num.documentationCompletedAt });
+});
+
+// ─── Revenue Generated (Agent input) ─────────────────────────────────────────
+app.post('/api/agent/update-revenue', (req, res) => {
+  const { agentId, numberId, revenueGenerated } = req.body;
+  if (!agentId || !numberId) {
+    return res.status(400).json({ error: 'agentId and numberId are required' });
+  }
+  const num = appState.numbers.find(n => n.id === numberId);
+  if (!num) return res.status(404).json({ error: 'Number not found' });
+  if (num.disposition !== 'interested') return res.status(400).json({ error: 'Number is not marked as interested' });
+  num.revenueGenerated = revenueGenerated ? String(revenueGenerated) : '';
+  saveState(appState);
+  broadcastAdminStats();
+  res.json({ success: true, numberId, revenueGenerated: num.revenueGenerated });
 });
 
 app.post('/api/admin/transfer-interested', (req, res) => {
@@ -1157,7 +1174,7 @@ app.post('/api/admin/remove-interested', (req, res) => {
 });
 
 app.post('/api/admin/update-interested', (req, res) => {
-  const { numberId, loanType, remarks, loanAmount, status, employmentType, city } = req.body;
+  const { numberId, loanType, remarks, loanAmount, status, employmentType, city, revenueGenerated } = req.body;
   if (!numberId) {
     return res.status(400).json({ error: 'numberId is required' });
   }
@@ -1174,6 +1191,7 @@ app.post('/api/admin/update-interested', (req, res) => {
   if (status !== undefined) num.adminStatus = status;
   if (employmentType !== undefined) num.employmentType = employmentType;
   if (city !== undefined) num.city = city;
+  if (revenueGenerated !== undefined) num.revenueGenerated = revenueGenerated ? String(revenueGenerated) : '';
   saveState(appState);
   broadcastAdminStats();
   res.json({ success: true });
