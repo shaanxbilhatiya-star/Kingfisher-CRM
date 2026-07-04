@@ -1052,6 +1052,10 @@
               </select>
             </div>
             <div class="field">
+              <label>Revenue Generated (₹) <span style="color:#ef4444">*</span></label>
+              <input type="number" id="manualRevenue" placeholder="e.g. 5000" min="1">
+            </div>
+            <div class="field">
               <label>Required Amount <span style="color:#ef4444">*</span></label>
               <input type="number" id="manualLoanAmount" placeholder="e.g. 500000" min="1">
             </div>
@@ -1089,7 +1093,10 @@
     <div class="panel panel-full">
       <div class="panel-header accent-h">
         <h2>✅ Documentation Completed</h2>
-        <span style="font-size:12px;color:var(--muted)" id="completedCountBadge">0 leads</span>
+        <div style="display:flex;align-items:center;gap:12px">
+          <span style="font-size:12px;color:var(--muted)" id="completedCountBadge">0 leads</span>
+          <span style="font-size:13px;font-weight:700;color:var(--green);font-family:var(--mono)" id="totalRevenueBadge">Total Revenue: ₹0</span>
+        </div>
       </div>
       <div class="panel-body" style="padding:0;overflow-x:auto">
         <table class="leads-table">
@@ -1098,13 +1105,14 @@
               <th>Phone</th>
               <th>Name</th>
               <th>Loan Amt</th>
+              <th>Revenue Generated</th>
               <th>Completed At</th>
               <th>Elapsed</th>
               <th>Status</th>
             </tr>
           </thead>
           <tbody id="completedTable">
-            <tr><td colspan="6" class="empty">No completed leads yet</td></tr>
+            <tr><td colspan="7" class="empty">No completed leads yet</td></tr>
           </tbody>
         </table>
       </div>
@@ -1162,6 +1170,11 @@
                 <option value="Pool_Party">Pool Party</option>
       </select>
       <span class="field-err" id="errILoanType" style="display:none">Please select a loan type</span>
+    </div>
+    <div class="field">
+      <label>Revenue Generated (₹) <span style="color:#ef4444">*</span></label>
+      <input type="number" id="interestedRevenue" placeholder="e.g. 5000" min="1" autocomplete="off">
+      <span class="field-err" id="errIRevenue" style="display:none">Please enter revenue generated</span>
     </div>
     <div class="field">
       <label>Remarks <span style="color:#ef4444">*</span></label>
@@ -2355,7 +2368,8 @@ function showInterestedModal() {
   document.getElementById('interestedRemarks').value        = '';
   document.getElementById('interestedLoanAmount').value     = '';
   document.getElementById('interestedLoanType').value       = '';
-  ['errILeadName','errILoanAmt','errIRemarks','errILoanType'].forEach(id => {
+  document.getElementById('interestedRevenue').value        = '';
+  ['errILeadName','errILoanAmt','errIRemarks','errILoanType','errIRevenue'].forEach(id => {
     const el = document.getElementById(id); if (el) el.style.display='none';
   });
   document.getElementById('interestedModal').classList.add('active');
@@ -2365,10 +2379,11 @@ function confirmInterested() {
   const leadName       = document.getElementById('interestedLeadName').value.trim();
   const loanAmount     = document.getElementById('interestedLoanAmount').value.trim();
   const loanType       = document.getElementById('interestedLoanType').value;
+  const revenueGenerated = document.getElementById('interestedRevenue').value.trim();
   const remarks        = document.getElementById('interestedRemarks').value.trim();
 
   // Hide all errors first
-  ['errILeadName','errILoanAmt','errIRemarks','errILoanType'].forEach(id => {
+  ['errILeadName','errILoanAmt','errIRemarks','errILoanType','errIRevenue'].forEach(id => {
     document.getElementById(id).style.display = 'none';
   });
 
@@ -2376,12 +2391,13 @@ function confirmInterested() {
   if (!leadName)                              { document.getElementById('errILeadName').style.display='block'; valid=false; }
   if (!loanAmount || Number(loanAmount) <= 0) { document.getElementById('errILoanAmt').style.display='block'; valid=false; }
   if (!loanType)                              { document.getElementById('errILoanType').style.display='block'; valid=false; }
+  if (!revenueGenerated || Number(revenueGenerated) <= 0) { document.getElementById('errIRevenue').style.display='block'; valid=false; }
   if (!remarks)                               { document.getElementById('errIRemarks').style.display='block'; valid=false; }
   if (!valid) return;
 
   closeInterestedModal();
   document.getElementById('dispositionPanel').style.display = 'none';
-  socket.emit('agent-disposition', { agentId, numberId: currentNumberId, disposition: 'interested', leadName, remarks, loanAmount, loanType });
+  socket.emit('agent-disposition', { agentId, numberId: currentNumberId, disposition: 'interested', leadName, remarks, loanAmount, loanType, revenueGenerated });
   currentNumberId = null;
 }
 
@@ -2512,8 +2528,13 @@ async function removeFollowup(numberId) {
 function renderCompletedTable(leads) {
   const tbody = document.getElementById('completedTable');
   document.getElementById('completedCountBadge').textContent = (leads||[]).length + ' lead' + ((leads||[]).length !== 1 ? 's' : '');
+  
+  // Calculate total revenue
+  const totalRevenue = (leads || []).reduce((sum, l) => sum + (Number(l.revenueGenerated) || 0), 0);
+  document.getElementById('totalRevenueBadge').textContent = 'Total Revenue: ₹' + totalRevenue.toLocaleString('en-IN');
+
   if (!leads || leads.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="6" class="empty">No completed leads yet</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="7" class="empty">No completed leads yet</td></tr>';
     return;
   }
   tbody.innerHTML = leads.map(l => {
@@ -2530,10 +2551,12 @@ function renderCompletedTable(leads) {
       const elapsedHrs = Math.floor((elapsedMs % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000));
       elapsedStr = elapsedDays + 'd ' + elapsedHrs + 'h';
     }
+    const revenueDisplay = l.revenueGenerated ? '₹' + Number(l.revenueGenerated).toLocaleString('en-IN') : '—';
     return `<tr>
       <td><span class="phone-mono">${escapeHtml(formatPhone(l.phone))}</span></td>
       <td style="font-weight:600">${escapeHtml(l.name) || '—'}</td>
       <td style="font-family:var(--mono);font-size:13px;color:var(--green)">${l.loanAmount ? '₹' + escapeHtml(l.loanAmount) : '—'}</td>
+      <td style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--green)">${revenueDisplay}</td>
       <td style="font-size:12px;font-family:var(--mono)">${completedDate}</td>
       <td style="font-family:var(--mono);font-size:12px;font-weight:700;color:var(--warn)">${elapsedStr}</td>
       <td>${statusBadge}</td>
@@ -2679,24 +2702,27 @@ async function addInterestedManually() {
   const leadName   = document.getElementById('manualLeadName').value.trim();
   const phone      = document.getElementById('manualPhone').value.trim();
   const loanType   = document.getElementById('manualLoanType').value;
+  const revenueGenerated = document.getElementById('manualRevenue').value.trim();
   const loanAmount = document.getElementById('manualLoanAmount').value.trim();
   const remarks    = document.getElementById('manualRemarks').value.trim();
   if (!leadName)                    { alert('Please enter the lead name'); return; }
   if (!phone)                       { alert('Please enter a phone number'); return; }
   if (!/^\d{10}$/.test(phone))      { alert('Please enter a valid 10-digit phone number'); return; }
   if (!loanType)                    { alert('Please select a loan type'); return; }
+  if (!revenueGenerated || Number(revenueGenerated) <= 0) { alert('Please enter revenue generated'); return; }
   if (!loanAmount || Number(loanAmount) <= 0) { alert('Please enter the required amount'); return; }
   if (!remarks)                     { alert('Please enter remarks'); return; }
   try {
     const r = await fetch('/api/agent/add-interested', {
       method: 'POST', headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ agentId, phone, leadName, loanAmount, loanType, remarks })
+      body: JSON.stringify({ agentId, phone, leadName, loanAmount, loanType, remarks, revenueGenerated })
     });
     const d = await r.json();
     if (d.error) { alert(d.error); return; }
     document.getElementById('manualLeadName').value   = '';
     document.getElementById('manualPhone').value      = '';
     document.getElementById('manualLoanType').value   = '';
+    document.getElementById('manualRevenue').value    = '';
     document.getElementById('manualLoanAmount').value = '';
     document.getElementById('manualRemarks').value    = '';
     showToast('Lead added successfully', 'success');

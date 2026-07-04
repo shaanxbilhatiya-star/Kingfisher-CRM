@@ -454,6 +454,7 @@ function applyDisposition(agentId, numberId, disposition, extra) {
       num.loanAmount = extra && extra.loanAmount ? extra.loanAmount : '';
       num.employmentType = extra && extra.employmentType ? extra.employmentType : '';
       num.city = extra && extra.city ? extra.city : '';
+      num.revenueGenerated = extra && extra.revenueGenerated ? String(extra.revenueGenerated) : '';
       num.documentationComplete = false;
       num.documentationCompletedAt = null;
       num.docZipPath = null;
@@ -1035,7 +1036,7 @@ app.post('/api/admin/transfer-interested', (req, res) => {
 });
 
 app.post('/api/agent/add-interested', (req, res) => {
-  const { agentId, phone, leadName, loanType, remarks, loanAmount, employmentType, city } = req.body;
+  const { agentId, phone, leadName, loanType, remarks, loanAmount, employmentType, city, revenueGenerated } = req.body;
   if (!agentId || !phone) {
     return res.status(400).json({ error: 'agentId and phone are required' });
   }
@@ -1066,6 +1067,7 @@ app.post('/api/agent/add-interested', (req, res) => {
       existingNumber.loanAmount = loanAmount || '';
       existingNumber.employmentType = employmentType || '';
       existingNumber.city = city || '';
+      existingNumber.revenueGenerated = revenueGenerated ? String(revenueGenerated) : '';
       existingNumber.documentationComplete = false;
       existingNumber.documentationCompletedAt = null;
       existingNumber.docZipPath = null;
@@ -1108,6 +1110,7 @@ app.post('/api/agent/add-interested', (req, res) => {
     loanAmount: loanAmount || '',
     employmentType: employmentType || '',
     city: city || '',
+    revenueGenerated: revenueGenerated ? String(revenueGenerated) : '',
     documentationComplete: false,
     documentationCompletedAt: null,
     docZipPath: null,
@@ -1244,6 +1247,7 @@ app.get('/api/agent/completed/:agentId', (req, res) => {
     loanAmount: n.loanAmount || '',
     employmentType: n.employmentType || '',
     city: n.city || '',
+    revenueGenerated: n.revenueGenerated || '',
     documentationCompletedAt: n.documentationCompletedAt || null,
     adminStatus: n.adminStatus || '',
     hasDocZip: !!(n.docZipPath && fs.existsSync(n.docZipPath)),
@@ -1564,13 +1568,13 @@ io.on('connection', (socket) => {
     broadcastAdminStats();
   });
 
-  socket.on('agent-disposition', ({ agentId, numberId, disposition, followupDate, followupTime, followupName, leadName, loanType, remarks, loanAmount, employmentType, city }) => {
+  socket.on('agent-disposition', ({ agentId, numberId, disposition, followupDate, followupTime, followupName, leadName, loanType, remarks, loanAmount, employmentType, city, revenueGenerated }) => {
     appState = checkDailyReset(appState);
     const agent = appState.agents[agentId];
     if (!agent) return socket.emit('error', 'Agent not found');
     if (!VALID_DISPOSITIONS.includes(disposition)) return socket.emit('error', 'Invalid disposition');
 
-    applyDisposition(agentId, numberId, disposition, { followupDate, followupTime, followupName, leadName, loanType, remarks, loanAmount, employmentType, city });
+    applyDisposition(agentId, numberId, disposition, { followupDate, followupTime, followupName, leadName, loanType, remarks, loanAmount, employmentType, city, revenueGenerated });
 
     const num = getNextNumber(agentId);
     if (!num) {
