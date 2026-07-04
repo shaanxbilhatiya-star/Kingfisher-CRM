@@ -6,85 +6,109 @@
 <title>Ruralift — Smart Loan Hub</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
+  :root {
+    /* KINGFISHER brand palette — inspired by the Common Kingfisher bird:
+       electric-blue back, teal iridescent stripe, warm orange/rufous belly */
+    --blue:#2563eb; --blue-dark:#1d4ed8;
+    --teal:#0d9488; --teal-dark:#0f766e;
+    --orange:#ea580c; --orange-dark:#c2410c;
+    --amber:#f59e0b; --amber-dark:#b45309;
+    --coral:#e11d48; --coral-dark:#be123c;
+    --green:#16a34a; --green-dark:#15803d;
+  }
   *{box-sizing:border-box;margin:0;padding:0}
-  body{background:#060b14;color:#e2e8f0;font-family:'Space Grotesk',sans-serif;min-height:100vh;padding:40px 20px}
-  .wrap{max-width:960px;margin:0 auto}
-  header{text-align:center;margin-bottom:40px}
-  header img{height:56px;margin-bottom:14px}
-  header h1{font-size:26px;font-weight:700;letter-spacing:-.5px}
-  header p{color:#4a6080;font-size:14px;margin-top:6px}
-  .section-title{font-size:16px;font-weight:700;color:#94a3b8;margin:36px 0 16px;letter-spacing:.5px;text-transform:uppercase}
+  body{background:#f3f6fc;color:#1e293b;font-family:'Space Grotesk',sans-serif;min-height:100vh;padding:0}
+  .hero{background:linear-gradient(100deg, var(--blue) 0%, var(--teal) 55%, var(--orange) 100%);padding:48px 20px 64px;text-align:center;position:relative}
+  .wrap{max-width:960px;margin:0 auto;padding:0 20px}
+  header{text-align:center;margin-bottom:0}
+  header img{height:56px;margin-bottom:14px;background:rgba(255,255,255,.92);padding:8px 14px;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,.15)}
+  header h1{font-size:28px;font-weight:700;letter-spacing:-.5px;color:#fff;text-shadow:0 1px 8px rgba(0,0,0,.15)}
+  header p{color:rgba(255,255,255,.85);font-size:14px;margin-top:6px}
+  .content{max-width:960px;margin:-32px auto 0;padding:0 20px 40px;position:relative;z-index:2}
+  .section-title{font-size:16px;font-weight:700;color:#64748b;margin:36px 0 16px;letter-spacing:.5px;text-transform:uppercase}
   .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px}
-  .card{background:#0d1525;border:1px solid #1a2d45;border-radius:16px;padding:28px 24px;text-decoration:none;color:#e2e8f0;transition:all .2s;display:block}
-  .card:hover{border-color:#2563eb;transform:translateY(-3px);box-shadow:0 8px 28px rgba(37,99,235,.18)}
+  .card{background:#fff;border:1px solid #dde6f2;border-top:3px solid var(--blue);border-radius:16px;padding:28px 24px;text-decoration:none;color:#1e293b;transition:all .2s;display:block;box-shadow:0 2px 10px rgba(30,41,59,.06)}
+  .card:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(30,41,59,.12)}
+  .card.c-blue{border-top-color:var(--blue)}
+  .card.c-teal{border-top-color:var(--teal)}
+  .card.c-orange{border-top-color:var(--orange)}
+  .card.c-amber{border-top-color:var(--amber)}
+  .card.c-coral{border-top-color:var(--coral)}
+  .card.c-green{border-top-color:var(--green)}
   .card .icon{font-size:36px;margin-bottom:12px}
   .card h2{font-size:17px;font-weight:700;margin-bottom:4px}
-  .card p{color:#4a6080;font-size:12px;margin:0}
-  .card .badge{display:inline-block;background:#1e293b;color:#2563eb;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;margin-top:10px}
+  .card p{color:#64748b;font-size:12px;margin:0}
+  .card .badge{display:inline-block;background:#eef3fb;color:var(--blue-dark);font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;margin-top:10px}
+  .card.c-teal .badge{background:#ecfdf9;color:var(--teal-dark)}
+  .card.c-orange .badge{background:#fff1e8;color:var(--orange-dark)}
+  .card.c-amber .badge{background:#fef8ec;color:var(--amber-dark)}
+  .card.c-coral .badge{background:#fdf0f4;color:var(--coral-dark)}
 
   /* WhatsApp tool */
-  .wa-tool{background:#0d1525;border:1px solid #1a2d45;border-radius:16px;padding:28px;margin-top:36px}
-  .wa-tool h3{font-size:18px;font-weight:700;margin-bottom:16px;color:#e2e8f0}
+  .wa-tool{background:#fff;border:1px solid #dde6f2;border-radius:16px;padding:28px;margin-top:36px;box-shadow:0 2px 10px rgba(30,41,59,.06)}
+  .wa-tool h3{font-size:18px;font-weight:700;margin-bottom:16px;color:var(--teal-dark)}
   .wa-form{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end}
-  .wa-form label{font-size:12px;color:#94a3b8;display:block;margin-bottom:4px}
+  .wa-form label{font-size:12px;color:#64748b;display:block;margin-bottom:4px}
   .wa-form .field{flex:1;min-width:180px}
-  .wa-form input,.wa-form select{width:100%;background:#1e293b;border:1px solid #334155;color:#e2e8f0;padding:10px 14px;border-radius:8px;font-family:inherit;font-size:14px}
-  .wa-form input:focus,.wa-form select:focus{outline:none;border-color:#2563eb}
-  .wa-form button{background:#2563eb;color:#fff;border:none;padding:10px 22px;border-radius:8px;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap;transition:background .2s}
-  .wa-form button:hover{background:#1d4ed8}
+  .wa-form input,.wa-form select{width:100%;background:#eef3fb;border:1px solid #dde6f2;color:#1e293b;padding:10px 14px;border-radius:8px;font-family:inherit;font-size:14px}
+  .wa-form input:focus,.wa-form select:focus{outline:none;border-color:var(--teal)}
+  .wa-form button{background:linear-gradient(100deg, var(--blue), var(--teal));color:#fff;border:none;padding:10px 22px;border-radius:8px;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap;transition:filter .2s}
+  .wa-form button:hover{filter:brightness(1.08)}
   .wa-output{margin-top:16px;display:none}
-  .wa-output pre{background:#1e293b;border:1px solid #334155;border-radius:8px;padding:16px;font-size:12px;line-height:1.6;color:#cbd5e1;white-space:pre-wrap;word-break:break-word;max-height:400px;overflow-y:auto}
+  .wa-output pre{background:#eef3fb;border:1px solid #dde6f2;border-radius:8px;padding:16px;font-size:12px;line-height:1.6;color:#334155;white-space:pre-wrap;word-break:break-word;max-height:400px;overflow-y:auto}
   .wa-output .btn-row{display:flex;gap:10px;margin-top:10px}
-  .wa-output .btn-row button{background:#1e293b;border:1px solid #334155;color:#e2e8f0;padding:8px 16px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s}
-  .wa-output .btn-row button:hover{border-color:#2563eb;color:#2563eb}
+  .wa-output .btn-row button{background:#eef3fb;border:1px solid #dde6f2;color:#1e293b;padding:8px 16px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s}
+  .wa-output .btn-row button:hover{border-color:var(--orange);color:var(--orange-dark)}
 
   /* Footer links */
-  .footer-links{display:flex;justify-content:center;gap:24px;margin-top:48px;padding-top:24px;border-top:1px solid #1a2d45}
+  .footer-links{display:flex;justify-content:center;gap:24px;margin-top:48px;padding-top:24px;border-top:1px solid #dde6f2}
   .footer-links a{color:#64748b;text-decoration:none;font-size:13px;font-weight:600;transition:color .2s}
-  .footer-links a:hover{color:#2563eb}
+  .footer-links a:hover{color:var(--orange-dark)}
 
   @media(max-width:600px){
-    body{padding:20px 12px}
+    .hero{padding:36px 12px 56px}
+    .content{padding:0 12px 40px}
     .cards{grid-template-columns:1fr}
     .wa-form{flex-direction:column}
   }
 </style>
 </head>
 <body>
-<div class="wrap">
+<div class="hero">
   <header>
     <img src="/logo.png" alt="Ruralift">
     <h1>Smart Loan Hub</h1>
     <p>Auto Lead Dialing System &mdash; Support From Emerging India</p>
   </header>
-
+</div>
+<div class="content">
   <div class="section-title">&#128196; Loan Application Forms</div>
   <div class="cards">
-    <a href="/BL_Business.html" class="card">
+    <a href="/BL_Business.html" class="card c-blue">
       <div class="icon">&#127974;</div>
       <h2>Business Loan</h2>
       <p>Businessman applicants</p>
       <span class="badge">BL_Business</span>
     </a>
-    <a href="/LAP_Business.html" class="card">
+    <a href="/LAP_Business.html" class="card c-teal">
       <div class="icon">&#127969;</div>
       <h2>LAP &mdash; Businessman</h2>
       <p>Loan Against Property (Business)</p>
       <span class="badge">LAP_Business</span>
     </a>
-    <a href="/LAP_Salaried.html" class="card">
+    <a href="/LAP_Salaried.html" class="card c-orange">
       <div class="icon">&#127970;</div>
       <h2>LAP &mdash; Salaried</h2>
       <p>Loan Against Property (Salaried)</p>
       <span class="badge">LAP_Salaried</span>
     </a>
-    <a href="/PL_Business.html" class="card">
+    <a href="/PL_Business.html" class="card c-amber">
       <div class="icon">&#128176;</div>
       <h2>Personal Loan &mdash; Business</h2>
       <p>PL for Businessman profile</p>
       <span class="badge">PL_Business</span>
     </a>
-    <a href="/PL_Salaried.html" class="card">
+    <a href="/PL_Salaried.html" class="card c-coral">
       <div class="icon">&#128179;</div>
       <h2>Personal Loan &mdash; Salaried</h2>
       <p>PL for Salaried profile</p>
@@ -94,17 +118,17 @@
 
   <div class="section-title">&#128274; System Access</div>
   <div class="cards">
-    <a href="/admin" class="card">
+    <a href="/admin" class="card c-coral">
       <div class="icon">&#128736;&#65039;</div>
       <h2>Admin Panel</h2>
       <p>Upload numbers, view stats, manage leads</p>
     </a>
-    <a href="/agent" class="card">
+    <a href="/agent" class="card c-blue">
       <div class="icon">&#128222;</div>
       <h2>Agent Dialer</h2>
       <p>Login and start dialing leads</p>
     </a>
-    <a href="/client" class="card">
+    <a href="/client" class="card c-orange">
       <div class="icon">&#128200;</div>
       <h2>Client Panel</h2>
       <p>View disposition stats, leads &amp; followups</p>
@@ -145,7 +169,7 @@
     <a href="/agent">Agent Dialer</a>
     <a href="/client">Client Panel</a>
   </div>
-</div>
+</div><!-- end .content -->
 
 <script>
 function generateWhatsAppMessage(loanType, leadName) {

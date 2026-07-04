@@ -8,46 +8,47 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    /* CLIENT theme: pure black + Kingfisher blue */
-    --bg: #080810; --surface: #100f1e; --surface2: #17162a; --border: #25233d;
-    --accent: #2563eb; --accent2: #1d4ed8; --danger: #F44336;
-    --warn: #FF9800; --text: #E0E0E0; --muted: #9E9E9E;
-    --green: #4CAF50; --mono: 'JetBrains Mono', monospace; --sans: 'Space Grotesk', sans-serif;
+    /* KINGFISHER brand palette — inspired by the Common Kingfisher bird:
+       electric-blue back, teal iridescent stripe, warm orange/rufous belly */
+    --bg: #f3f6fc; --surface: #ffffff; --surface2: #eef3fb; --border: #dde6f2; --border-strong: #c7d3e6;
+    --blue: #2563eb; --blue-dark: #1d4ed8;
+    --teal: #0d9488; --teal-dark: #0f766e;
+    --orange: #ea580c; --orange-dark: #c2410c;
+    --amber: #f59e0b; --amber-dark: #b45309;
+    --coral: #e11d48; --coral-dark: #be123c;
+    --green: #16a34a; --green-dark: #15803d;
+    --accent: var(--blue); --accent2: var(--blue-dark); --danger: #dc2626;
+    --warn: #d97706; --text: #1e293b; --muted: #64748b;
+    --mono: 'JetBrains Mono', monospace; --sans: 'Space Grotesk', sans-serif;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: #080810; color: var(--text); font-family: var(--sans); min-height: 100vh; }
+  body { background: var(--bg); color: var(--text); font-family: var(--sans); min-height: 100vh; }
 
-  header { background: linear-gradient(135deg, #080810 0%, #100f1e 100%); border-bottom: 1px solid var(--border); box-shadow: 0 2px 20px rgba(37,99,235,.2); padding: 14px 32px; display: flex; align-items: center; justify-content: space-between; }
+  header { background: linear-gradient(100deg, var(--blue) 0%, var(--teal) 55%, var(--orange) 100%); border-bottom: 1px solid var(--border); box-shadow: 0 2px 20px rgba(37,99,235,.18); padding: 14px 32px; display: flex; align-items: center; justify-content: space-between; }
   .logo { display: flex; flex-direction: column; align-items: center; gap: 5px; flex: 1; }
-  .logo h1 { font-size: 15px; font-weight: 700; letter-spacing: -0.5px; color: var(--accent); }
+  .logo h1 { font-size: 15px; font-weight: 700; letter-spacing: -0.5px; color: #fff; text-shadow: 0 1px 6px rgba(0,0,0,.15); }
   .logo-img {
     width: 272px; height: 70px; object-fit: contain; padding: 10px 18px; border-radius: 14px;
-    border: 2px solid rgba(37,99,235,.4); background: rgba(255,255,255,.04);
-    filter: drop-shadow(0 0 12px rgba(37,99,235,.65)) drop-shadow(0 0 24px rgba(37,99,235,.3));
-    animation: logo-glow 2.5s ease-in-out infinite;
-    box-shadow: 0 4px 16px rgba(37,99,235,.2), 0 1px 4px rgba(0,0,0,.3);
+    border: 2px solid rgba(255,255,255,.55); background: rgba(255,255,255,.92);
+    box-shadow: 0 4px 16px rgba(0,0,0,.15), 0 1px 4px rgba(0,0,0,.1);
   }
-  @keyframes logo-glow {
-    0%,100% { filter: drop-shadow(0 0 8px rgba(37,99,235,.55)) drop-shadow(0 0 18px rgba(37,99,235,.25)); }
-    50%      { filter: drop-shadow(0 0 20px rgba(37,99,235,.95)) drop-shadow(0 0 40px rgba(29,78,216,.55)); }
-  }
-  .badge { background: var(--accent); color: #fff; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; letter-spacing: 1px; box-shadow: 0 0 10px rgba(37,99,235,.4); }
-  .today-badge { background: rgba(37,99,235,.1); color: var(--accent); border: 1px solid rgba(37,99,235,.2); border-radius: 6px; padding: 4px 12px; font-size: 12px; font-family: var(--mono); }
+  .badge { background: rgba(255,255,255,.22); color: #fff; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; letter-spacing: 1px; border: 1px solid rgba(255,255,255,.5); }
+  .today-badge { background: rgba(255,255,255,.18); color: #fff; border: 1px solid rgba(255,255,255,.4); border-radius: 6px; padding: 4px 12px; font-size: 12px; font-family: var(--mono); }
 
   .main { padding: 28px 32px; max-width: 1400px; margin: 0 auto; }
 
   .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; margin-bottom: 28px; }
-  .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px 24px; display: flex; flex-direction: column; gap: 6px; box-shadow: 0 2px 12px rgba(0,0,0,.4); transition: transform .2s, box-shadow .2s; }
-  .stat-card:hover { transform: translateY(-2px); box-shadow: 0 4px 20px rgba(37,99,235,.2); }
+  .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px 24px; display: flex; flex-direction: column; gap: 6px; box-shadow: 0 2px 10px rgba(30,41,59,.06); transition: transform .2s, box-shadow .2s; }
+  .stat-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(37,99,235,.14); }
   .stat-label { font-size: 12px; font-weight: 600; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
   .stat-value { font-family: var(--mono); font-size: 36px; font-weight: 700; }
-  .stat-value.green { color: var(--green); }
-  .stat-value.blue { color: var(--accent2); }
-  .stat-value.amber { color: var(--warn); }
-  .stat-value.accent { color: var(--accent); }
+  .stat-value.green { color: var(--green-dark); }
+  .stat-value.blue { color: var(--blue-dark); }
+  .stat-value.amber { color: var(--amber-dark); }
+  .stat-value.accent { color: var(--orange-dark); }
   .stat-value.red { color: var(--danger); }
 
-  .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,.4); margin-bottom: 20px; }
+  .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; box-shadow: 0 2px 10px rgba(30,41,59,.06); margin-bottom: 20px; }
   .panel-header { padding: 16px 20px; background: var(--surface2); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
   .panel-header h2 { font-size: 14px; font-weight: 600; letter-spacing: .5px; text-transform: uppercase; color: var(--muted); }
   .panel-body { padding: 20px; }
@@ -56,36 +57,36 @@
   .btn-del { background: none; border: 1px solid var(--danger); color: var(--danger); padding: 6px 14px; border-radius: 6px; font-size: 12px; cursor: pointer; font-family: var(--sans); transition: all .2s; }
   .btn-del:hover { background: var(--danger); color: #fff; }
 
-  .panel-interested .panel-header { background: rgba(76,175,80,.06); }
-  .panel-interested .panel-header h2 { color: var(--green); }
-  .panel-followups .panel-header { background: rgba(37,99,235,.06); }
-  .panel-followups .panel-header h2 { color: var(--accent); }
-  .panel-completed .panel-header { background: rgba(76,175,80,.06); }
-  .panel-completed .panel-header h2 { color: var(--accent); }
+  .panel-interested .panel-header { background: rgba(22,163,74,.07); }
+  .panel-interested .panel-header h2 { color: var(--green-dark); }
+  .panel-followups .panel-header { background: rgba(37,99,235,.07); }
+  .panel-followups .panel-header h2 { color: var(--blue-dark); }
+  .panel-completed .panel-header { background: rgba(234,88,12,.07); }
+  .panel-completed .panel-header h2 { color: var(--orange-dark); }
 
   .leads-table { width: 100%; border-collapse: collapse; font-size: 14px; }
   .leads-table th { padding: 10px 12px; text-align: left; font-size: 11px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; background: var(--surface2); color: var(--muted); border-bottom: 1px solid var(--border); }
   .leads-table td { padding: 11px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
   .leads-table tr:last-child td { border-bottom: none; }
-  .leads-table tr.overdue-row { background: rgba(244,67,54,.06); }
-  .leads-table tr.overdue-row:hover { background: rgba(244,67,54,.10); }
-  .phone-number { font-family: var(--mono); font-weight: 700; color: var(--accent); }
+  .leads-table tr.overdue-row { background: rgba(220,38,38,.06); }
+  .leads-table tr.overdue-row:hover { background: rgba(220,38,38,.10); }
+  .phone-number { font-family: var(--mono); font-weight: 700; color: var(--blue-dark); }
   .overdue-text { color: var(--danger); font-weight: 700; font-family: var(--mono); font-size: 12px; letter-spacing: .5px; }
   .time-remaining { font-family: var(--mono); font-size: 12px; font-weight: 600; color: var(--text); }
 
   .doc-badge { display: inline-block; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; letter-spacing: .5px; }
-  .doc-badge.complete { background: rgba(76,175,80,.1); color: var(--green); border: 1px solid rgba(76,175,80,.25); }
-  .doc-badge.pending { background: rgba(255,152,0,.08); color: var(--warn); border: 1px solid rgba(255,152,0,.2); }
+  .doc-badge.complete { background: rgba(22,163,74,.1); color: var(--green-dark); border: 1px solid rgba(22,163,74,.25); }
+  .doc-badge.pending { background: rgba(245,158,11,.1); color: var(--amber-dark); border: 1px solid rgba(245,158,11,.25); }
 
   .admin-stats-tabs { display: flex; gap: 4px; }
   .admin-stats-tab { padding: 5px 14px; border-radius: 6px; border: 1.5px solid var(--border); background: var(--surface); color: var(--muted); font-family: var(--sans); font-size: 12px; font-weight: 700; cursor: pointer; transition: all .2s; }
-  .admin-stats-tab:hover { border-color: var(--accent2); color: var(--accent); }
-  .admin-stats-tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .admin-stats-tab:hover { border-color: var(--teal); color: var(--teal-dark); }
+  .admin-stats-tab.active { background: var(--teal); color: #fff; border-color: var(--teal); }
   .dispo-stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 14px; }
   .dispo-stat-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 16px; text-align: center; position: relative; }
-  .dispo-stat-card.dispo-stat-total { background: rgba(37,99,235,.08); border-color: rgba(37,99,235,.3); }
+  .dispo-stat-card.dispo-stat-total { background: rgba(13,148,136,.08); border-color: rgba(13,148,136,.3); }
   .dispo-stat-indicator { width: 8px; height: 8px; border-radius: 50%; position: absolute; top: 12px; left: 12px; }
-  .dispo-stat-val { font-family: var(--mono); font-size: 28px; font-weight: 700; color: var(--accent); }
+  .dispo-stat-val { font-family: var(--mono); font-size: 28px; font-weight: 700; color: var(--teal-dark); }
   .dispo-stat-card.dispo-stat-total .dispo-stat-val { font-size: 36px; }
   .dispo-stat-lbl { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-top: 4px; }
 
@@ -95,9 +96,10 @@
   /* ── Login screen ── */
   #loginScreen {
     min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 24px;
+    background: linear-gradient(135deg, #eff6ff 0%, #f0fdfa 50%, #fff7ed 100%);
   }
   .login-wrap { width: 100%; max-width: 420px; }
-  .login-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 36px; box-shadow: 0 2px 16px rgba(0,0,0,.5); }
+  .login-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 36px; box-shadow: 0 8px 32px rgba(30,41,59,.12); border-top: 4px solid var(--teal); }
   .login-card h2 { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
   .login-card .sub { color: var(--muted); font-size: 14px; margin-bottom: 28px; }
   .field { margin-bottom: 18px; }
@@ -105,14 +107,14 @@
   .field input { width: 100%; padding: 12px 16px; border-radius: 8px; background: var(--surface2); border: 1px solid var(--border); color: var(--text); font-family: var(--sans); font-size: 15px; outline: none; transition: border-color .2s; }
   .field input:focus { border-color: var(--accent); }
   .err { color: var(--danger); font-size: 12px; margin-top: 5px; display: none; }
-  .btn-login { width: 100%; padding: 14px; border-radius: 10px; border: none; background: var(--accent); color: #fff; font-family: var(--sans); font-size: 16px; font-weight: 700; cursor: pointer; transition: all .2s; margin-top: 4px; }
-  .btn-login:hover { background: var(--accent2); transform: translateY(-1px); }
+  .btn-login { width: 100%; padding: 14px; border-radius: 10px; border: none; background: linear-gradient(100deg, var(--blue), var(--teal)); color: #fff; font-family: var(--sans); font-size: 16px; font-weight: 700; cursor: pointer; transition: all .2s; margin-top: 4px; }
+  .btn-login:hover { filter: brightness(1.08); transform: translateY(-1px); }
 
   #mainScreen { display: none; }
 
-  #toast { position: fixed; bottom: 28px; right: 28px; background: var(--surface); border: 1px solid var(--border); color: var(--text); border-radius: 10px; padding: 14px 20px; font-size: 14px; transform: translateY(100px); opacity: 0; transition: all .3s; z-index: 999; box-shadow: 0 4px 20px rgba(0,0,0,.5); }
+  #toast { position: fixed; bottom: 28px; right: 28px; background: var(--surface); border: 1px solid var(--border); color: var(--text); border-radius: 10px; padding: 14px 20px; font-size: 14px; transform: translateY(100px); opacity: 0; transition: all .3s; z-index: 999; box-shadow: 0 8px 28px rgba(30,41,59,.18); }
   #toast.show { transform: translateY(0); opacity: 1; }
-  #toast.success { border-color: var(--accent); }
+  #toast.success { border-color: var(--teal); }
   #toast.error { border-color: var(--danger); }
 
   @media(max-width:900px){ .stats-grid{grid-template-columns:1fr 1fr} }
@@ -161,9 +163,9 @@
 
   <!-- DISPOSITION STATS -->
   <div class="panel dispo-stats-panel">
-    <div class="panel-header" style="background:rgba(76,175,80,.04)">
+    <div class="panel-header" style="background:linear-gradient(90deg, rgba(37,99,235,.06), rgba(13,148,136,.06))">
       <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;flex:1;min-width:0">
-        <h2 style="color:var(--accent);margin:0">&#128202; Disposition Stats</h2>
+        <h2 style="color:var(--teal-dark);margin:0">&#128202; Disposition Stats</h2>
       </div>
       <div class="admin-stats-tabs">
         <button class="admin-stats-tab active" data-period="daily" onclick="switchStatsPeriod('daily')">Daily</button>
@@ -179,43 +181,43 @@
           <div class="dispo-stat-lbl">Total Calls</div>
         </div>
         <div class="dispo-stat-card">
-          <div class="dispo-stat-indicator" style="background:var(--danger)"></div>
-          <div class="dispo-stat-val" id="statsDead">0</div>
+          <div class="dispo-stat-indicator" style="background:var(--coral)"></div>
+          <div class="dispo-stat-val" id="statsDead" style="color:var(--coral-dark)">0</div>
           <div class="dispo-stat-lbl">Call Not Connected</div>
         </div>
         <div class="dispo-stat-card">
-          <div class="dispo-stat-indicator" style="background:var(--warn)"></div>
-          <div class="dispo-stat-val" id="statsNotReceived">0</div>
+          <div class="dispo-stat-indicator" style="background:var(--amber)"></div>
+          <div class="dispo-stat-val" id="statsNotReceived" style="color:var(--amber-dark)">0</div>
           <div class="dispo-stat-lbl">Call Not Received</div>
         </div>
         <div class="dispo-stat-card">
           <div class="dispo-stat-indicator" style="background:var(--muted)"></div>
-          <div class="dispo-stat-val" id="statsNotInterested">0</div>
+          <div class="dispo-stat-val" id="statsNotInterested" style="color:var(--muted)">0</div>
           <div class="dispo-stat-lbl">Not Interested</div>
         </div>
         <div class="dispo-stat-card">
-          <div class="dispo-stat-indicator" style="background:#2563eb"></div>
-          <div class="dispo-stat-val" id="statsFollowup">0</div>
+          <div class="dispo-stat-indicator" style="background:var(--blue)"></div>
+          <div class="dispo-stat-val" id="statsFollowup" style="color:var(--blue-dark)">0</div>
           <div class="dispo-stat-lbl">Followup</div>
         </div>
         <div class="dispo-stat-card">
-          <div class="dispo-stat-indicator" style="background:#f59e0b"></div>
-          <div class="dispo-stat-val" id="statsSwitchOff">0</div>
+          <div class="dispo-stat-indicator" style="background:var(--orange)"></div>
+          <div class="dispo-stat-val" id="statsSwitchOff" style="color:var(--orange-dark)">0</div>
           <div class="dispo-stat-lbl">Switch OFF</div>
         </div>
         <div class="dispo-stat-card">
           <div class="dispo-stat-indicator" style="background:#78350f"></div>
-          <div class="dispo-stat-val" id="statsDiscard">0</div>
+          <div class="dispo-stat-val" id="statsDiscard" style="color:#78350f">0</div>
           <div class="dispo-stat-lbl">Not-Eligible</div>
         </div>
         <div class="dispo-stat-card">
           <div class="dispo-stat-indicator" style="background:var(--green)"></div>
-          <div class="dispo-stat-val" id="statsInterested">0</div>
+          <div class="dispo-stat-val" id="statsInterested" style="color:var(--green-dark)">0</div>
           <div class="dispo-stat-lbl">Interested</div>
         </div>
         <div class="dispo-stat-card">
-          <div class="dispo-stat-indicator" style="background:#c62828"></div>
-          <div class="dispo-stat-val" id="statsDnd">0</div>
+          <div class="dispo-stat-indicator" style="background:var(--coral-dark)"></div>
+          <div class="dispo-stat-val" id="statsDnd" style="color:var(--coral-dark)">0</div>
           <div class="dispo-stat-lbl">DND</div>
         </div>
       </div>
@@ -321,8 +323,8 @@
 
   <!-- DND NUMBERS -->
   <div class="panel">
-    <div class="panel-header" style="background:rgba(198,40,40,.06)">
-      <h2 style="color:#c62828">&#128277; DND (Do Not Disturb) Numbers</h2>
+    <div class="panel-header" style="background:rgba(225,29,72,.06)">
+      <h2 style="color:var(--coral-dark)">&#128277; DND (Do Not Disturb) Numbers</h2>
       <span style="font-size:12px;color:var(--muted)" id="dndCountBadge">0 numbers</span>
     </div>
     <div class="panel-body">
@@ -600,7 +602,7 @@ function renderFollowups(followups) {
     return;
   }
   tbody.innerHTML = followups.map(f => {
-    const overdueTag = f.overdue ? ' <span style="background:#3d1a1a;color:#ff8a80;font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;margin-left:4px">OVERDUE</span>' : '';
+    const overdueTag = f.overdue ? ' <span style="background:#fef2f2;color:#dc2626;border:1px solid #fecaca;font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;margin-left:4px">OVERDUE</span>' : '';
     return '<tr>' +
       '<td><span class="phone-number">' + escapeHtml(formatPhone(f.phone)) + '</span></td>' +
       '<td>' + (escapeHtml(f.name) || '\u2014') + '</td>' +
@@ -628,16 +630,16 @@ function renderDndList(dndNumbers) {
     el.innerHTML = '<div class="empty">No DND numbers</div>';
     return;
   }
-  const roleColors = { tl: '#60a5fa', admin: '#94a3b8', agent: '#2563eb', client: '#60a5fa' };
+  const roleColors = { tl: '#0f766e', admin: '#64748b', agent: '#1d4ed8', client: '#c2410c' };
   const roleLabels = { tl: 'TL', admin: 'Admin', agent: 'Agent', client: 'Client' };
   el.innerHTML = dndNumbers.map(d => {
     const addedDate = d.addedAt ? formatTimestamp(d.addedAt) : '';
     const role = d.addedByRole || 'admin';
     const who = escapeHtml(d.addedByName || (role === 'admin' ? 'Admin' : d.addedBy || 'Unknown'));
-    const noteColor = roleColors[role] || '#2563eb';
+    const noteColor = roleColors[role] || '#1d4ed8';
     const noteLabel = roleLabels[role] || 'Agent';
     return '<div style="display:flex;align-items:center;justify-content:space-between;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 14px;">' +
-      '<div><span style="font-family:var(--mono);font-weight:700;color:var(--accent)">' + escapeHtml(formatPhone(d.phone)) + '</span>' +
+      '<div><span style="font-family:var(--mono);font-weight:700;color:var(--blue-dark)">' + escapeHtml(formatPhone(d.phone)) + '</span>' +
       '<span style="font-size:11px;color:var(--muted);margin-left:10px">' + addedDate + '</span>' +
       '<div style="font-size:11px;margin-top:3px;color:' + noteColor + '">&#128221; Added by ' + who + ' &middot; <b>' + noteLabel + '</b></div></div>' +
     '</div>';
