@@ -923,9 +923,6 @@ body{font-family:'Inter',sans-serif;background:linear-gradient(135deg,#e0e7ff 0%
 </div>
 
 <script>
-const _urlParams = new URLSearchParams(window.location.search);
-const _numberId = _urlParams.get('numberId');
-const _agentId = _urlParams.get('agentId');
 let obCount=1;
 let selectedProp='';
 
@@ -1087,82 +1084,4 @@ async function saveFile(){
   const btn=g('submitBtn');btn.disabled=true;
   g('progBox').style.display='block';g('doneBox').style.display='none';
   setProgress(5,'Starting...');
-
-  const applicantName = name.replace(/\s+/g,'_');
-  const folderName = 'LAP_BIZ_' + applicantName + '_' + new Date().toISOString().slice(0,10);
-  const zip = new JSZip();
-  const docs = zip.folder('Documents');
-
-  setProgress(15,'Adding Aadhaar...');     await addFiles(docs,'up_aadhaar','Aadhaar_Card');
-  setProgress(20,'Adding PAN...');         await addFiles(docs,'up_pan','PAN_Card');
-  setProgress(25,'Adding photo...');       await addFiles(docs,'up_photo','Passport_Photo');
-  setProgress(30,'Adding elec bill...');   await addFiles(docs,'up_elec','Electricity_Bill');
-  setProgress(35,'Adding CIBIL...');       await addFiles(docs,'up_cibil','CIBIL_Report');
-  setProgress(40,'Adding GST...');         await addFiles(docs,'up_gst','GST_Certificate');
-  setProgress(43,'Adding Udhyam...');      await addFiles(docs,'up_udhyam','Udhyam_Certificate');
-  setProgress(46,'Adding Gumastha...');    await addFiles(docs,'up_gumastha','Gumastha_Shop_Act');
-  setProgress(50,'Unlocking & adding ITR...'); await addFiles(docs,'up_itr','ITR_3Years',val('pw_itr'));
-  setProgress(58,'Unlocking & adding bank stmt...');   await addFiles(docs,'up_bank','Bank_Statement',val('pw_bank'));
-  setProgress(62,'Adding SOA...');         await addFiles(docs,'up_soa','SOA_Statement');
-  setProgress(64,'Adding SOA (always)...'); await addFiles(docs,'up_soa_always','SOA_Statement_Always');
-  setProgress(67,'Adding property video...');  await addFiles(docs,'up_prop_video','Property_Video');
-  setProgress(70,'Adding property docs...');
-  await addFiles(docs,'up_registry','Registry');
-  await addFiles(docs,'up_patta','Patta');
-  await addFiles(docs,'up_khasra_agri','Khasra_Agri');
-  await addFiles(docs,'up_rin','Rin_Pustika');
-  await addFiles(docs,'up_khatauni','Khatauni');
-  await addFiles(docs,'up_b1_agri','B1_Agri');
-  await addFiles(docs,'up_registry_shop','Registry_Shop');
-  await addFiles(docs,'up_div_shop','Diversion_Shop');
-  await addFiles(docs,'up_khasra_shop','Khasra_Shop');
-  await addFiles(docs,'up_shop_naksha','Shop_Naksha');
-  await addFiles(docs,'up_trade','Trade_License');
-  await addFiles(docs,'up_patta_v','Patta_Village');
-  await addFiles(docs,'up_khasra_v','Khasra_Village');
-  await addFiles(docs,'up_noc','NOC');
-  await addFiles(docs,'up_village_misc','Village_Misc');
-
-  zip.file('Applicant_Info.txt', 'LAP Business - ' + name + '\nProperty: ' + (propType||'N/A') + '\nGenerated: ' + new Date().toLocaleString('en-IN'));
-  setProgress(82, 'Compressing ZIP...');
-  const zipBlob = await zip.generateAsync({type:'blob',compression:'DEFLATE',compressionOptions:{level:6}});
-  const zipName = folderName + '.zip';
-  // ── SAVE ZIP TO DESKTOP ────────────────────────────────────────────
-  setProgress(85, 'Saving ZIP...');
-  if (_numberId && _agentId) {
-    const formData = new FormData();
-    formData.append('docZip', zipBlob, zipName);
-    formData.append('agentId', _agentId);
-    try {
-      const resp = await fetch('/api/agent/upload-doc-zip/' + _numberId, {method:'POST', body: formData});
-      const d = await resp.json();
-      if (d.success) {
-        setProgress(100, 'Uploaded successfully!');
-        alert('Documents uploaded successfully! You can close this tab.');
-      } else {
-        alert('Upload failed: ' + (d.error || 'Unknown error'));
-      }
-    } catch(e) {
-      alert('Upload error: ' + e.message);
-    }
-  } else if (window.showSaveFilePicker) {
-    try {
-      const handle = await window.showSaveFilePicker({
-        suggestedName: zipName,
-        startIn: 'desktop',
-        types: [{ description: 'ZIP Archive', accept: { 'application/zip': ['.zip'] } }]
-      });
-      const writable = await handle.createWritable();
-      await writable.write(zipBlob);
-      await writable.close();
-    } catch(e) {
-      if (e.name !== 'AbortError') saveAs(zipBlob, zipName);
-    }
-  } else {
-    saveAs(zipBlob, zipName);
-  }
-  btn.disabled = false;
-}
-</script>
-</body>
-</html>
+  >
