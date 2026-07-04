@@ -2141,7 +2141,7 @@ function generateReportPDF(isDummy) {
   doc.setFontSize(20);
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(255, 255, 255);
-  doc.text('KINGFISHER MANDLA RESORT & ENTERTAINMENT', 105, 14, { align: 'center' });
+  doc.text('KINGFISHER MANDLA X Ruralift', 105, 14, { align: 'center' });
   doc.setFontSize(11);
   doc.setFont('helvetica', 'normal');
   doc.text('Daily Agent Report  |  ' + dateStr, 105, 24, { align: 'center' });
@@ -2170,21 +2170,37 @@ function generateReportPDF(isDummy) {
     ];
     const dummyDialedLog = [
       { phone: '9876543210', disposition: 'Interested', time: '10:05 AM' },
+      { phone: '9876543211', disposition: 'Interested', time: '10:08 AM' },
+      { phone: '9876543212', disposition: 'Interested', time: '10:15 AM' },
       { phone: '9876543213', disposition: 'Followup', time: '10:12 AM' },
+      { phone: '9876543230', disposition: 'Followup', time: '10:22 AM' },
+      { phone: '9876543231', disposition: 'Followup', time: '10:30 AM' },
+      { phone: '9876543232', disposition: 'Followup', time: '10:38 AM' },
+      { phone: '9876543233', disposition: 'Followup', time: '11:05 AM' },
       { phone: '9876543216', disposition: 'Not Interested', time: '10:20 AM' },
+      { phone: '9876543234', disposition: 'Not Interested', time: '10:45 AM' },
+      { phone: '9876543235', disposition: 'Not Interested', time: '11:10 AM' },
+      { phone: '9876543236', disposition: 'Not Interested', time: '11:25 AM' },
       { phone: '9876543217', disposition: 'CNC (Dead)', time: '10:28 AM' },
+      { phone: '9876543237', disposition: 'CNC (Dead)', time: '11:30 AM' },
+      { phone: '9876543238', disposition: 'CNC (Dead)', time: '11:48 AM' },
       { phone: '9876543218', disposition: 'CNR', time: '10:35 AM' },
+      { phone: '9876543239', disposition: 'CNR', time: '11:55 AM' },
+      { phone: '9876543240', disposition: 'CNR', time: '12:05 PM' },
+      { phone: '9876543241', disposition: 'CNR', time: '12:15 PM' },
+      { phone: '9876543242', disposition: 'CNR', time: '12:22 PM' },
       { phone: '9876543219', disposition: 'Switch Off', time: '10:42 AM' },
+      { phone: '9876543243', disposition: 'Switch Off', time: '12:30 PM' },
       { phone: '9876543220', disposition: 'DND', time: '10:50 AM' },
-      { phone: '9876543221', disposition: 'Discard', time: '10:58 AM' }
+      { phone: '9876543221', disposition: 'Discard', time: '10:58 AM' },
+      { phone: '9876543244', disposition: 'Discard', time: '12:40 PM' }
     ];
 
-    y = addDispoStats(doc, y, dummyDispoStats);
+    y = addDispoStats(doc, y, dummyDispoStats, dummyDialedLog);
     y = addInterestedSection(doc, y, dummyInterested);
     y = addFollowupsSection(doc, y, dummyFollowups);
     y = addDndSection(doc, y, dummyDnd);
     y = addConvertedSection(doc, y, dummyConverted);
-    y = addDialedLogSection(doc, y, dummyDialedLog);
   } else {
     // LIVE DATA
     const statEls = document.querySelectorAll('.dispo-stat-card');
@@ -2244,12 +2260,11 @@ function generateReportPDF(isDummy) {
     // For now use what's available
     const dialedLog = [];
 
-    y = addDispoStats(doc, y, dispoStats);
+    y = addDispoStats(doc, y, dispoStats, dialedLog);
     if (interested.length > 0) y = addInterestedSection(doc, y, interested);
     if (followups.length > 0) y = addFollowupsSection(doc, y, followups);
     if (dndList.length > 0) y = addDndSection(doc, y, dndList);
     if (converted.length > 0) y = addConvertedSection(doc, y, converted);
-    if (dialedLog.length > 0) y = addDialedLogSection(doc, y, dialedLog);
   }
 
   doc.save(fileName);
@@ -2260,36 +2275,85 @@ function checkPage(doc, y, needed) {
   return y;
 }
 
-function addDispoStats(doc, y, stats) {
+function addDispoStats(doc, y, stats, dialedLog) {
   y = checkPage(doc, y, 50);
   doc.setFontSize(13);
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(108, 43, 217);
-  doc.text('DISPOSITION STATS (Today)', 14, y);
+  doc.text('DISPOSITION STATS (Today) - Total Dialed: ' + (stats.totalDialed || 0), 14, y);
   doc.setTextColor(0, 0, 0);
-  y += 8;
-  
-  doc.autoTable({
-    startY: y,
-    head: [['Metric', 'Count']],
-    body: [
-      ['Total Dialed', String(stats.totalDialed)],
-      ['Interested', String(stats.interested)],
-      ['Followup', String(stats.followup)],
-      ['Not Interested', String(stats.notInterested)],
-      ['CNC (Dead)', String(stats.dead)],
-      ['CNR (Not Received)', String(stats.notReceived)],
-      ['Switch Off', String(stats.switchOff)],
-      ['DND', String(stats.dnd)],
-      ['Discard', String(stats.discard)]
-    ],
-    theme: 'striped',
-    headStyles: { fillColor: [108, 43, 217], fontStyle: 'bold', fontSize: 10 },
-    margin: { left: 14, right: 14 },
-    styles: { fontSize: 10, cellPadding: 4 },
-    alternateRowStyles: { fillColor: [245, 243, 255] }
-  });
-  return doc.lastAutoTable.finalY + 12;
+  y += 10;
+
+  // Group dialed numbers by disposition
+  const groups = {
+    'Interested': { color: [5, 150, 105], numbers: [] },
+    'Followup': { color: [37, 99, 235], numbers: [] },
+    'Not Interested': { color: [100, 116, 139], numbers: [] },
+    'CNC (Dead)': { color: [220, 38, 38], numbers: [] },
+    'CNR': { color: [217, 119, 6], numbers: [] },
+    'Switch Off': { color: [217, 119, 6], numbers: [] },
+    'DND': { color: [198, 40, 40], numbers: [] },
+    'Discard': { color: [71, 85, 105], numbers: [] }
+  };
+
+  if (dialedLog && dialedLog.length > 0) {
+    dialedLog.forEach(entry => {
+      const dispo = entry.disposition || 'Dialed';
+      if (groups[dispo]) {
+        groups[dispo].numbers.push(entry.phone);
+      } else {
+        // Try to find matching group
+        for (const key of Object.keys(groups)) {
+          if (dispo.toLowerCase().includes(key.toLowerCase().split(' ')[0].toLowerCase())) {
+            groups[key].numbers.push(entry.phone);
+            break;
+          }
+        }
+      }
+    });
+  }
+
+  // Render each disposition group with its numbers
+  for (const [dispoName, group] of Object.entries(groups)) {
+    const count = group.numbers.length;
+    if (count === 0) continue;
+    
+    y = checkPage(doc, y, 20 + (count * 6));
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(group.color[0], group.color[1], group.color[2]);
+    doc.text(dispoName + ' (' + count + ')', 14, y);
+    doc.setTextColor(0, 0, 0);
+    y += 6;
+    
+    doc.autoTable({
+      startY: y,
+      head: [['#', 'Phone Number']],
+      body: group.numbers.map((p, i) => [String(i+1), p]),
+      theme: 'striped',
+      headStyles: { fillColor: group.color, fontStyle: 'bold', fontSize: 9 },
+      margin: { left: 14, right: 14 },
+      styles: { fontSize: 9, cellPadding: 3 },
+      alternateRowStyles: { fillColor: [248, 250, 252] },
+      columnStyles: { 0: { cellWidth: 15 } }
+    });
+    y = doc.lastAutoTable.finalY + 8;
+  }
+
+  // Show dispositions with 0 count as a summary line
+  const zeroCounts = Object.entries(groups).filter(([,g]) => g.numbers.length === 0);
+  if (zeroCounts.length > 0) {
+    y = checkPage(doc, y, 15);
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'italic');
+    doc.setTextColor(100, 116, 139);
+    doc.text('No calls: ' + zeroCounts.map(([name]) => name).join(', '), 14, y);
+    doc.setTextColor(0, 0, 0);
+    doc.setFont('helvetica', 'normal');
+    y += 10;
+  }
+
+  return y + 5;
 }
 
 function addInterestedSection(doc, y, leads) {
@@ -2443,7 +2507,7 @@ function generateLiveReportPDF() {
   doc.setFontSize(20);
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(255, 255, 255);
-  doc.text('KINGFISHER MANDLA RESORT & ENTERTAINMENT', 105, 14, { align: 'center' });
+  doc.text('KINGFISHER MANDLA X Ruralift', 105, 14, { align: 'center' });
   doc.setFontSize(11);
   doc.setFont('helvetica', 'normal');
   doc.text('Daily Agent Report  |  ' + dateStr, 105, 24, { align: 'center' });
@@ -2465,7 +2529,11 @@ function generateLiveReportPDF() {
     dnd: stats.dndToday || 0,
     discard: stats.discardToday || 0
   };
-  y = addDispoStats(doc, y, dispoStats);
+  // Dialed log from server - pass to dispo stats
+  const dialedLog = (window._liveDialedLog || []).map(l => ({
+    phone: l.phone || '', disposition: l.disposition || '', time: l.time || ''
+  }));
+  y = addDispoStats(doc, y, dispoStats, dialedLog);
 
   // Interested
   const interested = (interestedLeadsData || []).map(l => ({
@@ -2512,12 +2580,6 @@ function generateLiveReportPDF() {
     }
   });
   if (converted.length > 0) y = addConvertedSection(doc, y, converted);
-
-  // Dialed log from server
-  const dialedLog = (window._liveDialedLog || []).map(l => ({
-    phone: l.phone || '', disposition: l.disposition || '', time: l.time || ''
-  }));
-  if (dialedLog.length > 0) y = addDialedLogSection(doc, y, dialedLog);
 
   doc.save(fileName);
 }
