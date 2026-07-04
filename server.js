@@ -1111,6 +1111,8 @@ app.post('/api/agent/add-interested', (req, res) => {
 app.get('/api/admin/agents-list', (req, res) => {
   const agentMap = {};
   for (const [id, a] of Object.entries(appState.agents)) {
+    const eidMatch = id.match(/^emp_(\d+)$/);
+    if (eidMatch && !appState.allowedEids[eidMatch[1]]) continue; // agent removed
     agentMap[id] = { id, name: a.name };
   }
   for (const [eid, val] of Object.entries(appState.allowedEids)) {
@@ -1829,8 +1831,10 @@ app.get('/api/rankings', (req, res) => {
   // Collect all agent IDs from dialedLog and agents registry
   const agentScores = {};
 
-  // Initialize from known agents
+  // Initialize from known agents — skip anyone whose EID has since been removed
   for (const [id, a] of Object.entries(appState.agents)) {
+    const eidMatch = id.match(/^emp_(\d+)$/);
+    if (eidMatch && !appState.allowedEids[eidMatch[1]]) continue;
     agentScores[id] = { agentId: id, name: a.name, interested: 0, followups: 0, totalCalls: 0, notInterested: 0, discard: 0, dead: 0, switchOff: 0 };
   }
 
@@ -1842,13 +1846,16 @@ app.get('/api/rankings', (req, res) => {
     }
   }
 
-  // Filter dialedLog by period and tally
+  // Filter dialedLog by period and tally — skip entries for agents who have since been removed
   appState.dialedLog.forEach(entry => {
     if (!entry.timestamp) return;
     const entryDate = new Date(entry.timestamp);
     if (entryDate < cutoffDate) return;
 
     const aid = entry.agentId;
+    const eidMatch = aid && aid.match(/^emp_(\d+)$/);
+    // If this agentId maps to an EID that's no longer in allowedEids, the agent was removed — skip
+    if (eidMatch && !appState.allowedEids[eidMatch[1]]) return;
     if (!agentScores[aid]) {
       agentScores[aid] = { agentId: aid, name: entry.agentName || aid, interested: 0, followups: 0, totalCalls: 0, notInterested: 0, discard: 0, dead: 0, switchOff: 0 };
     }
