@@ -1256,6 +1256,48 @@ app.get('/api/agent/completed/:agentId', (req, res) => {
   res.json(completed);
 });
 
+// ─── Agent Daily Report Data ──────────────────────────────────────────────────
+app.get('/api/agent/dialed-today/:agentId', (req, res) => {
+  const agentId = req.params.agentId;
+  const today = getTodayStr();
+  const todayLog = (appState.dialedLog || []).filter(entry => {
+    if (entry.agentId !== agentId) return false;
+    if (!entry.timestamp) return false;
+    return entry.timestamp.slice(0, 10) === today;
+  }).map(entry => {
+    const t = new Date(entry.timestamp);
+    const ist = new Date(t.getTime() + 5.5 * 60 * 60 * 1000);
+    let h = ist.getHours(); const m = String(ist.getMinutes()).padStart(2, '0');
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    if (h === 0) h = 12; else if (h > 12) h -= 12;
+    const DISPO_MAP = { dead: 'CNC (Dead)', not_received: 'CNR', not_interested: 'Not Interested', followup: 'Followup', switch_off: 'Switch Off', interested: 'Interested', discard: 'Discard', dnd: 'DND' };
+    return {
+      phone: entry.phone || '',
+      disposition: DISPO_MAP[entry.disposition] || entry.disposition || 'Dialed',
+      time: h + ':' + m + ' ' + ampm
+    };
+  });
+  res.json(todayLog);
+});
+
+app.get('/api/agent/stats/:agentId', (req, res) => {
+  const agentId = req.params.agentId;
+  const agent = appState.agents[agentId];
+  const today = getTodayStr();
+  const todayLog = (appState.dialedLog || []).filter(entry => entry.agentId === agentId && entry.timestamp && entry.timestamp.slice(0, 10) === today);
+  const counts = { totalDialedToday: agent ? (agent.totalDialedToday || 0) : 0 };
+  const dispoCount = (d) => todayLog.filter(e => e.disposition === d).length;
+  counts.interestedToday = dispoCount('interested');
+  counts.followupToday = dispoCount('followup');
+  counts.notInterestedToday = dispoCount('not_interested');
+  counts.deadToday = dispoCount('dead');
+  counts.notReceivedToday = dispoCount('not_received');
+  counts.switchOffToday = dispoCount('switch_off');
+  counts.dndToday = dispoCount('dnd');
+  counts.discardToday = dispoCount('discard');
+  res.json(counts);
+});
+
 app.delete('/api/admin/file/:fileId', (req, res) => {
   const fid = req.params.fileId;
   // SAFE DELETE: never remove interested leads when deleting a file batch —

@@ -411,18 +411,15 @@
 
 
 
-    <!-- LEADERBOARD -->
-    <div class="leaderboard-panel" id="leaderboardPanel">
-      <div class="leaderboard-header">
-        <h2>&#127942; Agent Rankings</h2>
-        <div class="lb-period-tabs">
-          <button class="lb-period-tab active" data-period="daily" onclick="switchLeaderboardPeriod('daily')">Daily</button>
-          <button class="lb-period-tab" data-period="weekly" onclick="switchLeaderboardPeriod('weekly')">Weekly</button>
-          <button class="lb-period-tab" data-period="monthly" onclick="switchLeaderboardPeriod('monthly')">Monthly</button>
-        </div>
+    <!-- DAILY REPORT PDF -->
+    <div class="panel panel-full" style="margin-bottom:20px">
+      <div class="panel-header accent-h">
+        <h2>📋 Daily Report</h2>
+        <span style="font-size:12px;color:var(--muted)">Send to client daily</span>
       </div>
-      <div class="leaderboard-body" id="leaderboardBody">
-        <div style="text-align:center;color:var(--muted);padding:20px">Loading rankings...</div>
+      <div class="panel-body" style="display:flex;gap:12px;flex-wrap:wrap">
+        <button class="btn-add-lead" onclick="downloadLiveReport()" style="background:var(--accent)">📄 Download Live Report (PDF)</button>
+        <button class="btn-add-lead" onclick="downloadDummyReport()" style="background:var(--warn)">🧪 Download Dummy Report (PDF)</button>
       </div>
     </div>
 
@@ -2125,100 +2122,388 @@ async function fetchMyStats() {
   } catch (e) { /* silent */ }
 }
 
-// ── Leaderboard ───────────────────────────────────────────────────────────────
-let currentLbPeriod = 'daily';
+// ── PDF Report Generation ─────────────────────────────────────────────────────
+// NOTE: /api/agent/dialed-today/:agentId and /api/agent/stats/:agentId endpoints needed on server
 
-function switchLeaderboardPeriod(period) {
-  currentLbPeriod = period;
-  document.querySelectorAll('.lb-period-tab').forEach(t => t.classList.remove('active'));
-  document.querySelector('.lb-period-tab[data-period="' + period + '"]').classList.add('active');
-  fetchLeaderboard();
-}
+function generateReportPDF(isDummy) {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  const today = new Date();
+  const dateStr = String(today.getDate()).padStart(2,'0') + '-' + String(today.getMonth()+1).padStart(2,'0') + '-' + today.getFullYear();
+  const fileName = dateStr + '_Kingfisher Report.pdf';
+  
+  let y = 15;
+  
+  // Header
+  doc.setFontSize(18);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Kingfisher Mandla Resort & Entertainment', 105, y, { align: 'center' });
+  y += 8;
+  doc.setFontSize(12);
+  doc.setFont('helvetica', 'normal');
+  doc.text('Daily Agent Report - ' + dateStr, 105, y, { align: 'center' });
+  y += 6;
+  doc.text('Agent: ' + (isDummy ? 'Demo Agent (EID: 1234)' : (document.getElementById('displayAgentName').textContent || 'N/A')), 105, y, { align: 'center' });
+  y += 10;
+  doc.setDrawColor(108, 43, 217);
+  doc.line(14, y, 196, y);
+  y += 10;
 
-function getInitial(name) {
-  if (!name) return '?';
-  return name.charAt(0).toUpperCase();
-}
+  if (isDummy) {
+    // DUMMY DATA
+    const dummyDispoStats = { totalDialed: 25, interested: 3, followup: 5, notInterested: 4, dead: 3, notReceived: 5, switchOff: 2, dnd: 1, discard: 2 };
+    const dummyInterested = [
+      { phone: '9876543210', name: 'Rahul Sharma', loanType: 'Kitty Party', revenue: '499' },
+      { phone: '9876543211', name: 'Priya Singh', loanType: 'Family Fun Day- Water Park', revenue: '1499' },
+      { phone: '9876543212', name: 'Amit Verma', loanType: 'Dream Wedding', revenue: '299000' }
+    ];
+    const dummyFollowups = [
+      { phone: '9876543213', name: 'Neha Gupta', date: '10-07-2026', time: '11:00 AM', pkg: 'Private Pool Party' },
+      { phone: '9876543214', name: 'Ravi Kumar', date: '11-07-2026', time: '2:00 PM', pkg: 'Kitty Party' }
+    ];
+    const dummyDnd = [
+      { phone: '9876543220' }, { phone: '9876543221' }, { phone: '9876543222' }
+    ];
+    const dummyConverted = [
+      { phone: '9876543215', name: 'Suresh Patel', loanType: 'Pool Party', revenue: '4999', date: '04-07-2026' }
+    ];
+    const dummyDialedLog = [
+      { phone: '9876543210', disposition: 'Interested', time: '10:05 AM' },
+      { phone: '9876543213', disposition: 'Followup', time: '10:12 AM' },
+      { phone: '9876543216', disposition: 'Not Interested', time: '10:20 AM' },
+      { phone: '9876543217', disposition: 'CNC (Dead)', time: '10:28 AM' },
+      { phone: '9876543218', disposition: 'CNR', time: '10:35 AM' },
+      { phone: '9876543219', disposition: 'Switch Off', time: '10:42 AM' },
+      { phone: '9876543220', disposition: 'DND', time: '10:50 AM' },
+      { phone: '9876543221', disposition: 'Discard', time: '10:58 AM' }
+    ];
 
-function getSmartRemarks(r, data, idx) {
-  if (data.length === 0) return '';
-  if (idx === 0 && r.score > 0) return '🏆 शाबाश! आप #1 पर हो — ऐसे ही आगे बढ़ते रहो!';
-  if (r.score <= 0) return '💡 अभी मौका है — एक अच्छी call से board पर आ सकते हो!';
-  const above = data[idx - 1];
-  const gap = above.score - r.score;
-  if (gap <= 0) return '🔥 बराबर हो #' + idx + ' पर! एक call से आगे निकल सकते हो!';
-  if (gap === 1) return '⚡ बस 1 point पीछे ' + above.name.split(' ')[0] + ' से — एक interested lead लाओ और आगे!';
-  const intNeeded = Math.ceil(gap / 2);
-  return '📈 ' + above.name.split(' ')[0] + ' से ' + gap + ' pts पीछे — ' + intNeeded + ' interested lead' + (intNeeded > 1 ? 's' : '') + ' लाओ और overtake करो!';
-}
+    y = addDispoStats(doc, y, dummyDispoStats);
+    y = addInterestedSection(doc, y, dummyInterested);
+    y = addFollowupsSection(doc, y, dummyFollowups);
+    y = addDndSection(doc, y, dummyDnd);
+    y = addConvertedSection(doc, y, dummyConverted);
+    y = addDialedLogSection(doc, y, dummyDialedLog);
+  } else {
+    // LIVE DATA
+    const statEls = document.querySelectorAll('.dispo-stat-card');
+    const dispoStats = { totalDialed: 0, interested: 0, followup: 0, notInterested: 0, dead: 0, notReceived: 0, switchOff: 0, dnd: 0, discard: 0 };
+    // Get from stat cards on page
+    const totalEl = document.getElementById('statTotalDialed');
+    if (totalEl) dispoStats.totalDialed = parseInt(totalEl.textContent) || 0;
+    // Pull from interestedLeadsData, etc.
+    dispoStats.interested = (interestedLeadsData || []).length;
+    
+    // Build from page data
+    const interested = (interestedLeadsData || []).map(l => ({
+      phone: l.phone, name: l.name || 'N/A', loanType: PACKAGE_LABELS[l.loanType] || l.loanType || 'N/A', revenue: l.revenueGenerated || '0'
+    }));
+    
+    // Followups from DOM
+    const followupRows = document.querySelectorAll('#followupsTable tr:not(.empty)');
+    const followups = [];
+    followupRows.forEach(row => {
+      const cells = row.querySelectorAll('td');
+      if (cells.length >= 6) {
+        followups.push({
+          phone: cells[0] ? cells[0].textContent.trim() : '',
+          name: cells[1] ? cells[1].textContent.trim() : '',
+          date: cells[4] ? cells[4].textContent.trim() : '',
+          time: cells[5] ? cells[5].textContent.trim() : '',
+          pkg: cells[3] ? cells[3].textContent.trim() : ''
+        });
+      }
+    });
 
-function renderLeaderboard(data, formulaDesc) {
-  const body = document.getElementById('leaderboardBody');
-  if (!data || data.length === 0) {
-    body.innerHTML = '<div style="text-align:center;color:var(--muted);padding:30px">No ranking data available yet</div>';
-    return;
+    // DND from DOM
+    const dndItems = document.querySelectorAll('#dndNumbersList .dnd-item, #dndNumbersList [data-phone]');
+    const dndList = [];
+    dndItems.forEach(item => {
+      const phone = item.getAttribute('data-phone') || item.textContent.trim().match(/\d{10}/);
+      if (phone) dndList.push({ phone: String(phone) });
+    });
+
+    // Converted from completedTable
+    const completedRows = document.querySelectorAll('#completedTable tr:not(.empty)');
+    const converted = [];
+    completedRows.forEach(row => {
+      const cells = row.querySelectorAll('td');
+      if (cells.length >= 4) {
+        converted.push({
+          phone: cells[0] ? cells[0].textContent.trim() : '',
+          name: cells[1] ? cells[1].textContent.trim() : '',
+          loanType: cells[2] ? cells[2].textContent.trim() : '',
+          revenue: cells[3] ? cells[3].textContent.trim().replace(/[₹,]/g,'') : '0',
+          date: cells[4] ? cells[4].textContent.trim() : ''
+        });
+      }
+    });
+
+    // Dialed log - we'll fetch it from server
+    // For now use what's available
+    const dialedLog = [];
+
+    y = addDispoStats(doc, y, dispoStats);
+    if (interested.length > 0) y = addInterestedSection(doc, y, interested);
+    if (followups.length > 0) y = addFollowupsSection(doc, y, followups);
+    if (dndList.length > 0) y = addDndSection(doc, y, dndList);
+    if (converted.length > 0) y = addConvertedSection(doc, y, converted);
+    if (dialedLog.length > 0) y = addDialedLogSection(doc, y, dialedLog);
   }
-  const maxScore = Math.max(...data.map(d => d.score), 1);
-  let html = '';
-  // Formula info
-  if (formulaDesc) {
-    html += '<div style="background:var(--accent-glow);border:1px solid rgba(108,43,217,.2);border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:12px;color:var(--text);line-height:1.6">';
-    html += '<strong style="color:var(--accent)">&#128202; Scoring Formula:</strong> ';
-    html += 'Score = (100 x Interested + 25 x FollowUp - 10 x NI - 15 x Not-Eligible - 2 x CNC - 2 x SwitchOff) / TotalCalls (0-100 scale)';
-    html += '</div>';
-  }
-  html += '<div class="lb-list">';
-  data.forEach((r, idx) => {
-    const pct = Math.round((r.score / maxScore) * 100);
-    // Avatar sizing: rank 1 biggest, shrinks for lower ranks
-    const avatarSize = idx === 0 ? 76 : idx === 1 ? 66 : idx === 2 ? 58 : idx < 5 ? 50 : 42;
-    const fontSize = idx === 0 ? 24 : idx === 1 ? 21 : idx === 2 ? 18 : idx < 5 ? 16 : 13;
-    const faceHtml = r.profilePhoto
-      ? '<img src="' + r.profilePhoto + '" alt="">'
-      : getInitial(r.name);
-    const remarks = getSmartRemarks(r, data, idx);
-    const isMe = agentId && r.agentId === agentId;
-    const isTop3 = idx < 3;
-    let rankDisplay;
-    if (idx === 0) {
-      rankDisplay = '🏆<br><span style="font-size:9px">#1</span>';
-    } else if (isTop3) {
-      rankDisplay = '🏆<br><span style="font-size:9px">#' + (idx+1) + '</span>';
-    } else {
-      rankDisplay = '🏆<br><span style="font-size:9px">#' + r.rank + '</span>';
-    }
-    const badgeStyle = idx === 0 ? 'font-size:20px;width:40px;height:40px;' : '';
-    const rowClass = 'lb-row' + (isMe ? ' is-me' : '') + (idx === 0 ? ' rank-1-row' : '');
-    html += '<div class="' + rowClass + '">' +
-      '<div class="lb-rank-badge top3" style="' + badgeStyle + 'text-align:center;line-height:1.2">' + rankDisplay + '</div>' +
-      '<div class="lb-row-avatar' + (idx === 0 ? ' rank-1-avatar' : '') + '" style="width:' + avatarSize + 'px;height:' + avatarSize + 'px;font-size:' + fontSize + 'px">' + faceHtml + '</div>' +
-      '<div class="lb-row-info">' +
-        '<div class="lb-row-name">' + escapeHtml(r.name) + (isMe ? ' <span style="font-size:10px;color:var(--accent);font-weight:700;margin-left:4px">YOU</span>' : '') + '</div>' +
-        '<div class="lb-row-stats">⭐ ' + r.interested + ' interested &nbsp;·&nbsp; 📅 ' + r.followups + ' followups &nbsp;·&nbsp; 📞 ' + r.totalCalls + ' calls</div>' +
-        '<div class="lb-bar-wrap"><div class="lb-bar" style="width:' + pct + '%"></div></div>' +
-        (remarks ? '<div class="lb-row-remarks">' + remarks + '</div>' : '') +
-      '</div>' +
-      '<div class="lb-row-right"><div class="lb-row-score">' + r.score + '</div></div>' +
-    '</div>';
+
+  doc.save(fileName);
+}
+
+function checkPage(doc, y, needed) {
+  if (y + needed > 280) { doc.addPage(); return 15; }
+  return y;
+}
+
+function addDispoStats(doc, y, stats) {
+  y = checkPage(doc, y, 50);
+  doc.setFontSize(14);
+  doc.setFont('helvetica', 'bold');
+  doc.text('📊 Disposition Stats (Today)', 14, y);
+  y += 8;
+  
+  doc.autoTable({
+    startY: y,
+    head: [['Metric', 'Count']],
+    body: [
+      ['Total Dialed', String(stats.totalDialed)],
+      ['Interested', String(stats.interested)],
+      ['Followup', String(stats.followup)],
+      ['Not Interested', String(stats.notInterested)],
+      ['CNC (Dead)', String(stats.dead)],
+      ['CNR (Not Received)', String(stats.notReceived)],
+      ['Switch Off', String(stats.switchOff)],
+      ['DND', String(stats.dnd)],
+      ['Discard', String(stats.discard)]
+    ],
+    theme: 'grid',
+    headStyles: { fillColor: [108, 43, 217] },
+    margin: { left: 14, right: 14 },
+    styles: { fontSize: 10 }
   });
-  html += '</div>';
-  body.innerHTML = html;
+  return doc.lastAutoTable.finalY + 12;
 }
 
-async function fetchLeaderboard() {
+function addInterestedSection(doc, y, leads) {
+  y = checkPage(doc, y, 40);
+  doc.setFontSize(14);
+  doc.setFont('helvetica', 'bold');
+  doc.text('⭐ Interested Leads (Today)', 14, y);
+  y += 8;
+  
+  doc.autoTable({
+    startY: y,
+    head: [['Phone', 'Name', 'Package', 'Revenue (₹)']],
+    body: leads.map(l => [l.phone, l.name, l.loanType, l.revenue]),
+    theme: 'grid',
+    headStyles: { fillColor: [5, 150, 105] },
+    margin: { left: 14, right: 14 },
+    styles: { fontSize: 9 }
+  });
+  return doc.lastAutoTable.finalY + 12;
+}
+
+function addFollowupsSection(doc, y, leads) {
+  y = checkPage(doc, y, 40);
+  doc.setFontSize(14);
+  doc.setFont('helvetica', 'bold');
+  doc.text('📅 Followups (Today)', 14, y);
+  y += 8;
+  
+  doc.autoTable({
+    startY: y,
+    head: [['Phone', 'Name', 'Package', 'Date', 'Time']],
+    body: leads.map(l => [l.phone, l.name, l.pkg || '', l.date, l.time]),
+    theme: 'grid',
+    headStyles: { fillColor: [37, 99, 235] },
+    margin: { left: 14, right: 14 },
+    styles: { fontSize: 9 }
+  });
+  return doc.lastAutoTable.finalY + 12;
+}
+
+function addDndSection(doc, y, numbers) {
+  y = checkPage(doc, y, 40);
+  doc.setFontSize(14);
+  doc.setFont('helvetica', 'bold');
+  doc.text('🔕 DND Numbers (All Time)', 14, y);
+  y += 8;
+  
+  doc.autoTable({
+    startY: y,
+    head: [['#', 'Phone Number']],
+    body: numbers.map((n, i) => [String(i+1), n.phone]),
+    theme: 'grid',
+    headStyles: { fillColor: [198, 40, 40] },
+    margin: { left: 14, right: 14 },
+    styles: { fontSize: 9 }
+  });
+  return doc.lastAutoTable.finalY + 12;
+}
+
+function addConvertedSection(doc, y, leads) {
+  y = checkPage(doc, y, 40);
+  doc.setFontSize(14);
+  doc.setFont('helvetica', 'bold');
+  doc.text('✅ Converted Customers (Today)', 14, y);
+  y += 8;
+  
+  const totalRev = leads.reduce((s, l) => s + (Number(l.revenue) || 0), 0);
+  doc.setFontSize(11);
+  doc.setFont('helvetica', 'normal');
+  doc.text('Total Revenue Generated: Rs. ' + totalRev.toLocaleString('en-IN'), 14, y);
+  y += 7;
+  
+  doc.autoTable({
+    startY: y,
+    head: [['Phone', 'Name', 'Package', 'Revenue (₹)', 'Date']],
+    body: leads.map(l => [l.phone, l.name, l.loanType, l.revenue, l.date || '']),
+    theme: 'grid',
+    headStyles: { fillColor: [108, 43, 217] },
+    margin: { left: 14, right: 14 },
+    styles: { fontSize: 9 }
+  });
+  return doc.lastAutoTable.finalY + 12;
+}
+
+function addDialedLogSection(doc, y, log) {
+  y = checkPage(doc, y, 40);
+  doc.setFontSize(14);
+  doc.setFont('helvetica', 'bold');
+  doc.text('📞 All Dialed Numbers (Today)', 14, y);
+  y += 8;
+  
+  doc.autoTable({
+    startY: y,
+    head: [['#', 'Phone', 'Disposition', 'Time']],
+    body: log.map((l, i) => [String(i+1), l.phone, l.disposition, l.time || '']),
+    theme: 'grid',
+    headStyles: { fillColor: [71, 85, 105] },
+    margin: { left: 14, right: 14 },
+    styles: { fontSize: 9 }
+  });
+  return doc.lastAutoTable.finalY + 12;
+}
+
+async function downloadLiveReport() {
+  // Fetch today's dialed log for this agent from server
   try {
-    const r = await fetch('/api/rankings?period=' + currentLbPeriod);
-    const resp = await r.json();
-    // API now returns { rankings: [...], formulaDescription: '...' }
-    const data = resp.rankings || resp;
-    const formulaDesc = resp.formulaDescription || '';
-    renderLeaderboard(data, formulaDesc);
-  } catch (e) { /* silent */ }
+    const r = await fetch('/api/agent/dialed-today/' + agentId);
+    const dialedData = await r.json();
+    window._liveDialedLog = dialedData || [];
+  } catch(e) { window._liveDialedLog = []; }
+  
+  // Also get dispo stats
+  try {
+    const r = await fetch('/api/agent/stats/' + agentId);
+    const stats = await r.json();
+    window._liveDispoStats = stats;
+  } catch(e) { window._liveDispoStats = null; }
+  
+  generateLiveReportPDF();
 }
 
-// Fetch leaderboard on load and refresh periodically
-setTimeout(fetchLeaderboard, 500);
-setInterval(fetchLeaderboard, 5000);
+function generateLiveReportPDF() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  const today = new Date();
+  const dateStr = String(today.getDate()).padStart(2,'0') + '-' + String(today.getMonth()+1).padStart(2,'0') + '-' + today.getFullYear();
+  const fileName = dateStr + '_Kingfisher Report.pdf';
+  
+  let y = 15;
+  
+  // Header
+  doc.setFontSize(18);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Kingfisher Mandla Resort & Entertainment', 105, y, { align: 'center' });
+  y += 8;
+  doc.setFontSize(12);
+  doc.setFont('helvetica', 'normal');
+  doc.text('Daily Agent Report - ' + dateStr, 105, y, { align: 'center' });
+  y += 6;
+  doc.text('Agent: ' + (document.getElementById('displayAgentName').textContent || 'N/A'), 105, y, { align: 'center' });
+  y += 10;
+  doc.setDrawColor(108, 43, 217);
+  doc.line(14, y, 196, y);
+  y += 10;
+
+  // Dispo stats
+  const stats = window._liveDispoStats || {};
+  const dispoStats = {
+    totalDialed: stats.totalDialedToday || 0,
+    interested: stats.interestedToday || (interestedLeadsData || []).length,
+    followup: stats.followupToday || 0,
+    notInterested: stats.notInterestedToday || 0,
+    dead: stats.deadToday || 0,
+    notReceived: stats.notReceivedToday || 0,
+    switchOff: stats.switchOffToday || 0,
+    dnd: stats.dndToday || 0,
+    discard: stats.discardToday || 0
+  };
+  y = addDispoStats(doc, y, dispoStats);
+
+  // Interested
+  const interested = (interestedLeadsData || []).map(l => ({
+    phone: l.phone, name: l.name || 'N/A', loanType: PACKAGE_LABELS[l.loanType] || l.loanType || 'N/A', revenue: l.revenueGenerated || '0'
+  }));
+  if (interested.length > 0) y = addInterestedSection(doc, y, interested);
+
+  // Followups from DOM
+  const followupRows = document.querySelectorAll('#followupsTable tr');
+  const followups = [];
+  followupRows.forEach(row => {
+    const cells = row.querySelectorAll('td');
+    if (cells.length >= 6) {
+      followups.push({
+        phone: cells[0] ? cells[0].textContent.trim() : '',
+        name: cells[1] ? cells[1].textContent.trim() : '',
+        pkg: cells[3] ? cells[3].textContent.trim() : '',
+        date: cells[4] ? cells[4].textContent.trim() : '',
+        time: cells[5] ? cells[5].textContent.trim() : ''
+      });
+    }
+  });
+  if (followups.length > 0) y = addFollowupsSection(doc, y, followups);
+
+  // DND
+  const dndEls = document.querySelectorAll('#dndNumbersList [data-phone]');
+  const dndList = [];
+  dndEls.forEach(el => { const p = el.getAttribute('data-phone'); if (p) dndList.push({ phone: p }); });
+  if (dndList.length > 0) y = addDndSection(doc, y, dndList);
+
+  // Converted
+  const completedRows = document.querySelectorAll('#completedTable tr');
+  const converted = [];
+  completedRows.forEach(row => {
+    const cells = row.querySelectorAll('td');
+    if (cells.length >= 5) {
+      converted.push({
+        phone: cells[0] ? cells[0].textContent.trim() : '',
+        name: cells[1] ? cells[1].textContent.trim() : '',
+        loanType: cells[2] ? cells[2].textContent.trim() : '',
+        revenue: cells[3] ? cells[3].textContent.trim().replace(/[₹,]/g,'') : '0',
+        date: cells[4] ? cells[4].textContent.trim() : ''
+      });
+    }
+  });
+  if (converted.length > 0) y = addConvertedSection(doc, y, converted);
+
+  // Dialed log from server
+  const dialedLog = (window._liveDialedLog || []).map(l => ({
+    phone: l.phone || '', disposition: l.disposition || '', time: l.time || ''
+  }));
+  if (dialedLog.length > 0) y = addDialedLogSection(doc, y, dialedLog);
+
+  doc.save(fileName);
+}
+
+function downloadDummyReport() {
+  generateReportPDF(true);
+}
 
 // ── Toast ─────────────────────────────────────────────────────────────────────
 function showToast(msg, type='success') {
@@ -2454,6 +2739,9 @@ setInterval(tickLiveClock, 1000);
 
 
 </script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 
 </body>
 </html>
