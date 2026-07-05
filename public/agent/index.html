@@ -452,7 +452,6 @@
       </div>
       <div class="panel-body" style="display:flex;gap:12px;flex-wrap:wrap">
         <button class="btn-add-lead" onclick="downloadLiveReport()" style="background:var(--accent)">📄 Download Live Report (PDF)</button>
-        <button class="btn-add-lead" onclick="downloadDummyReport()" style="background:var(--warn)">🧪 Download Dummy Report (PDF)</button>
       </div>
     </div>
 
@@ -2296,53 +2295,6 @@ function checkPage(doc, y, needed) {
 }
 
 // ── Data collectors ────────────────────────────────────────────────────────────
-function getDummyReportData() {
-  return {
-    agentName: 'Demo Agent (EID: 1234)',
-    dispoStats: { totalDialed: 25, interested: 3, followup: 5, notInterested: 4, dead: 3, notReceived: 5, switchOff: 2, dnd: 1, discard: 2 },
-    interested: [
-      { phone: '9876543210', name: 'Rahul Sharma', loanType: 'Kitty Party', revenue: '499' },
-      { phone: '9876543211', name: 'Priya Singh', loanType: 'Family Fun Day- Water Park', revenue: '1499' },
-      { phone: '9876543212', name: 'Amit Verma', loanType: 'Dream Wedding', revenue: '299000' }
-    ],
-    followups: [
-      { phone: '9876543213', name: 'Neha Gupta', date: '10-07-2026', time: '11:00 AM', pkg: 'Private Pool Party' },
-      { phone: '9876543214', name: 'Ravi Kumar', date: '11-07-2026', time: '2:00 PM', pkg: 'Kitty Party' }
-    ],
-    dndList: [{ phone: '9876543220' }, { phone: '9876543221' }, { phone: '9876543222' }],
-    converted: [
-      { phone: '9876543215', name: 'Suresh Patel', loanType: 'Pool Party', revenue: '4999', date: '04-07-2026' }
-    ],
-    dialedLog: [
-      { phone: '9876543210', disposition: 'Interested', time: '10:05 AM' },
-      { phone: '9876543211', disposition: 'Interested', time: '10:08 AM' },
-      { phone: '9876543212', disposition: 'Interested', time: '10:15 AM' },
-      { phone: '9876543213', disposition: 'Followup', time: '10:12 AM' },
-      { phone: '9876543230', disposition: 'Followup', time: '10:22 AM' },
-      { phone: '9876543231', disposition: 'Followup', time: '10:30 AM' },
-      { phone: '9876543232', disposition: 'Followup', time: '10:38 AM' },
-      { phone: '9876543233', disposition: 'Followup', time: '11:05 AM' },
-      { phone: '9876543216', disposition: 'Not Interested', time: '10:20 AM' },
-      { phone: '9876543234', disposition: 'Not Interested', time: '10:45 AM' },
-      { phone: '9876543235', disposition: 'Not Interested', time: '11:10 AM' },
-      { phone: '9876543236', disposition: 'Not Interested', time: '11:25 AM' },
-      { phone: '9876543217', disposition: 'CNC (Dead)', time: '10:28 AM' },
-      { phone: '9876543237', disposition: 'CNC (Dead)', time: '11:30 AM' },
-      { phone: '9876543238', disposition: 'CNC (Dead)', time: '11:48 AM' },
-      { phone: '9876543218', disposition: 'CNR', time: '10:35 AM' },
-      { phone: '9876543239', disposition: 'CNR', time: '11:55 AM' },
-      { phone: '9876543240', disposition: 'CNR', time: '12:05 PM' },
-      { phone: '9876543241', disposition: 'CNR', time: '12:15 PM' },
-      { phone: '9876543242', disposition: 'CNR', time: '12:22 PM' },
-      { phone: '9876543219', disposition: 'Switch Off', time: '10:42 AM' },
-      { phone: '9876543243', disposition: 'Switch Off', time: '12:30 PM' },
-      { phone: '9876543220', disposition: 'DND', time: '10:50 AM' },
-      { phone: '9876543221', disposition: 'Discard', time: '10:58 AM' },
-      { phone: '9876543244', disposition: 'Discard', time: '12:40 PM' }
-    ]
-  };
-}
-
 function getLiveReportData() {
   const stats = window._liveDispoStats || {};
   const dispoStats = {
@@ -2695,10 +2647,6 @@ async function downloadLiveReport() {
     window._liveDispoStats = await r.json();
   } catch (e) { window._liveDispoStats = null; }
   buildReportPDF(getLiveReportData(), false);
-}
-
-function downloadDummyReport() {
-  buildReportPDF(getDummyReportData(), true);
 }
 
 // ── Toast ─────────────────────────────────────────────────────────────────────
