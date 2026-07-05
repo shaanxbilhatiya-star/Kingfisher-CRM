@@ -13,6 +13,7 @@ const { v4: uuidv4 } = require('uuid');
 const path = require('path');
 const fs = require('fs');
 const os = require('os');
+const PDFDocument = require('pdfkit');
 
 const app = express();
 const server = http.createServer(app);
@@ -1681,11 +1682,9 @@ io.on('connection', (socket) => {
   });
 });
 
-// ─── Disposition Stats Endpoint ─────────────────────────────────────────────────
-app.get('/api/stats/dispositions', (req, res) => {
-  const period = req.query.period || 'daily';
-  const agentId = req.query.agentId || null;
-
+// ─── Disposition Stats (shared logic — used by the HTTP route AND the automatic
+// daily PDF report generator below, so both stay perfectly in sync) ───────────
+function computeDispositionStats(period, agentId) {
   const now = new Date();
   const istNow = new Date(now.getTime() + (5.5 * 60 * 60 * 1000));
   const istTodayStr = istNow.toISOString().slice(0, 10);
@@ -1728,7 +1727,13 @@ app.get('/api/stats/dispositions', (req, res) => {
     if (d && stats.hasOwnProperty(d)) stats[d]++;
   });
 
-  res.json(stats);
+  return stats;
+}
+
+app.get('/api/stats/dispositions', (req, res) => {
+  const period = req.query.period || 'daily';
+  const agentId = req.query.agentId || null;
+  res.json(computeDispositionStats(period, agentId));
 });
 
 // ─── Admin EID Management ──────────────────────────────────────────────────────
@@ -2454,50 +2459,116 @@ app.delete('/api/agent/number/:numberId', (req, res) => {
   res.json({ success: true });
 });
 
-// ─── PDF Report Archive (permanent, searchable by date) ───────────────────────
-// Reports are generated client-side (browser builds the PDF with jsPDF, same as
-// agent.html's "Daily Report" feature) then uploaded here to be stored FOREVER
-// so admin.html and client.html can search by date and re-download at any time.
-const reportUpload = multer({
-  storage: multer.diskStorage({
-    destination: (req, file, cb) => cb(null, REPORTS_DIR),
-    filename: (req, file, cb) => cb(null, uuidv4() + '.pdf')
-  }),
-  limits: { fileSize: 20 * 1024 * 1024 }, // 20MB
-  fileFilter: (req, file, cb) => {
-    if (file.mimetype === 'application/pdf' || file.originalname.toLowerCase().endsWith('.pdf')) {
-      cb(null, true);
-    } else {
-      cb(new Error('Only PDF files are allowed'));
-    }
-  }
-});
+// ─── PDF Report Archive (permanent, searchable by date, generated automatically) ─
+// Reports are built server-side with pdfkit and written straight to REPORTS_DIR —
+// no manual upload/generate step required. They are indexed in appState.reports
+// (which survives Hard Reset) so admin.html and client.html can search by date
+// and re-download at any time.
+const DISPO_LABELS = {
+  dead: 'CNC (Dead)', not_received: 'CNR (Not Received)', not_interested: 'Not Interested',
+  followup: 'Followup', switch_off: 'Switch Off', interested: 'Interested',
+  discard: 'Not-Eligible (Discard)', dnd: 'DND'
+};
 
-app.post('/api/reports/upload', reportUpload.single('report'), (req, res) => {
-  try {
-    if (!req.file) return res.status(400).json({ error: 'No PDF file uploaded' });
-    const { reportDate, title, generatedBy, scope } = req.body;
-    const dateStr = (reportDate && /^\d{4}-\d{2}-\d{2}$/.test(reportDate)) ? reportDate : getTodayStr();
-    const entry = {
-      id: uuidv4(),
-      fileName: req.file.filename,
-      originalName: req.file.originalname || 'report.pdf',
-      title: (title && String(title).trim()) || 'Report',
-      reportDate: dateStr,
-      generatedBy: generatedBy || 'unknown',
-      scope: scope || 'general', // 'admin' | 'client' | 'agent' | 'general'
-      uploadedAt: new Date().toISOString(),
-      sizeBytes: req.file.size
-    };
-    if (!appState.reports) appState.reports = [];
-    appState.reports.push(entry);
-    saveState(appState);
-    res.json({ success: true, report: entry });
-  } catch (e) {
-    if (req.file) { try { fs.unlinkSync(req.file.path); } catch {} }
-    res.status(500).json({ error: e.message });
-  }
-});
+function registerReport(entry) {
+  if (!appState.reports) appState.reports = [];
+  appState.reports.push(entry);
+  saveState(appState);
+  return entry;
+}
+
+// Builds one PDF for the given IST date string (YYYY-MM-DD) summarizing daily
+// disposition stats + admin/lead stats, saves it to disk, and registers it in
+// the permanent report archive. Used by the automatic 6:30 PM IST scheduler.
+function generateDailyReport(dateStr) {
+  return new Promise((resolve, reject) => {
+    try {
+      const dispo = computeDispositionStats('daily', null);
+      const stats = getAdminStats();
+      const fileName = uuidv4() + '.pdf';
+      const filePath = path.join(REPORTS_DIR, fileName);
+      const doc = new PDFDocument({ margin: 50 });
+      const writeStream = fs.createWriteStream(filePath);
+      doc.pipe(writeStream);
+
+      doc.fontSize(18).fillColor('#e6157b').text('Kingfisher x Ruralift CRM — Daily Report', { align: 'left' });
+      doc.moveDown(0.3);
+      doc.fontSize(11).fillColor('#12293f').text('Date: ' + dateStr + '  (Auto-generated at 6:30 PM IST)');
+      doc.moveDown(1);
+
+      doc.fontSize(13).fillColor('#1668d6').text('Lead Overview');
+      doc.moveDown(0.3);
+      doc.fontSize(11).fillColor('#12293f');
+      doc.text('Total Numbers Uploaded: ' + (stats.total || 0));
+      doc.text('Remaining To Dial: ' + (stats.remaining || 0));
+      doc.text('Interested Leads: ' + (stats.interestedCount || 0));
+      doc.text('Overdue (72h+): ' + (stats.overdueInterestedCount || 0));
+      doc.text('Followups Pending: ' + (stats.followupCount || 0));
+      doc.text('Redialing Tomorrow: ' + (stats.comingBackTomorrow || 0));
+      doc.text('DND Numbers: ' + (stats.dndCount || 0));
+      doc.moveDown(1);
+
+      doc.fontSize(13).fillColor('#1668d6').text('Disposition Breakdown (Today)');
+      doc.moveDown(0.3);
+      doc.fontSize(11).fillColor('#12293f');
+      doc.text('Total Calls: ' + (dispo.totalCalls || 0));
+      Object.keys(DISPO_LABELS).forEach(key => {
+        doc.text(DISPO_LABELS[key] + ': ' + (dispo[key] || 0));
+      });
+
+      doc.end();
+      writeStream.on('finish', () => {
+        const sizeBytes = fs.statSync(filePath).size;
+        const entry = registerReport({
+          id: uuidv4(),
+          fileName,
+          originalName: dateStr + '_Kingfisher_Daily_Report.pdf',
+          title: 'Daily Report',
+          reportDate: dateStr,
+          generatedBy: 'system-auto-6:30pm-IST',
+          scope: 'general',
+          uploadedAt: new Date().toISOString(),
+          sizeBytes
+        });
+        resolve(entry);
+      });
+      writeStream.on('error', reject);
+    } catch (e) {
+      reject(e);
+    }
+  });
+}
+
+// ─── Automatic Daily Report Scheduler (6:30 PM IST, every day) ────────────────
+// Computes ms until the next 6:30 PM IST, generates+saves a report at that
+// moment, then reschedules itself for the following day. Also guards against
+// duplicate reports if the server restarts around the trigger time on the same day.
+function msUntilNext630PM_IST() {
+  const now = new Date();
+  const istNow = new Date(now.getTime() + 5.5 * 60 * 60 * 1000);
+  const target = new Date(istNow);
+  target.setUTCHours(18, 30, 0, 0); // 6:30 PM on the IST-shifted clock (stored as UTC fields)
+  if (target <= istNow) target.setUTCDate(target.getUTCDate() + 1);
+  return target.getTime() - istNow.getTime();
+}
+
+function scheduleAutoDailyReport() {
+  const delay = msUntilNext630PM_IST();
+  setTimeout(async () => {
+    try {
+      const todayStr = getTodayStr();
+      const already = (appState.reports || []).some(r => r.reportDate === todayStr && r.generatedBy === 'system-auto-6:30pm-IST');
+      if (!already) {
+        await generateDailyReport(todayStr);
+        console.log('\uD83D\uDCC4 Auto-generated daily report for ' + todayStr + ' at 6:30 PM IST');
+      }
+    } catch (e) {
+      console.error('Auto daily report generation failed:', e.message);
+    }
+    scheduleAutoDailyReport(); // reschedule for the next day
+  }, delay);
+}
+scheduleAutoDailyReport();
 
 // List / search reports — optional query params: date=YYYY-MM-DD, from=YYYY-MM-DD, to=YYYY-MM-DD, scope=
 app.get('/api/reports', (req, res) => {
