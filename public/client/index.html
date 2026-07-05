@@ -170,7 +170,7 @@
 ═══════════════════════════════════════════════════════ -->
 <div id="mainScreen">
 <header>
-  <div style="min-width:80px;display:flex;align-items:center;">
+  <div style="min-width:110px;display:flex;align-items:center;">
     <span class="today-badge" id="todayBadge">&#8212;</span>
   </div>
   <div class="logo">
@@ -525,8 +525,15 @@ async function fetchTopStats() {
     document.getElementById('statOverdue').textContent = d.overdueInterestedCount || 0;
     document.getElementById('statFollowups').textContent = d.followupCount || 0;
     document.getElementById('statComingBack').textContent = d.comingBackTomorrow || 0;
-    document.getElementById('todayBadge').textContent = d.today || '\u2014';
+    document.getElementById('todayBadge').textContent = formatDateBadge(d.today);
   } catch (e) { /* silent */ }
+}
+
+function formatDateBadge(isoDate) {
+  if (!isoDate) return '\u2014';
+  const [y, m, day] = isoDate.split('-');
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return day + ' ' + months[parseInt(m, 10) - 1] + ' ' + y;
 }
 
 // ── Converted Customers ───────────────────────────────────────────────────────
