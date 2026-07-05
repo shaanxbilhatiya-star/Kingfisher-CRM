@@ -8,24 +8,27 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #f4f6f9;
+    /* AGENT theme: bright Kingfisher x TaskUs — colorful light */
+    --bg: #eef4fc;
     --surface: #ffffff;
-    --surface2: #f8fafc;
-    --border: #e2e8f0;
-    --border-strong: #cbd5e1;
-    --accent: #6c2bd9;
-    --accent2: #8b5cf6;
-    --accent-glow: rgba(108,43,217,.10);
-    --text: #1a202c;
-    --muted: #64748b;
-    --green: #059669;
+    --surface2: #f2f8ff;
+    --border: #d5e6f5;
+    --border-strong: #b9d2ea;
+    --accent: #0aa6c2;
+    --accent2: #1668d6;
+    --accent-glow: rgba(10,166,194,.12);
+    --magenta: #e6157b;
+    --orange: #ff7a18;
+    --text: #12293f;
+    --muted: #5b7488;
+    --green: #10b981;
     --green-bg: #ecfdf5;
     --green-border: #a7f3d0;
-    --danger: #dc2626;
-    --warn: #d97706;
+    --danger: #ef4444;
+    --warn: #f59e0b;
     --warn-bg: #fffbeb;
     --warn-border: #fcd34d;
-    --blue: #2563eb;
+    --blue: #1668d6;
     --sans: 'DM Sans', sans-serif;
     --mono: 'JetBrains Mono', monospace;
   }
@@ -34,30 +37,39 @@
 
   /* ── Header ── */
   header {
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
+    background: linear-gradient(120deg, #0aa6c2 0%, #1668d6 42%, #7b2ff7 70%, #e6157b 100%);
+    border-bottom: 3px solid var(--orange);
     padding: 14px 32px;
     display: flex; align-items: center; justify-content: space-between;
     position: sticky; top: 0; z-index: 100;
-    box-shadow: 0 1px 4px rgba(0,0,0,.05);
+    box-shadow: 0 6px 24px rgba(22,104,214,.30);
+  }
+  /* Colorful header: keep text readable on the gradient */
+  header .header-brand { color: #ffffff; text-shadow: 0 1px 8px rgba(0,0,0,.28); }
+  header .today-badge { background: rgba(255,255,255,.20); color: #ffffff; border: 1px solid rgba(255,255,255,.45); }
+  header .badge { background: #ffffff; color: var(--magenta); box-shadow: 0 2px 10px rgba(0,0,0,.18); }
+  header .logo-img {
+    border: 2px solid rgba(255,255,255,.55); background: rgba(255,255,255,.14);
+    filter: drop-shadow(0 0 12px rgba(255,255,255,.55)); animation: none;
+    box-shadow: 0 4px 18px rgba(0,0,0,.22);
   }
   .header-center { display: flex; flex-direction: column; align-items: center; gap: 5px; flex: 1; }
   .logo-img {
     width: 272px; height: 70px; object-fit: contain; padding: 10px 18px; border-radius: 14px;
-    border: 2px solid rgba(108,43,217,.3); background: #fff;
-    filter: drop-shadow(0 0 10px rgba(108,43,217,.55)) drop-shadow(0 0 22px rgba(108,43,217,.25));
+    border: 2px solid rgba(37,99,235,.3); background: #fff;
+    filter: drop-shadow(0 0 10px rgba(37,99,235,.55)) drop-shadow(0 0 22px rgba(37,99,235,.25));
     animation: logo-glow-agent 2.5s ease-in-out infinite;
-    box-shadow: 0 4px 16px rgba(108,43,217,.12), 0 1px 4px rgba(0,0,0,.06);
+    box-shadow: 0 4px 16px rgba(37,99,235,.12), 0 1px 4px rgba(0,0,0,.06);
   }
   @keyframes logo-glow-agent {
-    0%,100% { filter: drop-shadow(0 0 7px rgba(108,43,217,.5)) drop-shadow(0 0 14px rgba(108,43,217,.2)); }
-    50%      { filter: drop-shadow(0 0 16px rgba(108,43,217,.85)) drop-shadow(0 0 32px rgba(108,43,217,.45)); }
+    0%,100% { filter: drop-shadow(0 0 7px rgba(37,99,235,.5)) drop-shadow(0 0 14px rgba(37,99,235,.2)); }
+    50%      { filter: drop-shadow(0 0 16px rgba(37,99,235,.85)) drop-shadow(0 0 32px rgba(37,99,235,.45)); }
   }
   .header-brand { font-size: 15px; font-weight: 700; color: var(--accent); letter-spacing: -.3px; }
   .header-left { display: flex; align-items: center; min-width: 80px; }
   .header-right { display: flex; align-items: center; gap: 14px; }
   .badge { background: var(--accent); color: #fff; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; letter-spacing: 1px; }
-  .today-badge { background: rgba(108,43,217,.08); color: var(--accent); border: 1px solid rgba(108,43,217,.15); border-radius: 6px; padding: 4px 12px; font-size: 12px; font-family: var(--mono); }
+  .today-badge { background: rgba(37,99,235,.08); color: var(--accent); border: 1px solid rgba(37,99,235,.15); border-radius: 6px; padding: 4px 12px; font-size: 12px; font-family: var(--mono); }
 
   /* ── Connection banner ── */
   #connBanner { display: none; padding: 8px 20px; font-size: 13px; font-weight: 600; text-align: center; }
@@ -196,7 +208,7 @@
   .stats-tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
   .dispo-stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px,1fr)); gap: 12px; }
   .dispo-stat-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 14px; text-align: center; position: relative; }
-  .dispo-stat-card.dispo-stat-total { background: var(--accent-glow); border-color: rgba(108,43,217,.2); }
+  .dispo-stat-card.dispo-stat-total { background: var(--accent-glow); border-color: rgba(37,99,235,.2); }
   .dispo-stat-indicator { width: 8px; height: 8px; border-radius: 50%; position: absolute; top: 11px; left: 11px; }
   .dispo-stat-val { font-family: var(--mono); font-size: 26px; font-weight: 700; color: var(--accent); }
   .dispo-stat-card.dispo-stat-total .dispo-stat-val { font-size: 32px; }
@@ -211,7 +223,7 @@
   .leads-table td { padding: 11px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
   .leads-table tr:last-child td { border-bottom: none; }
   .phone-mono { font-family: var(--mono); font-weight: 700; color: var(--accent); }
-  .loan-pill { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 6px; background: var(--accent-glow); color: var(--accent); border: 1px solid rgba(108,43,217,.15); white-space: nowrap; }
+  .loan-pill { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 6px; background: var(--accent-glow); color: var(--accent); border: 1px solid rgba(37,99,235,.15); white-space: nowrap; }
   .timer-badge { font-family: var(--mono); font-size: 12px; font-weight: 700; padding: 3px 8px; border-radius: 6px; white-space: nowrap; }
   .timer-badge.active-timer { color: var(--green); background: var(--green-bg); border: 1px solid var(--green-border); }
   .timer-badge.expired-timer { color: var(--danger); background: #fef2f2; border: 1px solid #fecaca; }
@@ -229,7 +241,7 @@
   /* ── Completed table ── */
   .completed-badge { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 6px; }
   .completed-badge.done { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
-  .completed-badge.status { background: var(--accent-glow); color: var(--accent); border: 1px solid rgba(108,43,217,.15); }
+  .completed-badge.status { background: var(--accent-glow); color: var(--accent); border: 1px solid rgba(37,99,235,.15); }
 
   /* ── Add Lead panel ── */
   .add-lead-form { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
@@ -284,22 +296,22 @@
 
   /* ── Leaderboard Blink Animation ── */
   @keyframes blink-glow {
-    0%, 100% { opacity: 1; text-shadow: 0 0 20px rgba(167,139,250,.6); }
-    50% { opacity: 0.6; text-shadow: 0 0 40px rgba(167,139,250,1), 0 0 80px rgba(245,158,11,.4); }
+    0%, 100% { opacity: 1; text-shadow: 0 0 20px rgba(96,165,250,.6); }
+    50% { opacity: 0.6; text-shadow: 0 0 40px rgba(96,165,250,1), 0 0 80px rgba(245,158,11,.4); }
   }
   .leaderboard-header h2 {
     animation: blink-glow 2s ease-in-out infinite;
   }
 
   /* ── Leaderboard ── */
-  .leaderboard-panel { margin-bottom: 24px; border-radius: 20px; overflow: hidden; border: 1px solid rgba(108,43,217,.2); background: var(--surface); box-shadow: 0 8px 40px rgba(108,43,217,.08); }
-  .leaderboard-header { display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; background: linear-gradient(135deg, #4c1d95 0%, #6d28d9 50%, #7c3aed 100%); flex-wrap: wrap; gap: 10px; }
-  .leaderboard-header h2 { margin: 0; font-size: 20px; color: #fff; font-weight: 800; letter-spacing: -.3px; text-shadow: 0 0 20px rgba(167,139,250,.6); }
+  .leaderboard-panel { margin-bottom: 24px; border-radius: 20px; overflow: hidden; border: 1px solid rgba(37,99,235,.2); background: var(--surface); box-shadow: 0 8px 40px rgba(37,99,235,.08); }
+  .leaderboard-header { display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; background: linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 50%, #2563eb 100%); flex-wrap: wrap; gap: 10px; }
+  .leaderboard-header h2 { margin: 0; font-size: 20px; color: #fff; font-weight: 800; letter-spacing: -.3px; text-shadow: 0 0 20px rgba(96,165,250,.6); }
   .lb-period-tabs { display: flex; gap: 4px; background: rgba(255,255,255,.1); padding: 4px; border-radius: 8px; }
   .lb-period-tab { padding: 6px 16px; border-radius: 6px; border: none; background: transparent; color: rgba(255,255,255,.6); font-size: 12px; font-weight: 700; cursor: pointer; transition: all .2s; }
   .lb-period-tab:hover { color: #fff; background: rgba(255,255,255,.15); }
-  .lb-period-tab.active { background: var(--accent); color: #fff; box-shadow: 0 2px 8px rgba(108,43,217,.5); }
-  .leaderboard-body { padding: 20px 24px 24px; background: linear-gradient(180deg, #ede9fe 0%, #f4f6f9 80px); }
+  .lb-period-tab.active { background: var(--accent); color: #fff; box-shadow: 0 2px 8px rgba(37,99,235,.5); }
+  .leaderboard-body { padding: 20px 24px 24px; background: linear-gradient(180deg, #eff6ff 0%, #f4f6f9 80px); }
 
   /* ── Face Bar (top ranked, no cards) ── */
   .face-bar { display: flex; align-items: flex-end; justify-content: center; gap: 20px; padding: 24px 0 20px; margin-bottom: 8px; }
@@ -323,7 +335,7 @@
   .face-ring.r3 .face-letter { font-size: 22px; }
 
   .face-crown { font-size: 20px; margin-bottom: -6px; filter: drop-shadow(0 2px 4px rgba(0,0,0,.4)); z-index: 2; position: relative; }
-  .face-rank-badge { position: absolute; bottom: -2px; right: -2px; width: 22px; height: 22px; border-radius: 50%; font-size: 11px; font-weight: 800; color: #fff; display: flex; align-items: center; justify-content: center; border: 2px solid #ede9fe; z-index: 3; }
+  .face-rank-badge { position: absolute; bottom: -2px; right: -2px; width: 22px; height: 22px; border-radius: 50%; font-size: 11px; font-weight: 800; color: #fff; display: flex; align-items: center; justify-content: center; border: 2px solid #eff6ff; z-index: 3; }
   .face-rank-badge.r1 { background: #f59e0b; }
   .face-rank-badge.r2 { background: #94a3b8; }
   .face-rank-badge.r3 { background: #f97316; }
@@ -337,7 +349,7 @@
   /* ── Rank list rows ── */
   .lb-list { display: flex; flex-direction: column; gap: 7px; margin-top: 4px; }
   .lb-row { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 14px; background: var(--surface); border: 1px solid var(--border); transition: all .2s; box-shadow: 0 1px 4px rgba(0,0,0,.04); }
-  .lb-row:hover { border-color: var(--accent2); box-shadow: 0 4px 16px rgba(108,43,217,.1); transform: translateX(3px); }
+  .lb-row:hover { border-color: var(--accent2); box-shadow: 0 4px 16px rgba(37,99,235,.1); transform: translateX(3px); }
   .lb-row.is-me { border-color: var(--accent); background: var(--accent-glow); }
   .lb-rank-badge { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; background: var(--bg); color: var(--muted); border: 1.5px solid var(--border); flex-shrink: 0; font-family: var(--mono); }
   .lb-row-avatar { width: 52px; height: 52px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; color: #fff; background: var(--accent2); overflow: hidden; flex-shrink: 0; border: 2px solid var(--border); }
@@ -357,6 +369,20 @@
     50% { box-shadow: 0 4px 20px rgba(245,158,11,.35), 0 0 40px rgba(245,158,11,.1); }
   }
   .rank-1-avatar { border-color: #f59e0b !important; box-shadow: 0 0 12px rgba(245,158,11,.4); }
+
+  /* ============================================================
+     KINGFISHER x TASKUS — COLORFUL THEME OVERRIDES (light)
+     ============================================================ */
+  .stat-card { position: relative; overflow: hidden; }
+  .stat-card::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: var(--accent); }
+  .stat-card:nth-child(4n+1)::before { background: linear-gradient(90deg, #0aa6c2, #22d3ee); }
+  .stat-card:nth-child(4n+2)::before { background: linear-gradient(90deg, #1668d6, #60a5fa); }
+  .stat-card:nth-child(4n+3)::before { background: linear-gradient(90deg, #e6157b, #ff7ab6); }
+  .stat-card:nth-child(4n+4)::before { background: linear-gradient(90deg, #ff7a18, #ffb454); }
+
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #0aa6c2, #1668d6); border-radius: 10px; }
+  ::-webkit-scrollbar-track { background: #e6eef8; }
 </style>
 </head>
 <body>
@@ -391,17 +417,28 @@
 <div id="loginScreen">
   <div class="login-wrap">
     <div class="login-card">
-      <h2>Agent Login</h2>
-      <p class="sub">Enter your Employee ID to start dialing</p>
+      <h2>Client Login</h2>
+      <p class="sub">Enter your Employee ID to view the dashboard</p>
       <div class="field">
         <label>Employee ID</label>
-        <input type="number" id="empId" placeholder="e.g. 1001" min="1" autocomplete="off">
+        <input type="number" id="empId" placeholder="e.g. 1001" min="1" autocomplete="off" value="9000">
         <div class="err" id="errEmpId">Please enter a valid numeric Employee ID</div>
       </div>
       <button class="btn-login" onclick="registerAgent()">Enter Dialer →</button>
     </div>
   </div>
 </div>
+<script>
+// Auto-login with prefilled Employee ID 9000
+window.addEventListener('DOMContentLoaded', function() {
+  setTimeout(function() {
+    var empIdInput = document.getElementById('empId');
+    if (empIdInput && empIdInput.value === '9000') {
+      if (typeof registerAgent === 'function') { registerAgent(); }
+    }
+  }, 300);
+});
+</script>
 
 <!-- ─────────────────────────────────────────────────────────
      MAIN DIALER SCREEN
@@ -529,7 +566,7 @@
           <button class="action-btn" id="btnStart"       onclick="startDialing()">▶ Start Dialing</button>
           <button class="action-btn" id="btnBreak"       onclick="takeBreak()">☕ Take a Break</button>
           <button class="action-btn" id="btnEndBreak"    onclick="endBreak()">▶ End Break — Resume Dialing</button>
-          <button class="action-btn" id="btnWashroom"    onclick="takeWashroom()" style="background:#ede9fe;color:#6366f1;border:1.5px solid #c4b5fd;display:none;">🚻 Washroom</button>
+          <button class="action-btn" id="btnWashroom"    onclick="takeWashroom()" style="background:#eff6ff;color:#6366f1;border:1.5px solid #93c5fd;display:none;">🚻 Washroom</button>
           <button class="action-btn" id="btnEndWashroom" onclick="endWashroom()"  style="background:#6366f1;color:#fff;display:none;">▶ Done — Resume Dialing</button>
           <button class="action-btn" id="btnMeeting"     onclick="takeMeeting()"  style="background:#cffafe;color:#0891b2;border:1.5px solid #67e8f9;display:none;">📋 Meeting</button>
           <button class="action-btn" id="btnEndMeeting"  onclick="endMeeting()"   style="background:#0891b2;color:#fff;display:none;">▶ Meeting Done — Resume</button>
@@ -1188,6 +1225,17 @@ socket.on('error', (msg) => {
 socket.on('force-stop', () => {
   currentNumberId = null; dialerWasActive = false;
   showIdle();
+});
+
+// ── Auto Daily Report at 6:30 PM IST ────────────────────────────────────────
+socket.on('auto-report', function(data) {
+  showToast('📊 Daily Report ready! Downloading…', 'success');
+  var a = document.createElement('a');
+  a.href = data.url;
+  a.download = 'CRM_Daily_Report_' + data.date + '.xlsx';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
 });
 
 function showIdle() {
@@ -2122,53 +2170,165 @@ async function fetchMyStats() {
   } catch (e) { /* silent */ }
 }
 
-// ── PDF Report Generation ─────────────────────────────────────────────────────
+// ── PDF Report Generation (Graphical Dashboard) ───────────────────────────────
 // NOTE: /api/agent/dialed-today/:agentId and /api/agent/stats/:agentId endpoints needed on server
 
-function generateReportPDF(isDummy) {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-  const today = new Date();
-  const dateStr = String(today.getDate()).padStart(2,'0') + '-' + String(today.getMonth()+1).padStart(2,'0') + '-' + today.getFullYear();
-  const fileName = dateStr + '_Kingfisher Report.pdf';
-  
-  let y = 20;
-  
-  // Header - Purple banner
-  doc.setFillColor(108, 43, 217);
-  doc.rect(0, 0, 210, 38, 'F');
-  
-  doc.setFontSize(20);
-  doc.setFont('helvetica', 'bold');
-  doc.setTextColor(255, 255, 255);
-  doc.text('KINGFISHER MANDLA X Ruralift', 105, 14, { align: 'center' });
-  doc.setFontSize(11);
-  doc.setFont('helvetica', 'normal');
-  doc.text('Daily Agent Report  |  ' + dateStr, 105, 24, { align: 'center' });
-  doc.text('Agent: ' + (isDummy ? 'Demo Agent (EID: 1234)' : (document.getElementById('displayAgentName').textContent || 'N/A')), 105, 32, { align: 'center' });
-  
-  doc.setTextColor(0, 0, 0);
-  y = 48;
+// Brand palette + disposition metadata (RGB arrays)
+const BRAND_BLUE        = [37, 99, 235];
+const BRAND_BLUE_DARK   = [29, 78, 216];
+const INK               = [30, 41, 59];
+const MUTED             = [100, 116, 139];
 
-  if (isDummy) {
-    // DUMMY DATA
-    const dummyDispoStats = { totalDialed: 25, interested: 3, followup: 5, notInterested: 4, dead: 3, notReceived: 5, switchOff: 2, dnd: 1, discard: 2 };
-    const dummyInterested = [
+const DISPO_META = {
+  'Interested':     { color: [16, 185, 129], label: 'Interested' },
+  'Followup':       { color: [59, 130, 246], label: 'Follow-up' },
+  'Not Interested': { color: [148, 163, 184], label: 'Not Interested' },
+  'CNC (Dead)':     { color: [239, 68, 68],  label: 'CNC (Dead)' },
+  'CNR':            { color: [245, 158, 11], label: 'CNR (Not Received)' },
+  'Switch Off':     { color: [249, 115, 22], label: 'Switch Off' },
+  'DND':            { color: [190, 24, 93],  label: 'DND' },
+  'Discard':        { color: [107, 114, 128],label: 'Discard' }
+};
+
+function _rgb(a) { return 'rgb(' + a[0] + ',' + a[1] + ',' + a[2] + ')'; }
+
+// Render a Chart.js config to a PNG data URL (offscreen, no animation)
+function makeChartImage(config, w, h) {
+  if (typeof Chart === 'undefined') return null;
+  const holder = document.createElement('div');
+  holder.style.cssText = 'position:fixed;left:-99999px;top:-99999px;width:' + w + 'px;height:' + h + 'px;';
+  const canvas = document.createElement('canvas');
+  canvas.width = w; canvas.height = h;
+  holder.appendChild(canvas);
+  document.body.appendChild(holder);
+  let url = null;
+  try {
+    const chart = new Chart(canvas.getContext('2d'), Object.assign({}, config, {
+      options: Object.assign({ animation: false, responsive: false, maintainAspectRatio: false, devicePixelRatio: 2 }, config.options || {})
+    }));
+    url = canvas.toDataURL('image/png', 1.0);
+    chart.destroy();
+  } catch (e) { url = null; }
+  document.body.removeChild(holder);
+  return url;
+}
+
+// Match a raw disposition string to a known bucket key
+function matchDispoKey(raw) {
+  if (!raw) return null;
+  const s = String(raw).toLowerCase();
+  if (DISPO_META[raw]) return raw;
+  if (s.includes('interest') && s.includes('not')) return 'Not Interested';
+  if (s.includes('interest')) return 'Interested';
+  if (s.includes('follow')) return 'Followup';
+  if (s.includes('dead') || s.includes('cnc')) return 'CNC (Dead)';
+  if (s.includes('cnr') || s.includes('not received') || s.includes('received')) return 'CNR';
+  if (s.includes('switch')) return 'Switch Off';
+  if (s.includes('dnd')) return 'DND';
+  if (s.includes('discard')) return 'Discard';
+  return null;
+}
+
+// Build per-disposition counts + grouped phone numbers
+function computeDispo(d) {
+  const counts = {}; const groups = {};
+  Object.keys(DISPO_META).forEach(k => { counts[k] = 0; groups[k] = []; });
+  if (d.dialedLog && d.dialedLog.length) {
+    d.dialedLog.forEach(e => {
+      const k = matchDispoKey(e.disposition);
+      if (k) { counts[k]++; groups[k].push(e.phone); }
+    });
+  } else if (d.dispoStats) {
+    const s = d.dispoStats;
+    counts['Interested']     = s.interested || 0;
+    counts['Followup']       = s.followup || 0;
+    counts['Not Interested'] = s.notInterested || 0;
+    counts['CNC (Dead)']     = s.dead || 0;
+    counts['CNR']            = s.notReceived || 0;
+    counts['Switch Off']     = s.switchOff || 0;
+    counts['DND']            = s.dnd || 0;
+    counts['Discard']        = s.discard || 0;
+  }
+  return { counts, groups };
+}
+
+// Horizontal gradient fill
+function gradientRect(doc, x, y, w, h, c1, c2, steps) {
+  steps = steps || 60;
+  const sw = w / steps;
+  for (let i = 0; i < steps; i++) {
+    const t = i / (steps - 1);
+    doc.setFillColor(
+      Math.round(c1[0] + (c2[0] - c1[0]) * t),
+      Math.round(c1[1] + (c2[1] - c1[1]) * t),
+      Math.round(c1[2] + (c2[2] - c1[2]) * t)
+    );
+    doc.rect(x + i * sw, y, sw + 0.6, h, 'F');
+  }
+}
+
+// A single KPI stat card
+function kpiCard(doc, x, y, w, h, label, value, color) {
+  doc.setFillColor(255, 255, 255);
+  doc.setDrawColor(226, 232, 240);
+  doc.setLineWidth(0.3);
+  doc.roundedRect(x, y, w, h, 2.5, 2.5, 'FD');
+  // top accent strip
+  doc.setFillColor(color[0], color[1], color[2]);
+  doc.roundedRect(x, y, w, 2.3, 1, 1, 'F');
+  // value (auto-shrink to fit)
+  const val = String(value);
+  let fs = 17;
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(fs);
+  while (doc.getTextWidth(val) > w - 5 && fs > 8) { fs -= 1; doc.setFontSize(fs); }
+  doc.setTextColor(color[0], color[1], color[2]);
+  doc.text(val, x + w / 2, y + h / 2 + 1.5, { align: 'center' });
+  // label
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(7);
+  doc.setTextColor(MUTED[0], MUTED[1], MUTED[2]);
+  doc.text(label.toUpperCase(), x + w / 2, y + h - 3.5, { align: 'center' });
+}
+
+// Section header with colored accent tab
+function sectionHeader(doc, y, title, color) {
+  y = checkPage(doc, y, 18);
+  color = color || BRAND_BLUE;
+  doc.setFillColor(color[0], color[1], color[2]);
+  doc.roundedRect(14, y - 4.5, 3.2, 7, 1, 1, 'F');
+  doc.setFontSize(13);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(color[0], color[1], color[2]);
+  doc.text(title, 21, y + 1);
+  doc.setTextColor(INK[0], INK[1], INK[2]);
+  return y + 9;
+}
+
+function checkPage(doc, y, needed) {
+  if (y + needed > 278) { doc.addPage(); return 18; }
+  return y;
+}
+
+// ── Data collectors ────────────────────────────────────────────────────────────
+function getDummyReportData() {
+  return {
+    agentName: 'Demo Agent (EID: 1234)',
+    dispoStats: { totalDialed: 25, interested: 3, followup: 5, notInterested: 4, dead: 3, notReceived: 5, switchOff: 2, dnd: 1, discard: 2 },
+    interested: [
       { phone: '9876543210', name: 'Rahul Sharma', loanType: 'Kitty Party', revenue: '499' },
       { phone: '9876543211', name: 'Priya Singh', loanType: 'Family Fun Day- Water Park', revenue: '1499' },
       { phone: '9876543212', name: 'Amit Verma', loanType: 'Dream Wedding', revenue: '299000' }
-    ];
-    const dummyFollowups = [
+    ],
+    followups: [
       { phone: '9876543213', name: 'Neha Gupta', date: '10-07-2026', time: '11:00 AM', pkg: 'Private Pool Party' },
       { phone: '9876543214', name: 'Ravi Kumar', date: '11-07-2026', time: '2:00 PM', pkg: 'Kitty Party' }
-    ];
-    const dummyDnd = [
-      { phone: '9876543220' }, { phone: '9876543221' }, { phone: '9876543222' }
-    ];
-    const dummyConverted = [
+    ],
+    dndList: [{ phone: '9876543220' }, { phone: '9876543221' }, { phone: '9876543222' }],
+    converted: [
       { phone: '9876543215', name: 'Suresh Patel', loanType: 'Pool Party', revenue: '4999', date: '04-07-2026' }
-    ];
-    const dummyDialedLog = [
+    ],
+    dialedLog: [
       { phone: '9876543210', disposition: 'Interested', time: '10:05 AM' },
       { phone: '9876543211', disposition: 'Interested', time: '10:08 AM' },
       { phone: '9876543212', disposition: 'Interested', time: '10:15 AM' },
@@ -2194,183 +2354,275 @@ function generateReportPDF(isDummy) {
       { phone: '9876543220', disposition: 'DND', time: '10:50 AM' },
       { phone: '9876543221', disposition: 'Discard', time: '10:58 AM' },
       { phone: '9876543244', disposition: 'Discard', time: '12:40 PM' }
-    ];
+    ]
+  };
+}
 
-    y = addDispoStats(doc, y, dummyDispoStats, dummyDialedLog);
-    y = addInterestedSection(doc, y, dummyInterested);
-    y = addFollowupsSection(doc, y, dummyFollowups);
-    y = addDndSection(doc, y, dummyDnd);
-    y = addConvertedSection(doc, y, dummyConverted);
-  } else {
-    // LIVE DATA
-    const statEls = document.querySelectorAll('.dispo-stat-card');
-    const dispoStats = { totalDialed: 0, interested: 0, followup: 0, notInterested: 0, dead: 0, notReceived: 0, switchOff: 0, dnd: 0, discard: 0 };
-    // Get from stat cards on page
-    const totalEl = document.getElementById('statTotalDialed');
-    if (totalEl) dispoStats.totalDialed = parseInt(totalEl.textContent) || 0;
-    // Pull from interestedLeadsData, etc.
-    dispoStats.interested = (interestedLeadsData || []).length;
-    
-    // Build from page data
-    const interested = (interestedLeadsData || []).map(l => ({
-      phone: l.phone, name: l.name || 'N/A', loanType: PACKAGE_LABELS[l.loanType] || l.loanType || 'N/A', revenue: l.revenueGenerated || '0'
-    }));
-    
-    // Followups from DOM
-    const followupRows = document.querySelectorAll('#followupsTable tr:not(.empty)');
-    const followups = [];
-    followupRows.forEach(row => {
-      const cells = row.querySelectorAll('td');
-      if (cells.length >= 6) {
-        followups.push({
-          phone: cells[0] ? cells[0].textContent.trim() : '',
-          name: cells[1] ? cells[1].textContent.trim() : '',
-          date: cells[4] ? cells[4].textContent.trim() : '',
-          time: cells[5] ? cells[5].textContent.trim() : '',
-          pkg: cells[3] ? cells[3].textContent.trim() : ''
-        });
-      }
+function getLiveReportData() {
+  const stats = window._liveDispoStats || {};
+  const dispoStats = {
+    totalDialed:   stats.totalDialedToday || 0,
+    interested:    stats.interestedToday || (interestedLeadsData || []).length,
+    followup:      stats.followupToday || 0,
+    notInterested: stats.notInterestedToday || 0,
+    dead:          stats.deadToday || 0,
+    notReceived:   stats.notReceivedToday || 0,
+    switchOff:     stats.switchOffToday || 0,
+    dnd:           stats.dndToday || 0,
+    discard:       stats.discardToday || 0
+  };
+  const dialedLog = (window._liveDialedLog || []).map(l => ({
+    phone: l.phone || '', disposition: l.disposition || '', time: l.time || ''
+  }));
+
+  const interested = (interestedLeadsData || []).map(l => ({
+    phone: l.phone, name: l.name || 'N/A', loanType: PACKAGE_LABELS[l.loanType] || l.loanType || 'N/A', revenue: l.revenueGenerated || '0'
+  }));
+
+  const followups = [];
+  document.querySelectorAll('#followupsTable tr').forEach(row => {
+    const cells = row.querySelectorAll('td');
+    if (cells.length >= 6) followups.push({
+      phone: cells[0].textContent.trim(), name: cells[1].textContent.trim(),
+      pkg: cells[3].textContent.trim(), date: cells[4].textContent.trim(), time: cells[5].textContent.trim()
     });
+  });
 
-    // DND from DOM
-    const dndItems = document.querySelectorAll('#dndNumbersList .dnd-item, #dndNumbersList [data-phone]');
-    const dndList = [];
-    dndItems.forEach(item => {
-      const phone = item.getAttribute('data-phone') || item.textContent.trim().match(/\d{10}/);
-      if (phone) dndList.push({ phone: String(phone) });
+  const dndList = [];
+  document.querySelectorAll('#dndNumbersList [data-phone]').forEach(el => {
+    const p = el.getAttribute('data-phone'); if (p) dndList.push({ phone: p });
+  });
+
+  const converted = [];
+  document.querySelectorAll('#completedTable tr').forEach(row => {
+    const cells = row.querySelectorAll('td');
+    if (cells.length >= 5) converted.push({
+      phone: cells[0].textContent.trim(), name: cells[1].textContent.trim(),
+      loanType: cells[2].textContent.trim(), revenue: cells[3].textContent.trim().replace(/[₹,]/g, ''),
+      date: cells[4].textContent.trim()
     });
+  });
 
-    // Converted from completedTable
-    const completedRows = document.querySelectorAll('#completedTable tr:not(.empty)');
-    const converted = [];
-    completedRows.forEach(row => {
-      const cells = row.querySelectorAll('td');
-      if (cells.length >= 4) {
-        converted.push({
-          phone: cells[0] ? cells[0].textContent.trim() : '',
-          name: cells[1] ? cells[1].textContent.trim() : '',
-          loanType: cells[2] ? cells[2].textContent.trim() : '',
-          revenue: cells[3] ? cells[3].textContent.trim().replace(/[₹,]/g,'') : '0',
-          date: cells[4] ? cells[4].textContent.trim() : ''
-        });
-      }
-    });
+  // If server didn't return totalDialed, derive from the log
+  if (!dispoStats.totalDialed && dialedLog.length) dispoStats.totalDialed = dialedLog.length;
 
-    // Dialed log - we'll fetch it from server
-    // For now use what's available
-    const dialedLog = [];
+  return {
+    agentName: (document.getElementById('displayAgentName').textContent || 'N/A'),
+    dispoStats, dialedLog, interested, followups, dndList, converted
+  };
+}
 
-    y = addDispoStats(doc, y, dispoStats, dialedLog);
-    if (interested.length > 0) y = addInterestedSection(doc, y, interested);
-    if (followups.length > 0) y = addFollowupsSection(doc, y, followups);
-    if (dndList.length > 0) y = addDndSection(doc, y, dndList);
-    if (converted.length > 0) y = addConvertedSection(doc, y, converted);
+// ── Master report builder (shared by Live + Dummy) ──────────────────────────────
+function buildReportPDF(d, isDummy) {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  const today = new Date();
+  const dateStr = String(today.getDate()).padStart(2, '0') + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + today.getFullYear();
+  const fileName = dateStr + (isDummy ? '_Kingfisher Report (DEMO).pdf' : '_Kingfisher Report.pdf');
+
+  const { counts, groups } = computeDispo(d);
+  const totalDialed   = d.dispoStats.totalDialed || Object.values(counts).reduce((a, b) => a + b, 0);
+  const interestedN   = d.interested.length || counts['Interested'] || 0;
+  const followupN     = d.followups.length || counts['Followup'] || 0;
+  const convertedN    = d.converted.length;
+  const revenue       = d.converted.reduce((s, l) => s + (Number(String(l.revenue).replace(/[^0-9.]/g, '')) || 0), 0);
+  const convRate      = totalDialed ? Math.round((convertedN / totalDialed) * 100) : 0;
+
+  // ===== HEADER =====
+  gradientRect(doc, 0, 0, 210, 42, BRAND_BLUE_DARK, BRAND_BLUE);
+  // subtle accent line
+  doc.setFillColor(250, 204, 21);
+  doc.rect(0, 42, 210, 1.4, 'F');
+
+  doc.setTextColor(255, 255, 255);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(21);
+  doc.text('KINGFISHER MANDLA', 14, 17);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(11);
+  doc.setTextColor(191, 219, 254);
+  doc.text('x  Ruralift', 14, 25);
+
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(10);
+  doc.setTextColor(255, 255, 255);
+  doc.text('DAILY AGENT REPORT', 196, 14, { align: 'right' });
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(9);
+  doc.setTextColor(191, 219, 254);
+  doc.text(dateStr, 196, 21, { align: 'right' });
+  doc.text('Agent: ' + d.agentName, 196, 27, { align: 'right' });
+  if (isDummy) {
+    doc.setFillColor(250, 204, 21);
+    doc.roundedRect(160, 31, 36, 6.5, 1.5, 1.5, 'F');
+    doc.setTextColor(29, 78, 216);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7.5);
+    doc.text('SAMPLE / DEMO DATA', 178, 35.3, { align: 'center' });
   }
 
+  doc.setTextColor(INK[0], INK[1], INK[2]);
+
+  // ===== KPI CARDS =====
+  let y = 52;
+  const kpis = [
+    { label: 'Total Dialed', value: totalDialed, color: BRAND_BLUE },
+    { label: 'Interested', value: interestedN, color: [16, 185, 129] },
+    { label: 'Follow-ups', value: followupN, color: [59, 130, 246] },
+    { label: 'Converted', value: convertedN, color: [236, 72, 153] },
+    { label: 'Revenue', value: 'Rs ' + revenue.toLocaleString('en-IN'), color: [22, 163, 74] }
+  ];
+  const gap = 3, cardW = (182 - gap * 4) / 5, cardH = 24;
+  kpis.forEach((k, i) => kpiCard(doc, 14 + i * (cardW + gap), y, cardW, cardH, k.label, k.value, k.color));
+  y += cardH + 6;
+
+  // conversion-rate strip
+  doc.setFillColor(245, 243, 255);
+  doc.roundedRect(14, y, 182, 9, 2, 2, 'F');
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(9);
+  doc.setTextColor(BRAND_BLUE[0], BRAND_BLUE[1], BRAND_BLUE[2]);
+  doc.text('Conversion Rate: ' + convRate + '%', 18, y + 5.9);
+  doc.text('Interested Rate: ' + (totalDialed ? Math.round(interestedN / totalDialed * 100) : 0) + '%', 90, y + 5.9);
+  doc.text('Contactable: ' + (totalDialed ? Math.round((interestedN + followupN) / totalDialed * 100) : 0) + '%', 150, y + 5.9);
+  doc.setTextColor(INK[0], INK[1], INK[2]);
+  y += 16;
+
+  // ===== DISPOSITION DONUT + LEGEND =====
+  const activeDispo = Object.keys(counts).filter(k => counts[k] > 0);
+  y = sectionHeader(doc, y, 'Call Disposition Breakdown', BRAND_BLUE);
+
+  if (activeDispo.length > 0) {
+    const donutImg = makeChartImage({
+      type: 'doughnut',
+      data: {
+        labels: activeDispo.map(k => DISPO_META[k].label),
+        datasets: [{
+          data: activeDispo.map(k => counts[k]),
+          backgroundColor: activeDispo.map(k => _rgb(DISPO_META[k].color)),
+          borderColor: '#ffffff', borderWidth: 3
+        }]
+      },
+      options: { cutout: '60%', plugins: { legend: { display: false }, tooltip: { enabled: false } } }
+    }, 520, 520);
+
+    const dSize = 58, dX = 15, dY = y + 2;
+    if (donutImg) doc.addImage(donutImg, 'PNG', dX, dY, dSize, dSize);
+    // center total
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(19);
+    doc.setTextColor(INK[0], INK[1], INK[2]);
+    doc.text(String(totalDialed), dX + dSize / 2, dY + dSize / 2 - 0.5, { align: 'center' });
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5);
+    doc.setTextColor(MUTED[0], MUTED[1], MUTED[2]);
+    doc.text('CALLS', dX + dSize / 2, dY + dSize / 2 + 5, { align: 'center' });
+
+    // legend on the right with percentage bars
+    let ly = dY + 2;
+    const lx = 84, barX = 84, barW = 78;
+    activeDispo.forEach(k => {
+      const c = DISPO_META[k].color;
+      const v = counts[k];
+      const pct = totalDialed ? Math.round(v / totalDialed * 100) : 0;
+      doc.setFillColor(c[0], c[1], c[2]);
+      doc.roundedRect(lx, ly, 3.2, 3.2, 0.6, 0.6, 'F');
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(8.5);
+      doc.setTextColor(INK[0], INK[1], INK[2]);
+      doc.text(DISPO_META[k].label, lx + 5.5, ly + 3);
+      doc.setTextColor(MUTED[0], MUTED[1], MUTED[2]);
+      doc.text(v + '  (' + pct + '%)', 196, ly + 3, { align: 'right' });
+      // track + fill
+      doc.setFillColor(233, 236, 242);
+      doc.roundedRect(barX, ly + 4.4, barW, 1.8, 0.9, 0.9, 'F');
+      doc.setFillColor(c[0], c[1], c[2]);
+      doc.roundedRect(barX, ly + 4.4, Math.max(1.4, barW * (pct / 100)), 1.8, 0.9, 0.9, 'F');
+      ly += 9.6;
+    });
+    y = Math.max(dY + dSize, ly) + 8;
+  } else {
+    doc.setFont('helvetica', 'italic'); doc.setFontSize(10);
+    doc.setTextColor(MUTED[0], MUTED[1], MUTED[2]);
+    doc.text('No calls dialed today.', 16, y + 4);
+    y += 14;
+  }
+
+  // ===== FUNNEL BAR CHART =====
+  y = sectionHeader(doc, y, 'Performance Funnel', BRAND_BLUE);
+  const funnelImg = makeChartImage({
+    type: 'bar',
+    data: {
+      labels: ['Dialed', 'Interested', 'Follow-ups', 'Converted'],
+      datasets: [{
+        data: [totalDialed, interestedN, followupN, convertedN],
+        backgroundColor: [_rgb(BRAND_BLUE), _rgb([16, 185, 129]), _rgb([59, 130, 246]), _rgb([236, 72, 153])],
+        borderRadius: 6, barThickness: 26
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      plugins: { legend: { display: false }, tooltip: { enabled: false } },
+      scales: {
+        x: { beginAtZero: true, grid: { color: '#eef0f4' }, ticks: { precision: 0, font: { size: 13 } } },
+        y: { grid: { display: false }, ticks: { font: { size: 14, weight: 'bold' } } }
+      }
+    }
+  }, 960, 300);
+  if (funnelImg) { doc.addImage(funnelImg, 'PNG', 15, y, 182, 57); y += 62; }
+
+  // ===== DETAIL PAGES =====
+  doc.addPage();
+  y = 18;
+  y = renderDispoGroups(doc, y, groups, counts);
+  if (d.interested.length) y = addInterestedSection(doc, y, d.interested);
+  if (d.followups.length)  y = addFollowupsSection(doc, y, d.followups);
+  if (d.dndList.length)    y = addDndSection(doc, y, d.dndList);
+  if (d.converted.length)  y = addConvertedSection(doc, y, d.converted);
+
+  addFooters(doc);
   doc.save(fileName);
 }
 
-function checkPage(doc, y, needed) {
-  if (y + needed > 280) { doc.addPage(); return 15; }
-  return y;
-}
-
-function addDispoStats(doc, y, stats, dialedLog) {
-  y = checkPage(doc, y, 50);
-  doc.setFontSize(13);
-  doc.setFont('helvetica', 'bold');
-  doc.setTextColor(108, 43, 217);
-  doc.text('DISPOSITION STATS (Today) - Total Dialed: ' + (stats.totalDialed || 0), 14, y);
-  doc.setTextColor(0, 0, 0);
-  y += 10;
-
-  // Group dialed numbers by disposition
-  const groups = {
-    'Interested': { color: [5, 150, 105], numbers: [] },
-    'Followup': { color: [37, 99, 235], numbers: [] },
-    'Not Interested': { color: [100, 116, 139], numbers: [] },
-    'CNC (Dead)': { color: [220, 38, 38], numbers: [] },
-    'CNR': { color: [217, 119, 6], numbers: [] },
-    'Switch Off': { color: [217, 119, 6], numbers: [] },
-    'DND': { color: [198, 40, 40], numbers: [] },
-    'Discard': { color: [71, 85, 105], numbers: [] }
-  };
-
-  if (dialedLog && dialedLog.length > 0) {
-    dialedLog.forEach(entry => {
-      const dispo = entry.disposition || 'Dialed';
-      if (groups[dispo]) {
-        groups[dispo].numbers.push(entry.phone);
-      } else {
-        // Try to find matching group
-        for (const key of Object.keys(groups)) {
-          if (dispo.toLowerCase().includes(key.toLowerCase().split(' ')[0].toLowerCase())) {
-            groups[key].numbers.push(entry.phone);
-            break;
-          }
-        }
-      }
-    });
+// Detailed call log grouped by disposition
+function renderDispoGroups(doc, y, groups, counts) {
+  y = sectionHeader(doc, y, 'Call Log by Disposition', [71, 85, 105]);
+  const active = Object.keys(groups).filter(k => groups[k].length > 0);
+  if (active.length === 0) {
+    doc.setFont('helvetica', 'italic'); doc.setFontSize(9);
+    doc.setTextColor(MUTED[0], MUTED[1], MUTED[2]);
+    doc.text('No detailed call records available.', 16, y + 3);
+    return y + 12;
   }
-
-  // Render each disposition group with its numbers
-  for (const [dispoName, group] of Object.entries(groups)) {
-    const count = group.numbers.length;
-    if (count === 0) continue;
-    
-    y = checkPage(doc, y, 20 + (count * 6));
-    doc.setFontSize(11);
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(group.color[0], group.color[1], group.color[2]);
-    doc.text(dispoName + ' (' + count + ')', 14, y);
-    doc.setTextColor(0, 0, 0);
-    y += 6;
-    
+  active.forEach(k => {
+    const c = DISPO_META[k].color;
+    const nums = groups[k];
+    y = checkPage(doc, y, 22 + nums.length * 6);
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(10.5);
+    doc.setTextColor(c[0], c[1], c[2]);
+    doc.text(DISPO_META[k].label + '  (' + nums.length + ')', 14, y);
+    doc.setTextColor(INK[0], INK[1], INK[2]);
+    y += 4;
     doc.autoTable({
       startY: y,
       head: [['#', 'Phone Number']],
-      body: group.numbers.map((p, i) => [String(i+1), p]),
+      body: nums.map((p, i) => [String(i + 1), p]),
       theme: 'striped',
-      headStyles: { fillColor: group.color, fontStyle: 'bold', fontSize: 9 },
+      headStyles: { fillColor: c, fontStyle: 'bold', fontSize: 9 },
       margin: { left: 14, right: 14 },
-      styles: { fontSize: 9, cellPadding: 3 },
+      styles: { fontSize: 9, cellPadding: 2.6 },
       alternateRowStyles: { fillColor: [248, 250, 252] },
       columnStyles: { 0: { cellWidth: 15 } }
     });
-    y = doc.lastAutoTable.finalY + 8;
-  }
-
-  // Show dispositions with 0 count as a summary line
-  const zeroCounts = Object.entries(groups).filter(([,g]) => g.numbers.length === 0);
-  if (zeroCounts.length > 0) {
-    y = checkPage(doc, y, 15);
-    doc.setFontSize(9);
-    doc.setFont('helvetica', 'italic');
-    doc.setTextColor(100, 116, 139);
-    doc.text('No calls: ' + zeroCounts.map(([name]) => name).join(', '), 14, y);
-    doc.setTextColor(0, 0, 0);
-    doc.setFont('helvetica', 'normal');
-    y += 10;
-  }
-
-  return y + 5;
+    y = doc.lastAutoTable.finalY + 7;
+  });
+  return y + 3;
 }
 
 function addInterestedSection(doc, y, leads) {
-  y = checkPage(doc, y, 40);
-  doc.setFontSize(13);
-  doc.setFont('helvetica', 'bold');
-  doc.setTextColor(5, 150, 105);
-  doc.text('INTERESTED LEADS (Today)', 14, y);
-  doc.setTextColor(0, 0, 0);
-  y += 8;
-  
+  y = sectionHeader(doc, y, 'Interested Leads (Today)', [16, 185, 129]);
   doc.autoTable({
     startY: y,
     head: [['Phone', 'Name', 'Package', 'Revenue (Rs.)']],
     body: leads.map(l => [l.phone, l.name, l.loanType, l.revenue]),
     theme: 'striped',
-    headStyles: { fillColor: [5, 150, 105], fontStyle: 'bold', fontSize: 9 },
+    headStyles: { fillColor: [16, 185, 129], fontStyle: 'bold', fontSize: 9 },
     margin: { left: 14, right: 14 },
     styles: { fontSize: 9, cellPadding: 4 },
     alternateRowStyles: { fillColor: [236, 253, 245] }
@@ -2379,20 +2631,13 @@ function addInterestedSection(doc, y, leads) {
 }
 
 function addFollowupsSection(doc, y, leads) {
-  y = checkPage(doc, y, 40);
-  doc.setFontSize(13);
-  doc.setFont('helvetica', 'bold');
-  doc.setTextColor(37, 99, 235);
-  doc.text('FOLLOWUPS (Today)', 14, y);
-  doc.setTextColor(0, 0, 0);
-  y += 8;
-  
+  y = sectionHeader(doc, y, 'Follow-ups (Today)', [59, 130, 246]);
   doc.autoTable({
     startY: y,
     head: [['Phone', 'Name', 'Package', 'Date', 'Time']],
     body: leads.map(l => [l.phone, l.name, l.pkg || '', l.date, l.time]),
     theme: 'striped',
-    headStyles: { fillColor: [37, 99, 235], fontStyle: 'bold', fontSize: 9 },
+    headStyles: { fillColor: [59, 130, 246], fontStyle: 'bold', fontSize: 9 },
     margin: { left: 14, right: 14 },
     styles: { fontSize: 9, cellPadding: 4 },
     alternateRowStyles: { fillColor: [239, 246, 255] }
@@ -2401,191 +2646,74 @@ function addFollowupsSection(doc, y, leads) {
 }
 
 function addDndSection(doc, y, numbers) {
-  y = checkPage(doc, y, 40);
-  doc.setFontSize(13);
-  doc.setFont('helvetica', 'bold');
-  doc.setTextColor(198, 40, 40);
-  doc.text('DND NUMBERS (All Time)', 14, y);
-  doc.setTextColor(0, 0, 0);
-  y += 8;
-  
+  y = sectionHeader(doc, y, 'DND Numbers (All Time)', [190, 24, 93]);
   doc.autoTable({
     startY: y,
     head: [['#', 'Phone Number']],
-    body: numbers.map((n, i) => [String(i+1), n.phone]),
+    body: numbers.map((n, i) => [String(i + 1), n.phone]),
     theme: 'striped',
-    headStyles: { fillColor: [198, 40, 40], fontStyle: 'bold', fontSize: 9 },
+    headStyles: { fillColor: [190, 24, 93], fontStyle: 'bold', fontSize: 9 },
     margin: { left: 14, right: 14 },
     styles: { fontSize: 9, cellPadding: 4 },
-    alternateRowStyles: { fillColor: [254, 242, 242] }
+    alternateRowStyles: { fillColor: [253, 242, 248] }
   });
   return doc.lastAutoTable.finalY + 12;
 }
 
 function addConvertedSection(doc, y, leads) {
-  y = checkPage(doc, y, 40);
-  doc.setFontSize(13);
-  doc.setFont('helvetica', 'bold');
-  doc.setTextColor(108, 43, 217);
-  doc.text('CONVERTED CUSTOMERS (Today)', 14, y);
-  doc.setTextColor(0, 0, 0);
-  y += 8;
-  
-  const totalRev = leads.reduce((s, l) => s + (Number(l.revenue) || 0), 0);
-  doc.setFontSize(11);
-  doc.setFont('helvetica', 'bold');
-  doc.text('Total Revenue Generated: Rs. ' + totalRev.toLocaleString('en-IN'), 14, y);
+  y = sectionHeader(doc, y, 'Converted Customers (Today)', [236, 72, 153]);
+  const totalRev = leads.reduce((s, l) => s + (Number(String(l.revenue).replace(/[^0-9.]/g, '')) || 0), 0);
+  doc.setFillColor(253, 242, 248);
+  doc.roundedRect(14, y - 3, 182, 9, 2, 2, 'F');
+  doc.setFontSize(10); doc.setFont('helvetica', 'bold');
+  doc.setTextColor(190, 24, 93);
+  doc.text('Total Revenue Generated:  Rs. ' + totalRev.toLocaleString('en-IN'), 18, y + 3);
+  doc.setTextColor(INK[0], INK[1], INK[2]);
   doc.setFont('helvetica', 'normal');
-  y += 7;
-  
+  y += 11;
   doc.autoTable({
     startY: y,
     head: [['Phone', 'Name', 'Package', 'Revenue (Rs.)', 'Date']],
     body: leads.map(l => [l.phone, l.name, l.loanType, l.revenue, l.date || '']),
     theme: 'striped',
-    headStyles: { fillColor: [108, 43, 217], fontStyle: 'bold', fontSize: 9 },
+    headStyles: { fillColor: [236, 72, 153], fontStyle: 'bold', fontSize: 9 },
     margin: { left: 14, right: 14 },
     styles: { fontSize: 9, cellPadding: 4 },
-    alternateRowStyles: { fillColor: [245, 243, 255] }
+    alternateRowStyles: { fillColor: [253, 242, 248] }
   });
   return doc.lastAutoTable.finalY + 12;
 }
 
-function addDialedLogSection(doc, y, log) {
-  y = checkPage(doc, y, 40);
-  doc.setFontSize(13);
-  doc.setFont('helvetica', 'bold');
-  doc.setTextColor(71, 85, 105);
-  doc.text('ALL DIALED NUMBERS (Today)', 14, y);
-  doc.setTextColor(0, 0, 0);
-  y += 8;
-  
-  doc.autoTable({
-    startY: y,
-    head: [['#', 'Phone', 'Disposition', 'Time']],
-    body: log.map((l, i) => [String(i+1), l.phone, l.disposition, l.time || '']),
-    theme: 'striped',
-    headStyles: { fillColor: [71, 85, 105], fontStyle: 'bold', fontSize: 9 },
-    margin: { left: 14, right: 14 },
-    styles: { fontSize: 9, cellPadding: 4 },
-    alternateRowStyles: { fillColor: [241, 245, 249] }
-  });
-  return doc.lastAutoTable.finalY + 12;
+// Footer + page numbers on every page
+function addFooters(doc) {
+  const total = doc.internal.getNumberOfPages();
+  for (let i = 1; i <= total; i++) {
+    doc.setPage(i);
+    doc.setDrawColor(226, 232, 240);
+    doc.setLineWidth(0.3);
+    doc.line(14, 286, 196, 286);
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5);
+    doc.setTextColor(MUTED[0], MUTED[1], MUTED[2]);
+    doc.text('Kingfisher Mandla x Ruralift  |  Confidential Daily Report', 14, 291);
+    doc.text('Page ' + i + ' of ' + total, 196, 291, { align: 'right' });
+  }
 }
 
+// ── Entry points ────────────────────────────────────────────────────────────────
 async function downloadLiveReport() {
-  // Fetch today's dialed log for this agent from server
   try {
     const r = await fetch('/api/agent/dialed-today/' + agentId);
-    const dialedData = await r.json();
-    window._liveDialedLog = dialedData || [];
-  } catch(e) { window._liveDialedLog = []; }
-  
-  // Also get dispo stats
+    window._liveDialedLog = (await r.json()) || [];
+  } catch (e) { window._liveDialedLog = []; }
   try {
     const r = await fetch('/api/agent/stats/' + agentId);
-    const stats = await r.json();
-    window._liveDispoStats = stats;
-  } catch(e) { window._liveDispoStats = null; }
-  
-  generateLiveReportPDF();
-}
-
-function generateLiveReportPDF() {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-  const today = new Date();
-  const dateStr = String(today.getDate()).padStart(2,'0') + '-' + String(today.getMonth()+1).padStart(2,'0') + '-' + today.getFullYear();
-  const fileName = dateStr + '_Kingfisher Report.pdf';
-  
-  let y = 20;
-  
-  // Header - Purple banner
-  doc.setFillColor(108, 43, 217);
-  doc.rect(0, 0, 210, 38, 'F');
-  
-  doc.setFontSize(20);
-  doc.setFont('helvetica', 'bold');
-  doc.setTextColor(255, 255, 255);
-  doc.text('KINGFISHER MANDLA X Ruralift', 105, 14, { align: 'center' });
-  doc.setFontSize(11);
-  doc.setFont('helvetica', 'normal');
-  doc.text('Daily Agent Report  |  ' + dateStr, 105, 24, { align: 'center' });
-  doc.text('Agent: ' + (document.getElementById('displayAgentName').textContent || 'N/A'), 105, 32, { align: 'center' });
-  
-  doc.setTextColor(0, 0, 0);
-  y = 48;
-
-  // Dispo stats
-  const stats = window._liveDispoStats || {};
-  const dispoStats = {
-    totalDialed: stats.totalDialedToday || 0,
-    interested: stats.interestedToday || (interestedLeadsData || []).length,
-    followup: stats.followupToday || 0,
-    notInterested: stats.notInterestedToday || 0,
-    dead: stats.deadToday || 0,
-    notReceived: stats.notReceivedToday || 0,
-    switchOff: stats.switchOffToday || 0,
-    dnd: stats.dndToday || 0,
-    discard: stats.discardToday || 0
-  };
-  // Dialed log from server - pass to dispo stats
-  const dialedLog = (window._liveDialedLog || []).map(l => ({
-    phone: l.phone || '', disposition: l.disposition || '', time: l.time || ''
-  }));
-  y = addDispoStats(doc, y, dispoStats, dialedLog);
-
-  // Interested
-  const interested = (interestedLeadsData || []).map(l => ({
-    phone: l.phone, name: l.name || 'N/A', loanType: PACKAGE_LABELS[l.loanType] || l.loanType || 'N/A', revenue: l.revenueGenerated || '0'
-  }));
-  if (interested.length > 0) y = addInterestedSection(doc, y, interested);
-
-  // Followups from DOM
-  const followupRows = document.querySelectorAll('#followupsTable tr');
-  const followups = [];
-  followupRows.forEach(row => {
-    const cells = row.querySelectorAll('td');
-    if (cells.length >= 6) {
-      followups.push({
-        phone: cells[0] ? cells[0].textContent.trim() : '',
-        name: cells[1] ? cells[1].textContent.trim() : '',
-        pkg: cells[3] ? cells[3].textContent.trim() : '',
-        date: cells[4] ? cells[4].textContent.trim() : '',
-        time: cells[5] ? cells[5].textContent.trim() : ''
-      });
-    }
-  });
-  if (followups.length > 0) y = addFollowupsSection(doc, y, followups);
-
-  // DND
-  const dndEls = document.querySelectorAll('#dndNumbersList [data-phone]');
-  const dndList = [];
-  dndEls.forEach(el => { const p = el.getAttribute('data-phone'); if (p) dndList.push({ phone: p }); });
-  if (dndList.length > 0) y = addDndSection(doc, y, dndList);
-
-  // Converted
-  const completedRows = document.querySelectorAll('#completedTable tr');
-  const converted = [];
-  completedRows.forEach(row => {
-    const cells = row.querySelectorAll('td');
-    if (cells.length >= 5) {
-      converted.push({
-        phone: cells[0] ? cells[0].textContent.trim() : '',
-        name: cells[1] ? cells[1].textContent.trim() : '',
-        loanType: cells[2] ? cells[2].textContent.trim() : '',
-        revenue: cells[3] ? cells[3].textContent.trim().replace(/[₹,]/g,'') : '0',
-        date: cells[4] ? cells[4].textContent.trim() : ''
-      });
-    }
-  });
-  if (converted.length > 0) y = addConvertedSection(doc, y, converted);
-
-  doc.save(fileName);
+    window._liveDispoStats = await r.json();
+  } catch (e) { window._liveDispoStats = null; }
+  buildReportPDF(getLiveReportData(), false);
 }
 
 function downloadDummyReport() {
-  generateReportPDF(true);
+  buildReportPDF(getDummyReportData(), true);
 }
 
 // ── Toast ─────────────────────────────────────────────────────────────────────
@@ -2825,6 +2953,7 @@ setInterval(tickLiveClock, 1000);
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 
 </body>
 </html>

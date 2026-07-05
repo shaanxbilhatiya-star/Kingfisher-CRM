@@ -26,11 +26,12 @@
     }
 
     .hero {
-      background: linear-gradient(115deg, #1e293b 0%, #1e3a8a 100%);
+      background: linear-gradient(120deg, #0aa6c2 0%, #1668d6 42%, #7b2ff7 70%, #e6157b 100%);
+      border-bottom: 3px solid #ff7a18;
       border-radius: 2rem;
       padding: 2rem 2rem 1.8rem;
       margin-bottom: 2.2rem;
-      box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 20px 35px -12px rgba(22, 104, 214, 0.28);
       position: relative;
       overflow: hidden;
     }
@@ -518,6 +519,5 @@
   togglePanels();
   updatePreview();
 </script>
-<script>(function(){var p=new URLSearchParams(location.search);var nid=p.get('numberId');var aid=p.get('agentId');if(nid&&aid){document.querySelectorAll('.app-card').forEach(function(a){var u=new URL(a.href,location.href);u.searchParams.set('numberId',nid);u.searchParams.set('agentId',aid);a.href=u.toString();});}})();</script>
 </body>
 </html>

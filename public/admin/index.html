@@ -8,38 +8,38 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    /* ADMIN theme: pure black + deep-purple (more saturated/darker than TL's indigo-violet) */
-    --bg: #080810; --surface: #100f1e; --surface2: #17162a; --border: #25233d;
-    --accent: #7c3aed; --accent2: #9333ea; --danger: #F44336;
-    --warn: #FF9800; --text: #E0E0E0; --muted: #9E9E9E;
-    --green: #4CAF50; --mono: 'JetBrains Mono', monospace; --sans: 'Space Grotesk', sans-serif;
+    /* ADMIN theme: bright Kingfisher x TaskUs — colorful light */
+    --bg: #eef4fc; --surface: #ffffff; --surface2: #f2f8ff; --border: #d5e6f5;
+    --accent: #0aa6c2; --accent2: #1668d6; --magenta: #e6157b; --orange: #ff7a18;
+    --danger: #ef4444; --warn: #f59e0b; --text: #12293f; --muted: #5b7488;
+    --green: #10b981; --mono: 'JetBrains Mono', monospace; --sans: 'Space Grotesk', sans-serif;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: #080810; color: var(--text); font-family: var(--sans); min-height: 100vh; }
+  body { background: linear-gradient(160deg, #eaf3fd 0%, #f2ecfb 46%, #fdeef5 100%); background-attachment: fixed; color: var(--text); font-family: var(--sans); min-height: 100vh; }
 
-  header { background: linear-gradient(135deg, #080810 0%, #100f1e 100%); border-bottom: 1px solid var(--border); box-shadow: 0 2px 20px rgba(124,58,237,.2); padding: 14px 32px; display: flex; align-items: center; justify-content: space-between; }
+  header { background: linear-gradient(120deg, #0aa6c2 0%, #1668d6 42%, #7b2ff7 70%, #e6157b 100%); border-bottom: 3px solid var(--orange); box-shadow: 0 6px 24px rgba(22,104,214,.30); padding: 14px 32px; display: flex; align-items: center; justify-content: space-between; }
   .logo { display: flex; flex-direction: column; align-items: center; gap: 5px; flex: 1; }
   .logo-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 10px var(--accent); animation: pulse 2s infinite; }
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
   .logo h1 { font-size: 15px; font-weight: 700; letter-spacing: -0.5px; color: var(--accent); }
   .logo-img {
     width: 272px; height: 70px; object-fit: contain; padding: 10px 18px; border-radius: 14px;
-    border: 2px solid rgba(124,58,237,.4); background: rgba(255,255,255,.04);
-    filter: drop-shadow(0 0 12px rgba(124,58,237,.65)) drop-shadow(0 0 24px rgba(124,58,237,.3));
+    border: 2px solid rgba(37,99,235,.4); background: rgba(255,255,255,.04);
+    filter: drop-shadow(0 0 12px rgba(37,99,235,.65)) drop-shadow(0 0 24px rgba(37,99,235,.3));
     animation: logo-glow-admin 2.5s ease-in-out infinite;
-    box-shadow: 0 4px 16px rgba(124,58,237,.2), 0 1px 4px rgba(0,0,0,.3);
+    box-shadow: 0 4px 16px rgba(37,99,235,.2), 0 1px 4px rgba(0,0,0,.3);
   }
   @keyframes logo-glow-admin {
-    0%,100% { filter: drop-shadow(0 0 8px rgba(124,58,237,.55)) drop-shadow(0 0 18px rgba(124,58,237,.25)); }
-    50%      { filter: drop-shadow(0 0 20px rgba(124,58,237,.95)) drop-shadow(0 0 40px rgba(147,51,234,.55)); }
+    0%,100% { filter: drop-shadow(0 0 8px rgba(37,99,235,.55)) drop-shadow(0 0 18px rgba(37,99,235,.25)); }
+    50%      { filter: drop-shadow(0 0 20px rgba(37,99,235,.95)) drop-shadow(0 0 40px rgba(29,78,216,.55)); }
   }
-  .badge { background: var(--accent); color: #fff; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; letter-spacing: 1px; box-shadow: 0 0 10px rgba(124,58,237,.4); }
+  .badge { background: var(--accent); color: #fff; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; letter-spacing: 1px; box-shadow: 0 0 10px rgba(37,99,235,.4); }
 
   .main { padding: 28px 32px; max-width: 1400px; margin: 0 auto; }
 
   .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; margin-bottom: 28px; }
   .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px 24px; display: flex; flex-direction: column; gap: 6px; box-shadow: 0 2px 12px rgba(0,0,0,.4); transition: transform .2s, box-shadow .2s; }
-  .stat-card:hover { transform: translateY(-2px); box-shadow: 0 4px 20px rgba(124,58,237,.2); }
+  .stat-card:hover { transform: translateY(-2px); box-shadow: 0 4px 20px rgba(37,99,235,.2); }
   .stat-label { font-size: 12px; font-weight: 600; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
   .stat-value { font-family: var(--mono); font-size: 36px; font-weight: 700; }
   .stat-value.green { color: var(--green); }
@@ -55,7 +55,7 @@
   .panel-body { padding: 20px; }
 
   .upload-zone { border: 2px dashed var(--border); border-radius: 10px; padding: 36px; text-align: center; cursor: pointer; transition: all .2s; position: relative; }
-  .upload-zone:hover, .upload-zone.dragover { border-color: var(--accent); background: rgba(124,58,237,.06); }
+  .upload-zone:hover, .upload-zone.dragover { border-color: var(--accent); background: rgba(37,99,235,.06); }
   .upload-zone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; }
   .upload-icon { font-size: 36px; margin-bottom: 10px; }
   .upload-zone p { color: var(--muted); font-size: 14px; }
@@ -78,7 +78,7 @@
   .agents-table th { padding: 10px 12px; text-align: left; font-size: 11px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; background: var(--surface2); color: var(--muted); border-bottom: 1px solid var(--border); }
   .agents-table td { padding: 11px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
   .agents-table tr:last-child td { border-bottom: none; }
-  .agents-table tr:hover td { background: rgba(124,58,237,.06); }
+  .agents-table tr:hover td { background: rgba(37,99,235,.06); }
 
   .status-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
   .status-dot.active { background: var(--green); box-shadow: 0 0 6px var(--green); }
@@ -109,7 +109,7 @@
   #toast.success { border-color: var(--accent); }
   #toast.error { border-color: var(--danger); }
 
-  .today-badge { background: rgba(124,58,237,.1); color: var(--accent); border: 1px solid rgba(124,58,237,.2); border-radius: 6px; padding: 4px 12px; font-size: 12px; font-family: var(--mono); }
+  .today-badge { background: rgba(37,99,235,.1); color: var(--accent); border: 1px solid rgba(37,99,235,.2); border-radius: 6px; padding: 4px 12px; font-size: 12px; font-family: var(--mono); }
   .empty { color: var(--muted); font-size: 13px; text-align: center; padding: 24px; }
 
   #breakSummary { display: none; background: rgba(255,152,0,.05); border: 1px solid rgba(255,152,0,.2); border-radius: 12px; padding: 14px 20px; margin-bottom: 20px; }
@@ -121,7 +121,7 @@
   .panel-followups { margin-bottom: 20px; }
   .panel-interested .panel-header { background: rgba(76,175,80,.06); }
   .panel-interested .panel-header h2 { color: var(--green); }
-  .panel-followups .panel-header { background: rgba(124,58,237,.06); }
+  .panel-followups .panel-header { background: rgba(37,99,235,.06); }
   .panel-followups .panel-header h2 { color: var(--accent); }
   .leads-table { width: 100%; border-collapse: collapse; font-size: 14px; }
   .leads-table th { padding: 10px 12px; text-align: left; font-size: 11px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; background: var(--surface2); color: var(--muted); border-bottom: 1px solid var(--border); }
@@ -146,8 +146,8 @@
   .eid-name { font-size: 12px; color: var(--muted); }
   .eid-remove { background: none; border: 1px solid rgba(244,67,54,.4); color: var(--danger); border-radius: 6px; padding: 4px 10px; font-size: 11px; font-weight: 700; cursor: pointer; transition: all .2s; }
   .eid-remove:hover { background: rgba(244,67,54,.1); }
-  .btn-replace-photo { display: inline-flex; align-items: center; gap: 4px; background: rgba(124,58,237,.1); color: var(--accent); border: 1px solid rgba(124,58,237,.25); border-radius: 6px; padding: 4px 10px; font-size: 11px; font-weight: 700; cursor: pointer; transition: all .2s; font-family: var(--sans); }
-  .btn-replace-photo:hover { background: rgba(124,58,237,.2); }
+  .btn-replace-photo { display: inline-flex; align-items: center; gap: 4px; background: rgba(37,99,235,.1); color: var(--accent); border: 1px solid rgba(37,99,235,.25); border-radius: 6px; padding: 4px 10px; font-size: 11px; font-weight: 700; cursor: pointer; transition: all .2s; font-family: var(--sans); }
+  .btn-replace-photo:hover { background: rgba(37,99,235,.2); }
   .eid-add-form { display: flex; gap: 8px; margin-top: 14px; align-items: flex-start; flex-wrap: wrap; }
   .eid-add-form input { padding: 9px 14px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface2); color: var(--text); font-family: var(--sans, sans-serif); font-size: 14px; outline: none; min-width: 0; }
   .eid-add-form input:focus { border-color: var(--accent); }
@@ -197,87 +197,58 @@
   .admin-stats-tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
   .dispo-stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 14px; }
   .dispo-stat-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 16px; text-align: center; position: relative; }
-  .dispo-stat-card.dispo-stat-total { background: rgba(124,58,237,.08); border-color: rgba(124,58,237,.3); }
+  .dispo-stat-card.dispo-stat-total { background: rgba(37,99,235,.08); border-color: rgba(37,99,235,.3); }
   .dispo-stat-indicator { width: 8px; height: 8px; border-radius: 50%; position: absolute; top: 12px; left: 12px; }
   .dispo-stat-val { font-family: var(--mono); font-size: 28px; font-weight: 700; color: var(--accent); }
   .dispo-stat-card.dispo-stat-total .dispo-stat-val { font-size: 36px; }
   .dispo-stat-lbl { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-top: 4px; }
 
-  @keyframes blink-glow {
-    0%, 100% { opacity: 1; text-shadow: 0 0 20px rgba(124,58,237,.7); }
-    50% { opacity: 0.6; text-shadow: 0 0 40px rgba(124,58,237,1), 0 0 80px rgba(147,51,234,.5); }
-  }
-  .leaderboard-header h2 { animation: blink-glow 2s ease-in-out infinite; }
-
-  .leaderboard-panel { margin-bottom: 20px; border-radius: 20px; overflow: hidden; border: 1px solid rgba(124,58,237,.3); background: var(--surface); box-shadow: 0 8px 40px rgba(124,58,237,.12); }
-  .leaderboard-header { display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; background: linear-gradient(135deg, #1a0a2e 0%, #4a1d96 50%, #7c3aed 100%); flex-wrap: wrap; gap: 10px; }
-  .leaderboard-header h2 { margin: 0; font-size: 20px; color: #fff; font-weight: 800; letter-spacing: -.3px; }
-  .lb-period-tabs { display: flex; gap: 4px; background: rgba(255,255,255,.1); padding: 4px; border-radius: 8px; }
-  .lb-period-tab { padding: 6px 16px; border-radius: 6px; border: none; background: transparent; color: rgba(255,255,255,.6); font-size: 12px; font-weight: 700; cursor: pointer; transition: all .2s; }
-  .lb-period-tab:hover { color: #fff; background: rgba(255,255,255,.15); }
-  .lb-period-tab.active { background: var(--accent); color: #fff; box-shadow: 0 2px 8px rgba(124,58,237,.5); }
-  .leaderboard-body { padding: 20px 24px 24px; background: linear-gradient(180deg, #12102a 0%, #080810 80px); }
-  .face-bar { display: flex; align-items: flex-end; justify-content: center; gap: 20px; padding: 24px 0 20px; margin-bottom: 8px; }
-  .face-bar-item { display: flex; flex-direction: column; align-items: center; position: relative; }
-  .face-ring { border-radius: 50%; overflow: hidden; flex-shrink: 0; position: relative; transition: transform .3s; }
-  .face-ring:hover { transform: scale(1.06); }
-  .face-ring img { width: 100%; height: 100%; object-fit: cover; object-position: center center; display: block; border-radius: 50%; }
-  .face-ring .face-letter { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-weight: 800; color: #fff; background: var(--accent); border-radius: 50%; }
-  @keyframes rank1-pulse {
-    0%, 100% { box-shadow: 0 0 0 4px rgba(245,158,11,.25), 0 8px 32px rgba(245,158,11,.4); transform: scale(1); }
-    50% { box-shadow: 0 0 0 8px rgba(245,158,11,.5), 0 8px 40px rgba(245,158,11,.7), 0 0 60px rgba(245,158,11,.3); transform: scale(1.05); }
-  }
-  .face-ring.r1 { width: 100px; height: 100px; border: 3px solid #f59e0b; box-shadow: 0 0 0 4px rgba(245,158,11,.25), 0 8px 32px rgba(245,158,11,.4); animation: rank1-pulse 2s ease-in-out infinite; }
-  .face-ring.r1 .face-letter { font-size: 36px; }
-  .face-ring.r2 { width: 78px; height: 78px; border: 3px solid #94a3b8; box-shadow: 0 0 0 3px rgba(148,163,184,.2), 0 6px 20px rgba(148,163,184,.3); }
-  .face-ring.r2 .face-letter { font-size: 28px; }
-  .face-ring.r3 { width: 62px; height: 62px; border: 3px solid #f97316; box-shadow: 0 0 0 3px rgba(249,115,22,.2), 0 4px 14px rgba(249,115,22,.3); }
-  .face-ring.r3 .face-letter { font-size: 22px; }
-  .face-crown { font-size: 20px; margin-bottom: -6px; filter: drop-shadow(0 2px 4px rgba(0,0,0,.4)); z-index: 2; position: relative; }
-  .face-rank-badge { position: absolute; bottom: -2px; right: -2px; width: 22px; height: 22px; border-radius: 50%; font-size: 11px; font-weight: 800; color: #fff; display: flex; align-items: center; justify-content: center; border: 2px solid var(--surface); z-index: 3; }
-  .face-rank-badge.r1 { background: #f59e0b; }
-  .face-rank-badge.r2 { background: #94a3b8; }
-  .face-rank-badge.r3 { background: #f97316; }
-  .face-name { font-size: 12px; font-weight: 700; color: var(--text); margin-top: 8px; text-align: center; max-width: 90px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .face-score { font-family: monospace; font-size: 13px; font-weight: 800; margin-top: 2px; text-align: center; }
-  .face-bar-item.r1 .face-score { color: #f59e0b; }
-  .face-bar-item.r2 .face-score { color: #94a3b8; }
-  .face-bar-item.r3 .face-score { color: #f97316; }
-  .face-remarks { font-size: 9px; color: var(--green); font-style: italic; margin-top: 4px; text-align: center; max-width: 96px; line-height: 1.4; }
-  .lb-list { display: flex; flex-direction: column; gap: 7px; margin-top: 4px; }
-  .lb-row { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 14px; background: var(--surface); border: 1px solid var(--border); transition: all .2s; box-shadow: 0 1px 4px rgba(0,0,0,.3); }
-  .lb-row:hover { border-color: var(--accent2); box-shadow: 0 4px 16px rgba(124,58,237,.15); transform: translateX(3px); }
-  .lb-rank-badge { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; background: var(--surface2); color: var(--muted); border: 1.5px solid var(--border); flex-shrink: 0; font-family: monospace; }
-  .lb-row-avatar { width: 52px; height: 52px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; color: #fff; background: var(--accent); overflow: hidden; flex-shrink: 0; border: 2px solid var(--border); }
-  .lb-row-avatar img { width: 100%; height: 100%; object-fit: cover; object-position: center center; }
-  .lb-row-info { flex: 1; min-width: 0; }
-  .lb-row-name { font-weight: 700; font-size: 13px; color: var(--text); }
-  .lb-row-stats { font-size: 11px; color: var(--muted); margin-top: 1px; }
-  .lb-bar-wrap { height: 5px; background: var(--border); border-radius: 3px; margin-top: 6px; max-width: none; }
-  .lb-bar { height: 100%; border-radius: 2px; background: linear-gradient(90deg, var(--accent), var(--accent2)); transition: width 1s cubic-bezier(.4,0,.2,1); }
-  .lb-row-right { text-align: right; min-width: 55px; }
-  .lb-row-score { font-weight: 800; font-size: 17px; color: var(--accent); font-family: monospace; }
-  .lb-row-remarks { font-size: 13px; color: var(--green); font-style: normal; margin-top: 5px; line-height: 1.5; font-weight: 500; }
-  .lb-rank-badge.top3 { background: linear-gradient(135deg, #fef3c7, #fde68a); border-color: #f59e0b; font-size: 16px; width: 36px; height: 36px; }
-  .rank-1-row { border: 2px solid #f59e0b; background: rgba(245,158,11,.05); animation: rank1-row-pulse 2s ease-in-out infinite; }
-  @keyframes rank1-row-pulse {
-    0%, 100% { box-shadow: 0 2px 8px rgba(245,158,11,.15); }
-    50% { box-shadow: 0 4px 20px rgba(245,158,11,.35), 0 0 40px rgba(245,158,11,.1); }
-  }
-  .rank-1-avatar { border-color: #f59e0b !important; box-shadow: 0 0 12px rgba(245,158,11,.4); }
   .eid-photo-thumb { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; margin-right: 8px; border: 1px solid var(--border); }
 
   /* Role badges */
   .role-badge { font-size:10px; font-weight:700; padding:2px 8px; border-radius:20px; letter-spacing:.5px; }
   .role-badge.role-agent { background:rgba(76,175,80,.1); color:#4CAF50; border:1px solid rgba(76,175,80,.25); }
-  .role-badge.role-tl { background:rgba(124,58,237,.1); color:var(--accent); border:1px solid rgba(124,58,237,.25); }
+  .role-badge.role-tl { background:rgba(37,99,235,.1); color:var(--accent); border:1px solid rgba(37,99,235,.25); }
+  .role-badge.role-client { background:rgba(37,99,235,.1); color:var(--accent); border:1px solid rgba(37,99,235,.25); }
   .role-badge.role-admin { background:rgba(244,67,54,.1); color:#F44336; border:1px solid rgba(244,67,54,.25); }
 
-  /* TL assign/remove buttons */
-  .btn-assign-tl { background:rgba(124,58,237,.1); color:var(--accent); border:1px solid rgba(124,58,237,.25); border-radius:6px; padding:4px 10px; font-size:11px; font-weight:700; cursor:pointer; transition:all .2s; }
-  .btn-assign-tl:hover { background:rgba(124,58,237,.2); }
-  .btn-remove-tl { background:rgba(76,175,80,.1); color:#4CAF50; border:1px solid rgba(76,175,80,.25); border-radius:6px; padding:4px 10px; font-size:11px; font-weight:700; cursor:pointer; transition:all .2s; }
-  .btn-remove-tl:hover { background:rgba(76,175,80,.2); }
+  /* ============================================================
+     KINGFISHER x TASKUS — COLORFUL THEME OVERRIDES (light)
+     ============================================================ */
+  /* Header: keep text readable on the vibrant gradient bar */
+  header .logo h1 { color: #ffffff; text-shadow: 0 1px 8px rgba(0,0,0,.28); }
+  header .today-badge { background: rgba(255,255,255,.20); color: #ffffff; border: 1px solid rgba(255,255,255,.45); backdrop-filter: blur(4px); }
+  header .badge, .badge { background: #ffffff; color: var(--magenta); box-shadow: 0 2px 10px rgba(0,0,0,.18); }
+  .logo-img { border: 2px solid rgba(255,255,255,.55); background: rgba(255,255,255,.14);
+    filter: drop-shadow(0 0 12px rgba(255,255,255,.55)); animation: none;
+    box-shadow: 0 4px 18px rgba(0,0,0,.22); }
+  .logo-dot { background: var(--orange); box-shadow: 0 0 10px var(--orange); }
+
+  /* Colorful stat cards: rotating Kingfisher/TaskUs top accents */
+  .stat-card { position: relative; overflow: hidden; border-top: none; box-shadow: 0 4px 16px rgba(22,104,214,.08); }
+  .stat-card::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: var(--accent); }
+  .stat-card:nth-child(4n+1)::before { background: linear-gradient(90deg, #0aa6c2, #22d3ee); }
+  .stat-card:nth-child(4n+2)::before { background: linear-gradient(90deg, #1668d6, #60a5fa); }
+  .stat-card:nth-child(4n+3)::before { background: linear-gradient(90deg, #e6157b, #ff7ab6); }
+  .stat-card:nth-child(4n+4)::before { background: linear-gradient(90deg, #ff7a18, #ffb454); }
+  .stat-card:hover { box-shadow: 0 8px 26px rgba(22,104,214,.20); }
+
+  /* Panel headers get a soft tinted band + colored titles */
+  .panel-header { background: linear-gradient(90deg, rgba(10,166,194,.10), rgba(230,21,123,.06)); }
+  .panel-header h2 { color: var(--accent2); }
+
+  /* Primary action accents lean into TaskUs magenta / Kingfisher teal */
+  .badge { letter-spacing: 1px; }
+  .today-badge { background: rgba(10,166,194,.12); color: var(--accent2); border: 1px solid rgba(10,166,194,.28); }
+  .dialed-count { color: var(--magenta); }
+  .upload-zone:hover, .upload-zone.dragover { border-color: var(--magenta); background: rgba(230,21,123,.06); }
+  .upload-zone strong { color: var(--magenta); }
+
+  /* Scrollbar splash of color */
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #0aa6c2, #1668d6); border-radius: 10px; }
+  ::-webkit-scrollbar-track { background: #e6eef8; }
+
 </style>
 
 </head>
@@ -297,23 +268,6 @@
 </header>
 
 <div class="main">
-  <!-- Leaderboard Panel -->
-  <div class="leaderboard-panel">
-    <div class="leaderboard-header">
-      <h2>&#127942; Agent Rankings</h2>
-      <div class="lb-period-tabs">
-        <button class="lb-period-tab active" data-period="daily" onclick="switchAdminLbPeriod('daily')">Daily</button>
-        <button class="lb-period-tab" data-period="weekly" onclick="switchAdminLbPeriod('weekly')">Weekly</button>
-        <button class="lb-period-tab" data-period="monthly" onclick="switchAdminLbPeriod('monthly')">Monthly</button>
-      </div>
-    </div>
-    <div class="leaderboard-body" id="adminLeaderboardBody">
-      <div style="text-align:center;color:var(--muted);padding:20px">Loading rankings...</div>
-    </div>
-  </div>
-
-
-
   <!-- DISPOSITION STATS immediately below top two cards -->
   <div class="panel dispo-stats-panel" style="margin-bottom:20px">
     <div class="panel-header" style="background:rgba(76,175,80,.04);flex-wrap:wrap;gap:10px">
@@ -384,17 +338,6 @@
     </div>
   </div>
 
-  <!-- AUTO DAILY REPORT (6:30 PM IST) -->
-  <div class="panel" style="margin-bottom:20px">
-    <div class="panel-header" style="background:rgba(76,175,80,.06)">
-      <h2 style="color:var(--green)">&#128202; Auto Daily Report (6:30 PM IST)</h2>
-      <span id="autoReportStatus" style="font-size:12px;color:var(--muted)">Loading...</span>
-    </div>
-    <div class="panel-body" id="dailyCopyPanel">
-      <div id="dailyCopyContent" style="font-size:13px;color:var(--muted)">Loading...</div>
-    </div>
-  </div>
-
   <!-- REMAINING STATS GRID -->
   <div class="stats-grid">
     <div class="stat-card">
@@ -433,6 +376,27 @@
     </div>
   </div>
 
+  <!-- Generated Reports Archive (permanent PDF storage, searchable by date) -->
+  <div class="panel" style="margin-bottom:20px">
+    <div class="panel-header" style="background:rgba(230,21,123,.06)">
+      <h2 style="color:var(--magenta)">&#128196; Generated Reports Archive</h2>
+      <span style="font-size:11px;color:var(--muted);font-style:italic">&#9203; Auto-generates daily at 6:30 PM (IST) — no manual action needed</span>
+    </div>
+    <div class="panel-body">
+      <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center">
+        <label style="font-size:12px;color:var(--muted);font-weight:600">From</label>
+        <input type="date" id="reportFromDate" style="padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:var(--mono);font-size:13px;outline:none">
+        <label style="font-size:12px;color:var(--muted);font-weight:600">To</label>
+        <input type="date" id="reportToDate" style="padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:var(--mono);font-size:13px;outline:none">
+        <button onclick="searchReports()" style="padding:8px 18px;border-radius:8px;border:none;background:var(--accent);color:#fff;font-size:13px;font-weight:700;cursor:pointer">&#128269; Search</button>
+        <button onclick="clearReportSearch()" style="padding:8px 14px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--muted);font-size:13px;font-weight:600;cursor:pointer">Clear</button>
+      </div>
+      <div id="reportsList" style="display:flex;flex-direction:column;gap:8px;max-height:340px;overflow-y:auto">
+        <div class="empty">No reports generated yet</div>
+      </div>
+    </div>
+  </div>
+
   <div class="panel" style="margin-bottom:20px">
     <div class="panel-header">
       <h2>Number Files</h2>
@@ -453,31 +417,10 @@
     </div>
   </div>
 
-  <!-- Active Agents Panel (full width) -->
+  <!-- System Controls Panel (Clear All / Hard Reset retained after Active Agents panel removal) -->
   <div class="panel" style="margin-bottom:20px">
     <div class="panel-header">
-      <h2>Active Agents</h2>
-      <span id="agentCount" style="font-size:12px;color:var(--muted)">0 agents</span>
-    </div>
-    <div class="panel-body" style="padding:0;overflow-x:auto">
-      <table class="agents-table" style="min-width:900px">
-        <thead>
-          <tr>
-            <th>Agent</th>
-            <th>Login</th>
-            <th>Status</th>
-            <th>Total No. Dialed</th>
-            <th>Net Dialing Time <span title="Net Dialing Time = 8h shift - Break - Meeting - Washroom - TL Mode (time available for actual calling)" style="cursor:help;opacity:.7">&#9432;</span></th>
-            <th>Break Used</th>
-            <th>&#128699; Washroom</th>
-            <th>&#128203; Meeting</th>
-            <th>&#128203; TL Mode</th>
-          </tr>
-        </thead>
-        <tbody id="agentTable">
-          <tr><td colspan="9" class="empty">No agents registered</td></tr>
-        </tbody>
-      </table>
+      <h2>System Controls</h2>
     </div>
     <div class="panel-body">
       <div class="btn-row">
@@ -572,7 +515,7 @@
     <div class="panel-body" style="border-top:1px solid var(--border)">
       <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:12px">
         <h3 style="font-size:13px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.5px">Upload Custom Followups (Excel)</h3>
-        <a href="/api/admin/download-followup-sample" download class="btn" style="padding:6px 14px;font-size:12px;background:rgba(124,58,237,.1);color:var(--accent);border:1px solid rgba(124,58,237,.25);border-radius:6px;text-decoration:none;font-weight:700">&#128229; Download Sample Sheet</a>
+        <a href="/api/admin/download-followup-sample" download class="btn" style="padding:6px 14px;font-size:12px;background:rgba(37,99,235,.1);color:var(--accent);border:1px solid rgba(37,99,235,.25);border-radius:6px;text-decoration:none;font-weight:700">&#128229; Download Sample Sheet</a>
       </div>
       <div class="upload-zone" id="followupDropZone" style="padding:20px">
         <input type="file" id="followupFileInput" accept=".xlsx,.xls,.csv">
@@ -631,9 +574,15 @@
       </div>
       <div class="eid-add-form">
         <input type="number" id="newEid" placeholder="Employee ID" min="1" autocomplete="off">
-        <input type="text"   id="newEidName" placeholder="Agent Name" autocomplete="off">
+        <input type="text"   id="newEidName" placeholder="User Name" autocomplete="off">
+        <select id="newEidRole" style="padding:9px 14px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:var(--sans);font-size:14px;outline:none">
+          <option value="agent">Agent</option>
+          <option value="tl">TL</option>
+          <option value="client">Client</option>
+          <option value="admin">Admin</option>
+        </select>
         <input type="file"   id="newEidPhoto" accept="image/*" style="font-size:12px;max-width:180px;">
-        <button class="btn-add-eid" onclick="addEid()">+ Add Agent</button>
+        <button class="btn-add-eid" onclick="addEid()">+ Add User</button>
         <div class="eid-err" id="eidErr"></div>
       </div>
     </div>
@@ -728,6 +677,17 @@ socket.on('force-stop', () => showToast('All agents stopped', 'warn'));
 socket.on('timer-update', () => {
   // Refresh stats when timer state changes
   fetch('/api/admin/stats').then(r => r.json()).then(d => renderStats(d)).catch(() => {});
+});
+
+// ── Auto Daily Report at 6:30 PM IST ────────────────────────────────────────
+socket.on('auto-report', function(data) {
+  showToast('📊 Daily Report is ready! Downloading now…', 'success');
+  var a = document.createElement('a');
+  a.href = data.url;
+  a.download = 'CRM_Daily_Report_' + data.date + '.xlsx';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
 });
 
 // Live break ticks — update admin break timers every second
@@ -848,94 +808,36 @@ function renderStats(data) {
           <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
         </div>
         <div style="display:flex;gap:8px;align-items:center">
-          <a href="/api/admin/download-numbers/${f.id}" download style="padding:6px 14px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--accent);background:rgba(124,58,237,.1);color:var(--accent);text-decoration:none;font-family:var(--sans)">&#128229; Download</a>
+          <a href="/api/admin/download-numbers/${f.id}" download style="padding:6px 14px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--accent);background:rgba(37,99,235,.1);color:var(--accent);text-decoration:none;font-family:var(--sans)">&#128229; Download</a>
           <button class="btn-del" onclick="deleteFile('${f.id}')">Delete</button>
         </div>
       </div>`;
     }).join('');
   }
 
-  // Agents
-  const at = document.getElementById('agentTable');
-  document.getElementById('agentCount').textContent = data.agentStats.length + ' agents';
+  // Agents (Active Agents panel removed — keep just enough bookkeeping for the
+  // break/washroom/meeting summary pill bar below, plus live timer tracking).
   const breakAgents = data.agentStats.filter(a => a.onBreak);
   const washroomAgents = data.agentStats.filter(a => a.onWashroom);
   const meetingAgents  = data.agentStats.filter(a => a.onMeeting);
-
-  if (!data.agentStats.length) {
-    at.innerHTML = '<tr><td colspan="9" class="empty">No agents registered</td></tr>';
-  } else {
-    at.innerHTML = data.agentStats.map(a => {
-      let statusDot, statusText;
-      if (a.onBreak)    { statusDot = 'break';  statusText = `<span class="break-badge">&#9749; Break</span>`; }
-      else if (a.onWashroom) { statusDot = 'break'; statusText = `<span class="break-badge" style="background:rgba(99,102,241,.1);color:#6366f1;border-color:rgba(99,102,241,.3)">&#128699; Washroom</span>`; }
-      else if (a.onMeeting)  { statusDot = 'break'; statusText = `<span class="break-badge" style="background:rgba(8,145,178,.1);color:#0891b2;border-color:rgba(8,145,178,.3)">&#128203; Meeting</span>`; }
-      else { statusDot = a.active ? 'active' : 'idle'; statusText = a.active ? 'Dialing' : 'Idle'; }
-
-      if (a.onBreak) {
-        window._breakStartTimes[a.id] = Date.now();
-        window._breakMsAtRender[a.id] = a.totalBreakMs || 0;
-      }
-      if (a.onWashroom) {
-        window._washroomStartTimes[a.id] = Date.now();
-        window._washroomMsAtRender[a.id] = a.totalWashroomMs || 0;
-      }
-      if (a.onMeeting) {
-        window._meetingStartTimes[a.id] = Date.now();
-        window._meetingMsAtRender[a.id] = a.totalMeetingMs || 0;
-      }
-      if (a.onTlMode) {
-        window._tlModeStartTimes[a.id] = Date.now();
-        window._tlModeMsAtRender[a.id] = a.totalTlModeMs || 0;
-      }
-
-      const remaining = Math.max(0, (a.breakAllowedMs || 3600000) - (a.totalBreakMs || 0));
-
-      const breakCell = a.onBreak
-        ? `<div>
-            <span class="break-timer-admin" id="break-timer-${a.id}">${formatMs(remaining)}</span>
-            <div class="break-bar-mini"><div class="break-bar-mini-fill" id="break-bar-${a.id}" style="width:${(remaining/(a.breakAllowedMs||3600000)*100)}%"></div></div>
-           </div>`
-        : `<span style="font-family:var(--mono);font-size:12px;color:var(--muted)">${formatMs(a.totalBreakMs||0)} used</span>`;
-
-      const washroomCell = a.onWashroom
-        ? `<span id="washroom-timer-${a.id}" style="font-family:var(--mono);font-size:12px;color:#6366f1;font-weight:700">${formatMs(a.totalWashroomMs||0)} &#9654;</span>`
-        : `<span style="font-family:var(--mono);font-size:12px;color:var(--muted)">${formatMs(a.totalWashroomMs||0)}</span>`;
-
-      const meetingCell = a.onMeeting
-        ? `<span id="meeting-timer-${a.id}" style="font-family:var(--mono);font-size:12px;color:#0891b2;font-weight:700">${formatMs(a.totalMeetingMs||0)} &#9654;</span>`
-        : `<span style="font-family:var(--mono);font-size:12px;color:var(--muted)">${formatMs(a.totalMeetingMs||0)}</span>`;
-
-      const loginCell = a.firstLoginToday
-        ? `<span class="login-time ${a.lateLogin ? 'login-late' : 'login-ok'}">
-             ${formatLoginTime(a.firstLoginToday)}${a.lateLogin ? ' (Late)' : ''}
-           </span>`
-        : `<span class="login-absent">&#8212;</span>`;
-
-      // Net Dialing Time calculation — Xh Ym format
-      const SHIFT_MS = 8 * 60 * 60 * 1000;
-      const netMs = Math.max(0, SHIFT_MS - (a.totalBreakMs || 0) - (a.totalMeetingMs || 0) - (a.totalWashroomMs || 0) - (a.totalTlModeMs || 0));
-      const netH = Math.floor(netMs / (60 * 60 * 1000));
-      const netM = Math.floor((netMs % (60 * 60 * 1000)) / (60 * 1000));
-      const netDialingTime = netH + 'h ' + netM + 'm';
-
-      const tlModeCell = a.onTlMode
-        ? `<span id="tlmode-timer-${a.id}" style="font-family:var(--mono);font-size:12px;color:#a78bfa;font-weight:700">${formatMs(a.totalTlModeMs||0)} &#9654;</span>`
-        : `<span style="font-family:var(--mono);font-size:12px;color:var(--muted)">${formatMs(a.totalTlModeMs||0)}</span>`;
-
-      return `<tr>
-        <td style="font-weight:600">${escapeHtml(a.name)}</td>
-        <td>${loginCell}</td>
-        <td><span class="status-dot ${statusDot}"></span>${statusText}</td>
-        <td><span class="dialed-count">${a.totalDialedToday}</span></td>
-        <td style="font-family:var(--mono);font-size:12px;font-weight:700;color:var(--accent)" id="net-dialing-${a.id}">${netDialingTime}</td>
-        <td>${breakCell}</td>
-        <td>${washroomCell}</td>
-        <td>${meetingCell}</td>
-        <td>${tlModeCell}</td>
-      </tr>`;
-    }).join('');
-  }
+  data.agentStats.forEach(a => {
+    if (a.onBreak) {
+      window._breakStartTimes[a.id] = Date.now();
+      window._breakMsAtRender[a.id] = a.totalBreakMs || 0;
+    }
+    if (a.onWashroom) {
+      window._washroomStartTimes[a.id] = Date.now();
+      window._washroomMsAtRender[a.id] = a.totalWashroomMs || 0;
+    }
+    if (a.onMeeting) {
+      window._meetingStartTimes[a.id] = Date.now();
+      window._meetingMsAtRender[a.id] = a.totalMeetingMs || 0;
+    }
+    if (a.onTlMode) {
+      window._tlModeStartTimes[a.id] = Date.now();
+      window._tlModeMsAtRender[a.id] = a.totalTlModeMs || 0;
+    }
+  });
 
   // Break/Washroom/Meeting summary bar
   const bs = document.getElementById('breakSummary');
@@ -1565,19 +1467,19 @@ function renderEids(eids) {
     const photoHtml = e.photo
       ? '<img class="eid-photo-thumb" src="/api/admin/agent-photo/' + escapeHtml(e.eid) + '?t=' + Date.now() + '" alt="">'
       : '';
-    const roleHtml = '<span class="role-badge role-' + escapeHtml(e.role || 'agent') + '">' + escapeHtml((e.role || 'agent').toUpperCase()) + '</span>';
-    const tlBtn = (e.role !== 'tl' && e.role !== 'admin')
-      ? '<button class="btn-assign-tl" onclick="assignTl(\'' + escapeHtml(e.eid) + '\')">&#11014; Assign TL</button>'
-      : (e.role === 'tl'
-          ? '<button class="btn-remove-tl" onclick="removeTl(\'' + escapeHtml(e.eid) + '\')">&#11015; Remove TL</button>'
-          : '');
+    const curRole = e.role || 'agent';
+    const roles = ['agent','tl','client','admin'];
+    const roleSelectHtml = '<select onchange="changeEidRole(\'' + escapeHtml(e.eid) + '\', this.value)" ' +
+      'class="role-badge role-' + escapeHtml(curRole) + '" ' +
+      'style="border:none;font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;letter-spacing:.5px;cursor:pointer;appearance:none;-webkit-appearance:none;text-align:center">' +
+      roles.map(r => '<option value="' + r + '" ' + (r === curRole ? 'selected' : '') + '>' + r.toUpperCase() + '</option>').join('') +
+      '</select>';
     return '<div class="eid-row" id="eid-row-' + escapeHtml(e.eid) + '">' +
       '<div style="display:flex;align-items:center;gap:8px;">' + photoHtml +
       '<div class="eid-info"><span class="eid-code">' + escapeHtml(e.eid) + '</span><span class="eid-name">' + escapeHtml(e.name) + '</span></div>' +
-      roleHtml +
+      roleSelectHtml +
       '</div>' +
       '<div style="display:flex;align-items:center;gap:8px;">' +
-      tlBtn +
       '<label class="btn-replace-photo" title="Replace Photo"><input type="file" accept="image/*" onchange="replaceAgentPhoto(\'' + escapeHtml(e.eid) + '\', this)" style="display:none;">&#128247; Replace</label>' +
       '<button class="eid-remove" onclick="removeEid(\'' + escapeHtml(e.eid) + '\')">&#10005; Remove</button>' +
       '</div></div>';
@@ -1587,16 +1489,17 @@ function renderEids(eids) {
 async function addEid() {
   const eidVal  = document.getElementById('newEid').value.trim();
   const nameVal = document.getElementById('newEidName').value.trim();
+  const roleVal = document.getElementById('newEidRole').value;
   const photoInput = document.getElementById('newEidPhoto');
   const errEl   = document.getElementById('eidErr');
   errEl.style.display = 'none';
 
   if (!eidVal || !/^\d+$/.test(eidVal)) { errEl.textContent = 'Enter a valid numeric Employee ID'; errEl.style.display = 'block'; return; }
-  if (!nameVal) { errEl.textContent = 'Enter agent name'; errEl.style.display = 'block'; return; }
+  if (!nameVal) { errEl.textContent = 'Enter user name'; errEl.style.display = 'block'; return; }
 
   const r = await fetch('/api/admin/eids', {
     method: 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ eid: eidVal, name: nameVal })
+    body: JSON.stringify({ eid: eidVal, name: nameVal, role: roleVal })
   });
   const d = await r.json();
   if (d.error) { errEl.textContent = d.error; errEl.style.display = 'block'; return; }
@@ -1606,14 +1509,33 @@ async function addEid() {
     formData.append('photo', photoInput.files[0]);
     try {
       await fetch('/api/admin/agent-photo/' + eidVal, { method: 'POST', body: formData });
-    } catch (e) { /* photo upload failed but agent was added */ }
+    } catch (e) { /* photo upload failed but user was added */ }
   }
 
   document.getElementById('newEid').value = '';
   document.getElementById('newEidName').value = '';
+  document.getElementById('newEidRole').value = 'agent';
   photoInput.value = '';
-  showToast('Added: ' + nameVal + ' (' + eidVal + ')', 'success');
+  showToast('Added: ' + nameVal + ' (' + eidVal + ') as ' + roleVal, 'success');
   loadEids();
+}
+
+// Change an existing user's role — this is how admin "assigns" a user as Client
+// (or TL/Agent/Admin) after the fact, without deleting and re-adding their EID.
+async function changeEidRole(eid, newRole) {
+  try {
+    const r = await fetch('/api/admin/eids/' + eid + '/role', {
+      method: 'PUT', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ role: newRole })
+    });
+    const d = await r.json();
+    if (d.error) { showToast('Role change failed: ' + d.error, 'error'); loadEids(); return; }
+    showToast('EID ' + eid + ' assigned as ' + newRole, 'success');
+    loadEids();
+  } catch (e) {
+    showToast('Role change failed', 'error');
+    loadEids();
+  }
 }
 
 async function removeEid(eid) {
@@ -1640,133 +1562,10 @@ async function replaceAgentPhoto(eid, input) {
   }
 }
 
-async function assignTl(eid) {
-  const r = await fetch('/api/admin/eids/assign-tl', {
-    method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({eid})
-  });
-  const d = await r.json();
-  if (d.error) { showToast('Error: '+d.error,'error'); return; }
-  showToast('TL role assigned to EID '+eid,'success');
-  loadEids();
-}
-
-async function removeTl(eid) {
-  const r = await fetch('/api/admin/eids/remove-tl', {
-    method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({eid})
-  });
-  const d = await r.json();
-  if (d.error) { showToast('Error: '+d.error,'error'); return; }
-  showToast('TL role removed from EID '+eid,'success');
-  loadEids();
-}
-
 loadEids();
 ['newEid','newEidName'].forEach(id => {
   document.getElementById(id)?.addEventListener('keydown', e => { if (e.key === 'Enter') addEid(); });
 });
-
-// ── Admin Leaderboard ─────────────────────────────────────────────────────────
-let adminLbPeriod = 'daily';
-
-function switchAdminLbPeriod(period) {
-  adminLbPeriod = period;
-  document.querySelectorAll('.lb-period-tab').forEach(t => t.classList.remove('active'));
-  document.querySelector('.lb-period-tab[data-period="' + period + '"]').classList.add('active');
-  fetchAdminLeaderboard();
-}
-
-function getInitial(name) {
-  if (!name) return '?';
-  return name.charAt(0).toUpperCase();
-}
-
-function getSmartRemarks(r, data, idx) {
-  if (data.length === 0) return '';
-  if (idx === 0 && r.score > 0) return '&#127942; शाबाश! #1 पर हो — ऐसे ही dominate करते रहो!';
-  if (r.score <= 0) return '&#128161; अभी मौका है — एक अच्छी call से board पर आ सकते हो!';
-  const above = data[idx - 1];
-  const gap = above.score - r.score;
-  if (gap <= 0) return '&#128293; बराबर हो #' + idx + ' पर! एक call से आगे निकल सकते हो!';
-  if (gap === 1) return '&#9889; बस 1 point पीछे ' + above.name.split(' ')[0] + ' से — एक interested lead लाओ और आगे!';
-  const intNeeded = Math.ceil(gap / 2);
-  return '&#128200; ' + above.name.split(' ')[0] + ' से ' + gap + ' pts पीछे — ' + intNeeded + ' interested lead' + (intNeeded > 1 ? 's' : '') + ' लाओ और overtake करो!';
-}
-
-function renderAdminLeaderboard(data, formulaDesc) {
-  const body = document.getElementById('adminLeaderboardBody');
-  if (!data || data.length === 0) {
-    body.innerHTML = '<div style="text-align:center;color:var(--muted);padding:30px">No ranking data available yet</div>';
-    return;
-  }
-  const maxScore = Math.max(...data.map(d => d.score), 1);
-  let html = '';
-  // Show formula description
-  if (formulaDesc) {
-    html += '<div style="background:rgba(124,58,237,.06);border:1px solid rgba(124,58,237,.2);border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:12px;color:var(--muted);line-height:1.6">';
-    html += '<strong style="color:var(--accent)">Score Formula (0-100):</strong> ';
-    html += escapeHtml(formulaDesc);
-    html += '</div>';
-  }
-  html += '<div class="lb-list">';
-  data.forEach((r, idx) => {
-    const pct = Math.round((r.score / maxScore) * 100);
-    const avatarSize = idx === 0 ? 76 : idx === 1 ? 66 : idx === 2 ? 58 : idx < 5 ? 50 : 42;
-    const fontSize = idx === 0 ? 24 : idx === 1 ? 21 : idx === 2 ? 18 : idx < 5 ? 16 : 13;
-    const faceHtml = r.profilePhoto
-      ? '<img src="' + r.profilePhoto + '" alt="">'
-      : getInitial(r.name);
-    const remarks = getSmartRemarks(r, data, idx);
-    const isTop3 = idx < 3;
-    let rankDisplay;
-    if (idx === 0) {
-      rankDisplay = '&#127942;<br><span style="font-size:9px">#1</span>';
-    } else if (isTop3) {
-      rankDisplay = '&#127942;<br><span style="font-size:9px">#' + (idx+1) + '</span>';
-    } else {
-      rankDisplay = '&#127942;<br><span style="font-size:9px">#' + r.rank + '</span>';
-    }
-    const badgeStyle = idx === 0 ? 'font-size:20px;width:40px;height:40px;' : '';
-    const rowClass = 'lb-row' + (idx === 0 ? ' rank-1-row' : '');
-    html += '<div class="' + rowClass + '">' +
-      '<div class="lb-rank-badge top3" style="' + badgeStyle + 'text-align:center;line-height:1.2">' + rankDisplay + '</div>' +
-      '<div class="lb-row-avatar' + (idx === 0 ? ' rank-1-avatar' : '') + '" style="width:' + avatarSize + 'px;height:' + avatarSize + 'px;font-size:' + fontSize + 'px">' + faceHtml + '</div>' +
-      '<div class="lb-row-info">' +
-        '<div class="lb-row-name">' + escapeHtml(r.name) + '</div>' +
-        '<div class="lb-row-stats">&#11088; ' + r.interested + ' interested &nbsp;·&nbsp; &#128197; ' + r.followups + ' followups &nbsp;·&nbsp; &#128222; ' + r.totalCalls + ' calls</div>' +
-        '<div class="lb-bar-wrap"><div class="lb-bar" style="width:' + pct + '%"></div></div>' +
-        (remarks ? '<div class="lb-row-remarks">' + remarks + '</div>' : '') +
-      '</div>' +
-      '<div class="lb-row-right"><div class="lb-row-score">' + r.score + '</div></div>' +
-    '</div>';
-  });
-  html += '</div>';
-  body.innerHTML = html;
-}
-
-async function fetchAdminLeaderboard() {
-  try {
-    const r = await fetch('/api/rankings?period=' + adminLbPeriod);
-    const resp = await r.json();
-    // Handle new response format: { rankings: [...], formulaDescription: '...' }
-    let data, formulaDesc;
-    if (resp && resp.rankings && Array.isArray(resp.rankings)) {
-      data = resp.rankings;
-      formulaDesc = resp.formulaDescription || '';
-    } else if (Array.isArray(resp)) {
-      data = resp;
-      formulaDesc = '';
-    } else {
-      data = [];
-      formulaDesc = '';
-    }
-    renderAdminLeaderboard(data, formulaDesc);
-  } catch (e) { /* silent */ }
-}
-
-setTimeout(fetchAdminLeaderboard, 500);
-setInterval(fetchAdminLeaderboard, 5000);
 
 // ── DND Management ────────────────────────────────────────────────────────────
 async function loadDndNumbers() {
@@ -1785,8 +1584,8 @@ function renderDndList(dndNumbers) {
     el.innerHTML = '<div class="empty">No DND numbers</div>';
     return;
   }
-  const roleColors = { tl: '#7b1fa2', admin: '#455a64', agent: '#1565c0' };
-  const roleLabels = { tl: 'TL', admin: 'Admin', agent: 'Agent' };
+  const roleColors = { tl: '#2563eb', client: '#2563eb', admin: '#455a64', agent: '#1565c0' };
+  const roleLabels = { tl: 'TL', client: 'Client', admin: 'Admin', agent: 'Agent' };
   el.innerHTML = dndNumbers.map(d => {
     const addedDate = d.addedAt ? formatTimestamp(d.addedAt) : '';
     const role = d.addedByRole || 'admin';
@@ -1880,86 +1679,6 @@ async function loadCurrentScript() {
 }
 loadCurrentScript();
 
-// ── Daily Dialed Numbers Copy + WhatsApp (Feature 6) ──────────────────────────
-const WA_MESSAGES = {
-  interested: "नमस्ते!\n\nRuralift (रूरालिफ्ट) में रुचि दिखाने के लिए आपका हार्दिक धन्यवाद।\n\nजैसा कि हमारी बात हुई, हम भारत सरकार के MSME (उद्यम) के तहत पंजीकृत फर्म हैं तथा मंडला के प्रमुख बैंक एवं NBFCs के साथ कार्य करते हैं। इनमें SBI, HDFC Bank, ICICI Bank, Axis Bank, Kotak Mahindra Bank, Capri Loans, Bajaj Finserv सहित अनेक संस्थान शामिल हैं।\n\nहमारा उद्देश्य आपके लिए सबसे उपयुक्त बैंक का चयन कराना तथा सबसे कम संभव ब्याज दर पर ऋण उपलब्ध कराने में सहायता करना है।\n\nकृपया आपसे मांगे गए अथवा आगे मांगे जाने वाले सभी आवश्यक दस्तावेज़ यथाशीघ्र उपलब्ध कराएँ, ताकि आपकी ऋण प्रक्रिया बिना किसी देरी के आगे बढ़ाई जा सके।\n\nआपके विश्वास एवं संतुष्टि के लिए हमने अपना MSME (उद्यम) पंजीकरण प्रमाणपत्र तथा पुलिस सूचना/सत्यापन संबंधी दस्तावेज़ भी आपके साथ साझा किए हैं।\n\nकार्यालय: जोबह टेंट हाउस के सामने, राजीव कॉलोनी, मॉन्टफोर्ट स्कूल रोड, मंडला (म.प्र.) – 481661\n\nयह संदेश एक स्वचालित (Automated) नंबर से भेजा गया है। कृपया किसी भी प्रश्न, सहायता या उत्तर के लिए हमारे WhatsApp नंबर 9425813414 पर संपर्क करें।\n\nयदि आपके मन में कोई भी प्रश्न हो, तो बेझिझक हमसे संपर्क करें।\n\nRuralift (रूरालिफ्ट) – सही सलाह, सही बैंक, सही लोन।",
-  followup: "नमस्ते!\n\nजैसा कि हमारी बात हुई, मैं Ruralift (रूरालिफ्ट), मंडला से बोल रही हूँ।\n\nहम होम लोन, बिज़नेस लोन, पर्सनल लोन, एजुकेशन लोन, बैलेंस ट्रांसफर एवं अन्य बैंकिंग वित्तीय सेवाओं के लिए कार्य करते हैं।\n\nहम भारत सरकार के MSME (उद्यम) के तहत पंजीकृत फर्म हैं तथा मंडला के प्रमुख बैंक एवं NBFCs के साथ कार्य करते हैं। इनमें SBI, HDFC Bank, ICICI Bank, Axis Bank, Kotak Mahindra Bank, Capri Loans, Bajaj Finserv सहित अनेक संस्थान शामिल हैं।\n\nआपकी सुविधा के अनुसार मैं आपको बाद में पुनः संपर्क करूँगी।\n\nइस बीच, आपके विश्वास के लिए हमने अपना उद्यम (MSME) पंजीकरण प्रमाणपत्र भी आपके साथ साझा किया है।\n\nकार्यालय: जोबह टेंट हाउस के सामने, राजीव कॉलोनी, मॉन्टफोर्ट स्कूल रोड, मंडला (म.प्र.) – 481661\n\nयह संदेश एक स्वचालित (Automated) नंबर से भेजा गया है। कृपया किसी भी उत्तर या सहायता के लिए हमारे WhatsApp नंबर 9425813414 पर संपर्क करें।\n\nधन्यवाद! जल्द ही आपसे पुनः बात होगी।",
-  dead: "नमस्ते!\n\nहमने Ruralift (रूरालिफ्ट), मंडला की ओर से आपके लोन संबंधी पूछताछ/सहायता के लिए आपसे संपर्क करने का प्रयास किया, लेकिन नंबर व्यस्त होने, स्विच ऑफ होने या कॉल रिसीव न होने के कारण बात नहीं हो सकी।\n\nहम भारत सरकार के MSME (उद्यम) के तहत पंजीकृत फर्म हैं तथा मंडला के प्रमुख बैंक एवं NBFCs के साथ कार्य करते हैं। इनमें SBI, HDFC Bank, ICICI Bank, Axis Bank, Kotak Mahindra Bank, Capri Loans, Bajaj Finserv सहित अनेक संस्थान शामिल हैं।\n\nयदि आपको या आपके परिवार के किसी सदस्य को किसी भी प्रकार के लोन की आवश्यकता हो, तो आप हमसे संपर्क कर सकते हैं या हमारे कार्यालय आकर सिर्फ 10 मिनट में अपनी पात्रता (Eligibility) चेक करवा सकते हैं।\n\nकार्यालय: जोबह टेंट हाउस के सामने, राजीव कॉलोनी, मॉन्टफोर्ट स्कूल रोड, मंडला (म.प्र.) – 481661\n\nकार्यालय समय: सुबह 10:00 बजे से शाम 6:00 बजे तक\n\nयह संदेश एक स्वचालित (Automated) नंबर से भेजा गया है। कृपया उत्तर देने या सहायता के लिए WhatsApp नंबर 9425813414 पर संपर्क करें।\n\nयदि आप भविष्य में हमारी ओर से कॉल या WhatsApp संदेश प्राप्त नहीं करना चाहते हैं, तो कृपया 9425813414 पर \"STOP\" लिखकर भेज दें। इसके बाद हम आपको आगे कोई प्रचारात्मक संदेश नहीं भेजेंगे।",
-  not_received: "नमस्ते!\n\nहमने Ruralift (रूरालिफ्ट), मंडला की ओर से आपके लोन संबंधी पूछताछ/सहायता के लिए आपसे संपर्क करने का प्रयास किया, लेकिन नंबर व्यस्त होने, स्विच ऑफ होने या कॉल रिसीव न होने के कारण बात नहीं हो सकी।\n\nहम भारत सरकार के MSME (उद्यम) के तहत पंजीकृत फर्म हैं तथा मंडला के प्रमुख बैंक एवं NBFCs के साथ कार्य करते हैं। इनमें SBI, HDFC Bank, ICICI Bank, Axis Bank, Kotak Mahindra Bank, Capri Loans, Bajaj Finserv सहित अनेक संस्थान शामिल हैं।\n\nयदि आपको या आपके परिवार के किसी सदस्य को किसी भी प्रकार के लोन की आवश्यकता हो, तो आप हमसे संपर्क कर सकते हैं या हमारे कार्यालय आकर सिर्फ 10 मिनट में अपनी पात्रता (Eligibility) चेक करवा सकते हैं।\n\nकार्यालय: जोबह टेंट हाउस के सामने, राजीव कॉलोनी, मॉन्टफोर्ट स्कूल रोड, मंडला (म.प्र.) – 481661\n\nकार्यालय समय: सुबह 10:00 बजे से शाम 6:00 बजे तक\n\nयह संदेश एक स्वचालित (Automated) नंबर से भेजा गया है। कृपया उत्तर देने या सहायता के लिए WhatsApp नंबर 9425813414 पर संपर्क करें।\n\nयदि आप भविष्य में हमारी ओर से कॉल या WhatsApp संदेश प्राप्त नहीं करना चाहते हैं, तो कृपया 9425813414 पर \"STOP\" लिखकर भेज दें। इसके बाद हम आपको आगे कोई प्रचारात्मक संदेश नहीं भेजेंगे।",
-  switch_off: "नमस्ते!\n\nहमने Ruralift (रूरालिफ्ट), मंडला की ओर से आपके लोन संबंधी पूछताछ/सहायता के लिए आपसे संपर्क करने का प्रयास किया, लेकिन नंबर व्यस्त होने, स्विच ऑफ होने या कॉल रिसीव न होने के कारण बात नहीं हो सकी।\n\nहम भारत सरकार के MSME (उद्यम) के तहत पंजीकृत फर्म हैं तथा मंडला के प्रमुख बैंक एवं NBFCs के साथ कार्य करते हैं। इनमें SBI, HDFC Bank, ICICI Bank, Axis Bank, Kotak Mahindra Bank, Capri Loans, Bajaj Finserv सहित अनेक संस्थान शामिल हैं।\n\nयदि आपको या आपके परिवार के किसी सदस्य को किसी भी प्रकार के लोन की आवश्यकता हो, तो आप हमसे संपर्क कर सकते हैं या हमारे कार्यालय आकर सिर्फ 10 मिनट में अपनी पात्रता (Eligibility) चेक करवा सकते हैं।\n\nकार्यालय: जोबह टेंट हाउस के सामने, राजीव कॉलोनी, मॉन्टफोर्ट स्कूल रोड, मंडला (म.प्र.) – 481661\n\nकार्यालय समय: सुबह 10:00 बजे से शाम 6:00 बजे तक\n\nयह संदेश एक स्वचालित (Automated) नंबर से भेजा गया है। कृपया उत्तर देने या सहायता के लिए WhatsApp नंबर 9425813414 पर संपर्क करें।\n\nयदि आप भविष्य में हमारी ओर से कॉल या WhatsApp संदेश प्राप्त नहीं करना चाहते हैं, तो कृपया 9425813414 पर \"STOP\" लिखकर भेज दें। इसके बाद हम आपको आगे कोई प्रचारात्मक संदेश नहीं भेजेंगे।",
-  not_interested: "नमस्ते! 🙏\n\nआज अपना समय देने के लिए आपका हार्दिक धन्यवाद।\n\nयदि भविष्य में आपको, आपके परिवार या किसी परिचित/मित्र को होम लोन, पर्सनल लोन, बिजनेस लोन, एजुकेशन लोन, बैलेंस ट्रांसफर अथवा किसी अन्य बैंकिंग वित्तीय सहायता की आवश्यकता हो, तो Ruralift (रूरालिफ्ट), मंडला से अवश्य संपर्क करें।\n\nहम भारत सरकार के MSME (उद्यम) के तहत पंजीकृत फर्म हैं तथा मंडला के प्रमुख बैंक एवं NBFCs के साथ कार्य करते हैं। इनमें SBI, HDFC Bank, ICICI Bank, Axis Bank, Kotak Mahindra Bank, Capri Loans, Bajaj Finserv सहित अनेक संस्थान शामिल हैं।\n\nकृपया हमारा नंबर \"Ruralift Mandla\" के नाम से सेव कर लें। हमें आपकी सहायता करके प्रसन्नता होगी।\n\nℹ️ यह संदेश एक स्वचालित (Automated) नंबर से भेजा गया है। कृपया उत्तर देने या सहायता के लिए WhatsApp नंबर 9425813414 पर संपर्क करें।\n\nयदि आप भविष्य में हमारी ओर से कॉल या WhatsApp संदेश प्राप्त नहीं करना चाहते हैं, तो कृपया 9425813414 पर \"STOP\" लिखकर भेज दें।\n\nधन्यवाद एवं आपका दिन शुभ हो। 🌼\n\n– टीम Ruralift (रूरालिफ्ट), मंडला",
-  discard: "नमस्ते!\n\nआपकी प्रोफ़ाइल की प्रारंभिक जाँच के अनुसार, वर्तमान बैंकिंग नियमों एवं नीतियों के कारण फिलहाल आपकी लोन प्रक्रिया आगे बढ़ाना संभव नहीं हो पा रहा है।\n\nजैसे ही आपके दस्तावेज़ों, आय, CIBIL स्कोर अथवा बैंकों की किसी नई योजना के आधार पर पात्रता बनती है, हम आपको अवश्य सूचित करेंगे।\n\nयह संदेश एक स्वचालित (Automated) नंबर से भेजा गया है। कृपया किसी भी सहायता के लिए WhatsApp नंबर 9425813414 पर संपर्क करें।\n\n– टीम Ruralift (रूरालिफ्ट), मंडला",
-  dnd: "नमस्ते!\n\nआपके अनुरोध के अनुसार, हमने आपका नंबर Ruralift (रूरालिफ्ट), की कॉल एवं WhatsApp संपर्क सूची (DND) से हटाने की प्रक्रिया शुरू कर दी है।\n\nआगे से हमारी ओर से आपको किसी भी प्रकार की प्रचारात्मक कॉल या WhatsApp संदेश भेजने का प्रयास नहीं किया जाएगा।\n\nयदि भविष्य में कभी आपको होम लोन, पर्सनल लोन, बिजनेस लोन, एजुकेशन लोन, बैलेंस ट्रांसफर या किसी अन्य बैंकिंग वित्तीय सहायता की आवश्यकता हो, तो आप अपनी इच्छा से हमसे संपर्क कर सकते हैं।\n\nकार्यालय समय: सुबह 10:00 बजे से शाम 6:00 बजे तक\n\nसंपर्क एवं WhatsApp: 9425813414\n\nधन्यवाद।\n\n– टीम Ruralift (रूरालिफ्ट), मंडला"
-};
-const DISPO_LABELS = {dead:'☠️ CNC',not_received:'📵 CNR',not_interested:'🚫 Not Interested',followup:'📅 Follow-up',switch_off:'📴 Switch OFF',interested:'⭐ Interested',discard:'🚫 Not-Eligible',dnd:'🔕 DND'};
-const DISPO_DOCS = {interested:'MSME + Police Verification',followup:'MSME only',dead:'No documents',not_received:'No documents',switch_off:'No documents',not_interested:'No documents',discard:'No documents',dnd:'No documents'};
-
-async function loadDailyCopyData() {
-  try { const r = await fetch('/api/report/auto'); const d = await r.json(); renderDailyCopyPanel(d); }
-  catch(e) { document.getElementById('dailyCopyContent').textContent = 'Failed to load'; }
-}
-
-function renderDailyCopyPanel(data) {
-  const container = document.getElementById('dailyCopyContent');
-  const statusEl = document.getElementById('autoReportStatus');
-  if (!data) { container.innerHTML = '<div class="empty">No data</div>'; return; }
-
-  if (data.generated) {
-    // Report already generated at 6:30 PM IST
-    if (statusEl) statusEl.innerHTML = '<span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;color:var(--green);background:rgba(76,175,80,.1);border:1px solid rgba(76,175,80,.3);border-radius:20px;padding:3px 10px">&#9989; Generated at ' + escapeHtml(data.generatedAt) + '</span>';
-    let html = '<div style="font-size:12px;color:var(--muted);margin-bottom:12px">Date: <strong>'+escapeHtml(data.date)+'</strong> | Time: <strong>'+escapeHtml(data.timeRange)+'</strong> | Total Calls: <strong>'+data.totalCalls+'</strong></div>';
-    if (data.groups && Object.keys(data.groups).length > 0) {
-      Object.entries(data.groups).forEach(([dispo, phones]) => {
-        if (dispo === '_isDummy') return;
-        const label = DISPO_LABELS[dispo] || dispo;
-        const docInfo = DISPO_DOCS[dispo] || '';
-        const needsDocs = docInfo.indexOf('MSME') !== -1;
-        const docBadgeStyle = needsDocs
-          ? 'font-size:10px;font-weight:700;color:#FF9800;background:rgba(255,152,0,.16);border:1px solid #FF9800;padding:3px 10px;border-radius:4px'
-          : 'font-size:10px;color:var(--muted);background:var(--surface);border:1px solid var(--border);padding:2px 8px;border-radius:4px';
-        const phoneStr = phones.join(',');
-        html += '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 16px;margin-bottom:10px;">';
-        html += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;flex-wrap:wrap;gap:6px"><span style="font-size:13px;font-weight:700">'+label+' ('+phones.length+')</span><span style="'+docBadgeStyle+'">📎 '+escapeHtml(docInfo)+'</span></div>';
-        html += '<div style="display:flex;gap:6px;margin-bottom:6px;flex-wrap:wrap">';
-        html += '<button onclick="copyText(\''+phoneStr.replace(/'/g,"\\'")+'\')" style="padding:4px 10px;border-radius:6px;border:1px solid var(--accent);background:rgba(124,58,237,.1);color:var(--accent);font-size:11px;font-weight:700;cursor:pointer">📋 Copy Numbers</button>';
-        html += '<button onclick="copyWaMsg(\''+dispo+'\')" style="padding:4px 10px;border-radius:6px;border:1px solid #25D366;background:rgba(37,211,102,.08);color:#128C7E;font-size:11px;font-weight:700;cursor:pointer">💬 Copy WhatsApp Msg</button>';
-        html += '</div>';
-        html += '<div style="font-family:var(--mono);font-size:11px;color:var(--muted);word-break:break-all;max-height:50px;overflow-y:auto">'+escapeHtml(phoneStr)+'</div></div>';
-      });
-    } else {
-      html += '<div class="empty">No calls recorded in the report period.</div>';
-    }
-    container.innerHTML = html;
-  } else {
-    // Not generated yet — show pending status
-    if (statusEl) statusEl.innerHTML = '<span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;color:var(--warn);background:rgba(255,152,0,.1);border:1px solid rgba(255,152,0,.3);border-radius:20px;padding:3px 10px">&#9203; Pending — 6:30 PM IST</span>';
-    container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)"><div style="font-size:36px;margin-bottom:8px;opacity:.5">&#128337;</div><div style="font-size:14px;font-weight:600">Report auto-generates at 6:30 PM IST daily</div><div style="font-size:12px;margin-top:6px">Covers all calls from 10:00 AM to 6:30 PM, grouped by disposition.<br>No manual action needed.</div></div>';
-  }
-}
-function copyText(t){navigator.clipboard.writeText(t).then(()=>showToast('Numbers copied!','success')).catch(()=>{const a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();document.execCommand('copy');document.body.removeChild(a);showToast('Numbers copied!','success');});}
-function copyWaMsg(d){const m=WA_MESSAGES[d];if(!m){showToast('No template','error');return;}navigator.clipboard.writeText(m).then(()=>showToast('WhatsApp message copied!','success')).catch(()=>{const a=document.createElement('textarea');a.value=m;document.body.appendChild(a);a.select();document.execCommand('copy');document.body.removeChild(a);showToast('WhatsApp message copied!','success');});}
-
-function copyToClipboard(text) {
-  navigator.clipboard.writeText(text).then(() => {
-    showToast('Copied to clipboard!','success');
-  }).catch(() => {
-    // Fallback
-    const ta = document.createElement('textarea');
-    ta.value = text; document.body.appendChild(ta);
-    ta.select(); document.execCommand('copy');
-    document.body.removeChild(ta);
-    showToast('Copied to clipboard!','success');
-  });
-}
-
-loadDailyCopyData();
-// Refresh auto-report every 60 seconds
-setInterval(loadDailyCopyData, 60000);
-// Listen for real-time auto-report generation via socket
-if (typeof socket !== 'undefined') {
-  socket.on('auto-report-ready', function(data) { renderDailyCopyPanel(data); });
-}
-
 // ─── Live IST Clock (header) ───────────────────────────────────────────────
 // Always shows the actual current time in India (UTC+5:30), regardless of
 // whatever timezone the browser viewing this is set to.
@@ -1971,6 +1690,66 @@ function tickLiveClock() {
 }
 tickLiveClock();
 setInterval(tickLiveClock, 1000);
+
+// ── Generated Reports Archive ─────────────────────────────────────────────────
+async function loadReports(fromDate, toDate) {
+  try {
+    let url = '/api/reports?';
+    if (fromDate) url += 'from=' + encodeURIComponent(fromDate) + '&';
+    if (toDate) url += 'to=' + encodeURIComponent(toDate) + '&';
+    const r = await fetch(url);
+    const reports = await r.json();
+    renderReportsList(reports);
+  } catch (e) { /* silent */ }
+}
+
+function renderReportsList(reports) {
+  const el = document.getElementById('reportsList');
+  if (!reports || reports.length === 0) {
+    el.innerHTML = '<div class="empty">No reports found</div>';
+    return;
+  }
+  el.innerHTML = reports.map(r => {
+    const sizeKb = r.sizeBytes ? Math.round(r.sizeBytes / 1024) + ' KB' : '';
+    return '<div style="display:flex;align-items:center;justify-content:space-between;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 16px;">' +
+      '<div><span style="font-family:var(--mono);font-weight:700;color:var(--magenta)">' + escapeHtml(r.reportDate) + '</span>' +
+      '<span style="font-size:13px;font-weight:600;margin-left:12px">' + escapeHtml(r.title) + '</span>' +
+      '<span style="font-size:11px;color:var(--muted);margin-left:10px">' + escapeHtml(r.scope || '') + (sizeKb ? ' &middot; ' + sizeKb : '') + '</span></div>' +
+      '<a href="/api/reports/' + escapeHtml(r.id) + '/download" download style="padding:6px 14px;border-radius:6px;font-size:12px;font-weight:700;border:1px solid var(--accent);background:rgba(37,99,235,.1);color:var(--accent);text-decoration:none">&#128229; Download</a>' +
+    '</div>';
+  }).join('');
+}
+
+function searchReports() {
+  const from = document.getElementById('reportFromDate').value;
+  const to = document.getElementById('reportToDate').value;
+  loadReports(from, to);
+}
+
+function clearReportSearch() {
+  document.getElementById('reportFromDate').value = '';
+  document.getElementById('reportToDate').value = '';
+  loadReports();
+}
+
+loadReports();
+// Reports are now generated automatically by the server every day at 6:30 PM IST —
+// just refresh the list a little after that time passes so today's report shows up
+// without needing a manual page reload.
+(function scheduleAutoReportRefresh() {
+  function msUntilNext630PM_IST() {
+    const now = new Date();
+    const istNow = new Date(now.getTime() + 5.5 * 60 * 60 * 1000);
+    const target = new Date(istNow);
+    target.setUTCHours(18, 31, 0, 0); // 6:31 PM IST (1 min after generation) expressed on the shifted clock
+    if (target <= istNow) target.setUTCDate(target.getUTCDate() + 1);
+    return target.getTime() - istNow.getTime();
+  }
+  function scheduleNext() {
+    setTimeout(() => { loadReports(); scheduleNext(); }, msUntilNext630PM_IST());
+  }
+  scheduleNext();
+})();
 </script>
 </body>
 </html>

@@ -26,7 +26,7 @@ body{font-family:'Inter',sans-serif;background:linear-gradient(135deg,#e0e7ff 0%
 .wrap{max-width:680px;margin:0 auto}
 
 /* HEADER */
-.form-header{background:linear-gradient(135deg,#1e40af 0%,#2563eb 60%,#3b82f6 100%);border-radius:20px;padding:2rem 2rem 1.6rem;margin-bottom:1.4rem;box-shadow:var(--shadow-lg);position:relative;overflow:hidden}
+.form-header{background:linear-gradient(120deg,#0aa6c2 0%,#1668d6 42%,#7b2ff7 70%,#e6157b 100%);border-radius:20px;padding:2rem 2rem 1.6rem;margin-bottom:1.4rem;box-shadow:var(--shadow-lg);position:relative;overflow:hidden}
 .form-header::before{content:'';position:absolute;top:-40px;right:-40px;width:180px;height:180px;background:rgba(255,255,255,0.06);border-radius:50%}
 .form-header::after{content:'';position:absolute;bottom:-60px;left:-30px;width:220px;height:220px;background:rgba(255,255,255,0.04);border-radius:50%}
 .form-header h1{font-size:26px;font-weight:700;color:#fff;letter-spacing:-0.5px;position:relative}
@@ -610,9 +610,6 @@ body{font-family:'Inter',sans-serif;background:linear-gradient(135deg,#e0e7ff 0%
 </div>
 
 <script>
-const _urlParams = new URLSearchParams(window.location.search);
-const _numberId = _urlParams.get('numberId');
-const _agentId = _urlParams.get('agentId');
 let obCount = 1;
 
 // ── FOIR ──────────────────────────────────────────────────────────────
@@ -1066,24 +1063,7 @@ async function saveFile() {
   const zipName = folderName + '.zip';
   // ── SAVE ZIP TO DESKTOP ────────────────────────────────────────────
   setProgress(85, 'Saving ZIP...');
-  if (_numberId && _agentId) {
-    // Auto-upload to server
-    const formData = new FormData();
-    formData.append('docZip', zipBlob, zipName);
-    formData.append('agentId', _agentId);
-    try {
-      const resp = await fetch('/api/agent/upload-doc-zip/' + _numberId, {method:'POST', body: formData});
-      const d = await resp.json();
-      if (d.success) {
-        setProgress(100, 'Uploaded successfully!');
-        alert('Documents uploaded successfully! You can close this tab.');
-      } else {
-        alert('Upload failed: ' + (d.error || 'Unknown error'));
-      }
-    } catch(e) {
-      alert('Upload error: ' + e.message);
-    }
-  } else if (window.showSaveFilePicker) {
+  if (window.showSaveFilePicker) {
     try {
       const handle = await window.showSaveFilePicker({
         suggestedName: zipName,

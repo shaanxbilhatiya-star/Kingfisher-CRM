@@ -13,6 +13,7 @@ const { v4: uuidv4 } = require('uuid');
 const path = require('path');
 const fs = require('fs');
 const os = require('os');
+const PDFDocument = require('pdfkit');
 
 const app = express();
 const server = http.createServer(app);
@@ -73,9 +74,12 @@ const BACKUPS_DIR        = path.join(DATA_ROOT, 'backups');
 // as uploaded — they used to be parsed then deleted; now they're retained so the
 // admin can always pull back the exact original file later.
 const NUMBER_SHEETS_DIR  = path.join(UPLOADS_DIR, 'number_sheets');
+// PDF report archive — generated reports (admin/client dashboards) are stored here
+// FOREVER (never auto-deleted), so any party can search by date and re-download later.
+const REPORTS_DIR        = path.join(UPLOADS_DIR, 'reports');
 
 // Ensure directories exist
-[path.dirname(DATA_FILE), UPLOADS_DIR, LEAD_DOCS_DIR, AGENT_PHOTOS_DIR, SCRIPTS_DIR, BACKUPS_DIR, NUMBER_SHEETS_DIR].forEach(ensureDir);
+[path.dirname(DATA_FILE), UPLOADS_DIR, LEAD_DOCS_DIR, AGENT_PHOTOS_DIR, SCRIPTS_DIR, BACKUPS_DIR, NUMBER_SHEETS_DIR, REPORTS_DIR].forEach(ensureDir);
 
 function copyRecursiveSync(src, dest) {
   const stat = fs.statSync(src);
@@ -151,7 +155,8 @@ function createFreshState(preserveAllowedEids) {
     uploadedFiles: [],
     dialedLog: [],
     lastReset: getTodayStr(),
-    allowedEids: eids
+    allowedEids: eids,
+    reports: []
   };
 }
 
@@ -249,6 +254,27 @@ if (!appState.allowedEids) {
 if (!appState.dndNumbers) {
   appState.dndNumbers = [];
 }
+// PDF report archive metadata — reports themselves are kept on disk forever;
+// this array just indexes them so they can be searched/downloaded by date.
+if (!appState.reports) {
+  appState.reports = [];
+}
+
+// ─── Auto-create the default "kingfisher" client-panel user ───────────────────
+// The Client Panel (public/client/index.html) needs at least one working login
+// out of the box, without requiring the admin to manually add an EID first.
+// This only ever runs once: if a "kingfisher" user already exists (any EID),
+// or the reserved EID below is already taken by something else, it's a no-op.
+(function ensureDefaultKingfisherUser() {
+  const alreadyExists = Object.values(appState.allowedEids).some(
+    v => getEidName(v).toLowerCase() === 'kingfisher'
+  );
+  const RESERVED_EID = '9000';
+  if (!alreadyExists && !appState.allowedEids[RESERVED_EID]) {
+    appState.allowedEids[RESERVED_EID] = { name: 'kingfisher', photo: null, role: 'client' };
+    console.log('\uD83D\uDC64 Auto-created default Client Panel login -> EID ' + RESERVED_EID + ' ("kingfisher")');
+  }
+})();
 appState = checkDailyReset(appState);
 
 for (const id in appState.agents) {
@@ -809,7 +835,9 @@ app.post('/api/agent/upload-doc-zip/:numberId', docUpload.single('docZip'), (req
     num.docZipUploadedAt = new Date().toISOString();
     num.documentationComplete = true;
     num.documentationCompletedAt = new Date().toISOString();
-    num.adminStatus = num.adminStatus || 'In Process';
+    // Auto-mark as Completed the moment documentation is uploaded — admin can still
+    // override the status later (e.g. Rejected/On Hold) via the dropdown if needed.
+    num.adminStatus = num.adminStatus || 'Completed';
 
     saveState(appState);
     broadcastAdminStats();
@@ -979,6 +1007,7 @@ app.post('/api/agent/mark-documentation-complete', (req, res) => {
   if (num.interestedBy !== agentId) return res.status(403).json({ error: 'This lead is not assigned to you' });
   num.documentationComplete = true;
   num.documentationCompletedAt = new Date().toISOString();
+  num.adminStatus = num.adminStatus || 'Completed';
   saveState(appState);
   broadcastAdminStats();
   res.json({ success: true, numberId, documentationComplete: true, documentationCompletedAt: num.documentationCompletedAt });
@@ -1383,11 +1412,13 @@ app.post('/api/admin/hard-reset', (req, res) => {
   // Agent photos are also preserved (they belong to allowedEids, not to a session).
   const savedEids = appState.allowedEids || {};
   const savedInterested = appState.numbers.filter(n => n.disposition === 'interested');
+  const savedReports = appState.reports || []; // reports are permanent — always preserved, even on hard reset
   (appState.uploadedFiles || []).forEach(f => {
     if (f.sheetPath) { try { fs.unlinkSync(f.sheetPath); } catch {} }
   });
   appState = createFreshState(savedEids);
   appState.numbers = savedInterested; // restore interested leads
+  appState.reports = savedReports; // restore permanent report archive
   // Only delete lead doc ZIPs for leads that no longer exist (orphaned files)
   // We do NOT delete agent photos — those belong to the employee records
   const keptDocPaths = new Set(savedInterested.map(n => n.docZipPath).filter(Boolean));
@@ -1541,6 +1572,7 @@ io.on('connection', (socket) => {
 
   socket.on('agent-start', ({ agentId }) => {
     socketAgentId = agentId;
+    socket.join('agent-room'); // join agent-room so auto-report broadcasts reach clients
     appState = checkDailyReset(appState);
     const agent = appState.agents[agentId];
     if (!agent) return socket.emit('error', 'Agent not found');
@@ -1651,11 +1683,9 @@ io.on('connection', (socket) => {
   });
 });
 
-// ─── Disposition Stats Endpoint ─────────────────────────────────────────────────
-app.get('/api/stats/dispositions', (req, res) => {
-  const period = req.query.period || 'daily';
-  const agentId = req.query.agentId || null;
-
+// ─── Disposition Stats (shared logic — used by the HTTP route AND the automatic
+// daily PDF report generator below, so both stay perfectly in sync) ───────────
+function computeDispositionStats(period, agentId) {
   const now = new Date();
   const istNow = new Date(now.getTime() + (5.5 * 60 * 60 * 1000));
   const istTodayStr = istNow.toISOString().slice(0, 10);
@@ -1698,7 +1728,13 @@ app.get('/api/stats/dispositions', (req, res) => {
     if (d && stats.hasOwnProperty(d)) stats[d]++;
   });
 
-  res.json(stats);
+  return stats;
+}
+
+app.get('/api/stats/dispositions', (req, res) => {
+  const period = req.query.period || 'daily';
+  const agentId = req.query.agentId || null;
+  res.json(computeDispositionStats(period, agentId));
 });
 
 // ─── Admin EID Management ──────────────────────────────────────────────────────
@@ -1720,8 +1756,8 @@ function getEidRole(eidVal) {
   return 'agent';
 }
 
-// Helper: resolve who added a DND number to a display name + role (agent / tl / admin)
-// so admin.html and tl.html (TL mode) can show a note like "Added by Rohan (TL)".
+// Helper: resolve who added a DND number to a display name + role (agent / client / admin)
+// so admin.html and client.html can show a note like "Added by Rohan (Client)".
 function resolveDndAddedBy(rawId) {
   if (!rawId || rawId === 'admin') {
     return { id: 'admin', name: 'Admin', role: 'admin' };
@@ -1745,16 +1781,40 @@ app.get('/api/admin/eids', (req, res) => {
   res.json({ eids: list });
 });
 
+const VALID_ROLES = ['agent', 'tl', 'client', 'admin'];
+
 app.post('/api/admin/eids', (req, res) => {
-  const { eid, name } = req.body;
+  const { eid, name, role } = req.body;
   if (!eid || !/^\d+$/.test(eid)) return res.status(400).json({ error: 'Valid numeric EID required' });
   if (!name || !name.trim()) return res.status(400).json({ error: 'Name required' });
   const existing = appState.allowedEids[eid];
   const existingPhoto = getEidPhoto(existing);
-  const existingRole = getEidRole(existing); // PRESERVE existing role (tl / agent)
-  appState.allowedEids[eid] = { name: name.trim(), photo: existingPhoto || null, role: existingRole };
+  const existingRole = getEidRole(existing); // fallback: preserve existing role if none supplied
+  let finalRole = existingRole;
+  if (role !== undefined && role !== null && String(role).trim() !== '') {
+    if (!VALID_ROLES.includes(role)) return res.status(400).json({ error: 'Invalid role. Must be one of: ' + VALID_ROLES.join(', ') });
+    finalRole = role;
+  }
+  appState.allowedEids[eid] = { name: name.trim(), photo: existingPhoto || null, role: finalRole };
   saveState(appState);
-  res.json({ success: true, eid, name: name.trim(), role: existingRole });
+  res.json({ success: true, eid, name: name.trim(), role: finalRole });
+});
+
+// Assign / change a user's role (e.g. promote an EID to "client" so they can log into
+// the Client Panel, or assign them as "agent"/"tl"/"admin"). Used by the admin's
+// "Add User & Assign Role" UI so admin.html can manage client access without needing
+// to delete+recreate the EID.
+app.put('/api/admin/eids/:eid/role', (req, res) => {
+  const eid = req.params.eid;
+  const { role } = req.body;
+  if (!appState.allowedEids[eid]) return res.status(404).json({ error: 'EID not found' });
+  if (!role || !VALID_ROLES.includes(role)) return res.status(400).json({ error: 'Invalid role. Must be one of: ' + VALID_ROLES.join(', ') });
+  const existing = appState.allowedEids[eid];
+  const name = getEidName(existing);
+  const photo = getEidPhoto(existing);
+  appState.allowedEids[eid] = { name, photo: photo || null, role };
+  saveState(appState);
+  res.json({ success: true, eid, name, role });
 });
 
 app.delete('/api/admin/eids/:eid', (req, res) => {
@@ -1765,42 +1825,16 @@ app.delete('/api/admin/eids/:eid', (req, res) => {
   res.json({ success: true });
 });
 
-// ─── Assign TL Role ────────────────────────────────────────────────────────────
-app.post('/api/admin/eids/assign-tl', (req, res) => {
-  const { eid } = req.body;
-  if (!eid) return res.status(400).json({ error: 'EID required' });
-  if (!appState.allowedEids[eid]) return res.status(404).json({ error: 'EID not found' });
-  const existing = appState.allowedEids[eid];
-  const name = getEidName(existing);
-  const photo = getEidPhoto(existing);
-  appState.allowedEids[eid] = { name, photo: photo || null, role: 'tl' };
-  saveState(appState);
-  res.json({ success: true, eid, role: 'tl' });
-});
-
-// ─── Remove TL Role ────────────────────────────────────────────────────────────
-app.post('/api/admin/eids/remove-tl', (req, res) => {
-  const { eid } = req.body;
-  if (!eid) return res.status(400).json({ error: 'EID required' });
-  if (!appState.allowedEids[eid]) return res.status(404).json({ error: 'EID not found' });
-  const existing = appState.allowedEids[eid];
-  const name = getEidName(existing);
-  const photo = getEidPhoto(existing);
-  appState.allowedEids[eid] = { name, photo: photo || null, role: 'agent' };
-  saveState(appState);
-  res.json({ success: true, eid, role: 'agent' });
-});
-
-// ─── TL Auth — check if EID has TL role ───────────────────────────────────────
-app.post('/api/tl/auth', (req, res) => {
+// ─── Client Panel Auth — check if EID has client/admin role ──────────────────
+function handleClientAuth(req, res) {
   let { employeeId, name } = req.body;
   if (!employeeId) return res.status(400).json({ error: 'employeeId required' });
   const eidData = appState.allowedEids[employeeId];
   if (!eidData) return res.status(403).json({ error: 'Employee ID not recognised. Please contact your admin.' });
   if (!name || !name.trim()) { name = getEidName(eidData); }
   const role = getEidRole(eidData);
-  if (role !== 'tl' && role !== 'admin') {
-    return res.status(403).json({ error: 'You do not have TL access. Contact your admin.' });
+  if (role !== 'client' && role !== 'admin' && role !== 'tl') {
+    return res.status(403).json({ error: 'You do not have Client Panel access. Contact your admin.' });
   }
   const agentId = 'emp_' + employeeId;
   // Register/update agent if not exists
@@ -1833,7 +1867,10 @@ app.post('/api/tl/auth', (req, res) => {
   const agent = appState.agents[agentId];
   const lateLogin = (agent.firstLoginToday && agent.firstLoginToday > '10:00') || false;
   res.json({ success: true, agentId, name, employeeId, role, lateLogin });
-});
+}
+app.post('/api/client/auth', handleClientAuth);
+// Backward-compatible alias — anything still pointing at the old TL panel endpoint.
+app.post('/api/tl/auth', handleClientAuth);
 
 // ─── Agent Photo Upload ─────────────────────────────────────────────────────────
 app.post('/api/admin/agent-photo/:eid', agentPhotoUpload.single('photo'), (req, res) => {
@@ -2423,113 +2460,222 @@ app.delete('/api/agent/number/:numberId', (req, res) => {
   res.json({ success: true });
 });
 
-// ─── Automatic Report Generation (6:30 PM IST daily) ──────────────────────────
-// Stores the last auto-generated report so clients/admin can fetch it instantly.
-let lastAutoReport = null;
+// ─── PDF Report Archive (permanent, searchable by date, generated automatically) ─
+// Reports are built server-side with pdfkit and written straight to REPORTS_DIR —
+// no manual upload/generate step required. They are indexed in appState.reports
+// (which survives Hard Reset) so admin.html and client.html can search by date
+// and re-download at any time.
+const DISPO_LABELS = {
+  dead: 'CNC (Dead)', not_received: 'CNR (Not Received)', not_interested: 'Not Interested',
+  followup: 'Followup', switch_off: 'Switch Off', interested: 'Interested',
+  discard: 'Not-Eligible (Discard)', dnd: 'DND'
+};
 
-function generateAutoReport() {
-  const now = new Date();
-  const istNow = new Date(now.getTime() + (5.5 * 60 * 60 * 1000));
-  const istTodayStr = istNow.toISOString().slice(0, 10);
-
-  // Report covers 10:00 AM to 6:30 PM IST
-  const startIST = new Date(istTodayStr + 'T10:00:00.000+05:30');
-  const endIST = new Date(istTodayStr + 'T18:30:00.000+05:30');
-
-  const filteredLogs = appState.dialedLog.filter(entry => {
-    if (!entry.timestamp) return false;
-    const entryDate = new Date(entry.timestamp);
-    return entryDate >= startIST && entryDate <= endIST;
-  });
-
-  // Group by disposition
-  const groups = {};
-  filteredLogs.forEach(entry => {
-    const dispo = entry.disposition || 'unknown';
-    if (!groups[dispo]) groups[dispo] = [];
-    if (!groups[dispo].includes(entry.phone)) {
-      groups[dispo].push(entry.phone);
-    }
-  });
-
-  const istTimeStr = istNow.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
-
-  lastAutoReport = {
-    generated: true,
-    date: istTodayStr,
-    generatedAt: istTimeStr + ' IST',
-    timeRange: '10:00 AM - 6:30 PM IST',
-    groups,
-    totalCalls: filteredLogs.length
-  };
-
-  console.log('📊 Auto-report generated at ' + istTimeStr + ' IST for ' + istTodayStr + ' — ' + filteredLogs.length + ' calls');
-  // Broadcast to connected admin/client sockets
-  io.to('admin-room').emit('auto-report-ready', lastAutoReport);
+function registerReport(entry) {
+  if (!appState.reports) appState.reports = [];
+  appState.reports.push(entry);
+  saveState(appState);
+  return entry;
 }
 
-// Schedule auto-report at 6:30 PM IST every day
-function scheduleAutoReport() {
-  const check = () => {
-    const now = new Date();
-    const istNow = new Date(now.getTime() + (5.5 * 60 * 60 * 1000));
-    const hours = istNow.getUTCHours();
-    const minutes = istNow.getUTCMinutes();
-    const todayStr = istNow.toISOString().slice(0, 10);
+// Builds one PDF for the given IST date string (YYYY-MM-DD) summarizing daily
+// disposition stats + admin/lead stats, saves it to disk, and registers it in
+// the permanent report archive. Used by the automatic 6:30 PM IST scheduler.
+function generateDailyReport(dateStr) {
+  return new Promise((resolve, reject) => {
+    try {
+      const dispo = computeDispositionStats('daily', null);
+      const stats = getAdminStats();
+      const fileName = uuidv4() + '.pdf';
+      const filePath = path.join(REPORTS_DIR, fileName);
+      const doc = new PDFDocument({ margin: 50 });
+      const writeStream = fs.createWriteStream(filePath);
+      doc.pipe(writeStream);
 
-    // Trigger at 18:30 IST (which is already in IST since we added 5:30 offset)
-    if (hours === 18 && minutes === 30) {
-      // Only generate once per day
-      if (!lastAutoReport || lastAutoReport.date !== todayStr) {
-        generateAutoReport();
+      doc.fontSize(18).fillColor('#e6157b').text('Kingfisher x Ruralift CRM — Daily Report', { align: 'left' });
+      doc.moveDown(0.3);
+      doc.fontSize(11).fillColor('#12293f').text('Date: ' + dateStr + '  (Auto-generated at 6:30 PM IST)');
+      doc.moveDown(1);
+
+      doc.fontSize(13).fillColor('#1668d6').text('Lead Overview');
+      doc.moveDown(0.3);
+      doc.fontSize(11).fillColor('#12293f');
+      doc.text('Total Numbers Uploaded: ' + (stats.total || 0));
+      doc.text('Remaining To Dial: ' + (stats.remaining || 0));
+      doc.text('Interested Leads: ' + (stats.interestedCount || 0));
+      doc.text('Overdue (72h+): ' + (stats.overdueInterestedCount || 0));
+      doc.text('Followups Pending: ' + (stats.followupCount || 0));
+      doc.text('Redialing Tomorrow: ' + (stats.comingBackTomorrow || 0));
+      doc.text('DND Numbers: ' + (stats.dndCount || 0));
+      doc.moveDown(1);
+
+      doc.fontSize(13).fillColor('#1668d6').text('Disposition Breakdown (Today)');
+      doc.moveDown(0.3);
+      doc.fontSize(11).fillColor('#12293f');
+      doc.text('Total Calls: ' + (dispo.totalCalls || 0));
+      Object.keys(DISPO_LABELS).forEach(key => {
+        doc.text(DISPO_LABELS[key] + ': ' + (dispo[key] || 0));
+      });
+
+      doc.end();
+      writeStream.on('finish', () => {
+        const sizeBytes = fs.statSync(filePath).size;
+        const entry = registerReport({
+          id: uuidv4(),
+          fileName,
+          originalName: dateStr + '_Kingfisher_Daily_Report.pdf',
+          title: 'Daily Report',
+          reportDate: dateStr,
+          generatedBy: 'system-auto-6:30pm-IST',
+          scope: 'general',
+          uploadedAt: new Date().toISOString(),
+          sizeBytes
+        });
+        resolve(entry);
+      });
+      writeStream.on('error', reject);
+    } catch (e) {
+      reject(e);
+    }
+  });
+}
+
+// ─── Automatic Daily Report Scheduler (6:30 PM IST, every day) ────────────────
+// Computes ms until the next 6:30 PM IST, generates+saves a report at that
+// moment, then reschedules itself for the following day. Also guards against
+// duplicate reports if the server restarts around the trigger time on the same day.
+function msUntilNext630PM_IST() {
+  const now = new Date();
+  const istNow = new Date(now.getTime() + 5.5 * 60 * 60 * 1000);
+  const target = new Date(istNow);
+  target.setUTCHours(18, 30, 0, 0); // 6:30 PM on the IST-shifted clock (stored as UTC fields)
+  if (target <= istNow) target.setUTCDate(target.getUTCDate() + 1);
+  return target.getTime() - istNow.getTime();
+}
+
+function scheduleAutoDailyReport() {
+  const delay = msUntilNext630PM_IST();
+  setTimeout(async () => {
+    try {
+      const todayStr = getTodayStr();
+      const already = (appState.reports || []).some(r => r.reportDate === todayStr && r.generatedBy === 'system-auto-6:30pm-IST');
+      if (!already) {
+        await generateDailyReport(todayStr);
+        console.log('\uD83D\uDCC4 Auto-generated daily report for ' + todayStr + ' at 6:30 PM IST');
       }
+    } catch (e) {
+      console.error('Auto daily report generation failed:', e.message);
     }
-  };
-  // Check every 30 seconds
-  setInterval(check, 30000);
-  // Also check immediately on boot in case it's already past 6:30 PM
-  const now = new Date();
-  const istNow = new Date(now.getTime() + (5.5 * 60 * 60 * 1000));
-  const todayStr = istNow.toISOString().slice(0, 10);
-  const istHour = istNow.getUTCHours();
-  const istMin = istNow.getUTCMinutes();
-  if (istHour > 18 || (istHour === 18 && istMin >= 30)) {
-    if (!lastAutoReport || lastAutoReport.date !== todayStr) {
-      generateAutoReport();
-    }
-  }
+    scheduleAutoDailyReport(); // reschedule for the next day
+  }, delay);
 }
-scheduleAutoReport();
+scheduleAutoDailyReport();
 
-// API endpoint for fetching the auto-generated report
-app.get('/api/report/auto', (req, res) => {
-  const now = new Date();
-  const istNow = new Date(now.getTime() + (5.5 * 60 * 60 * 1000));
-  const todayStr = istNow.toISOString().slice(0, 10);
-
-  if (lastAutoReport && lastAutoReport.date === todayStr) {
-    return res.json(lastAutoReport);
-  }
-  // Not generated yet today
-  res.json({
-    generated: false,
-    date: todayStr,
-    message: 'Report auto-generates at 6:30 PM IST daily'
-  });
+// List / search reports — optional query params: date=YYYY-MM-DD, from=YYYY-MM-DD, to=YYYY-MM-DD, scope=
+app.get('/api/reports', (req, res) => {
+  const { date, from, to, scope } = req.query;
+  let list = (appState.reports || []).slice();
+  if (date) list = list.filter(r => r.reportDate === date);
+  if (from) list = list.filter(r => r.reportDate >= from);
+  if (to) list = list.filter(r => r.reportDate <= to);
+  if (scope) list = list.filter(r => r.scope === scope);
+  // Newest first
+  list.sort((a, b) => (b.reportDate + b.uploadedAt).localeCompare(a.reportDate + a.uploadedAt));
+  res.json(list);
 });
+
+app.get('/api/reports/:id/download', (req, res) => {
+  const entry = (appState.reports || []).find(r => r.id === req.params.id);
+  if (!entry) return res.status(404).json({ error: 'Report not found' });
+  const filePath = path.join(REPORTS_DIR, entry.fileName);
+  if (!fs.existsSync(filePath)) return res.status(404).json({ error: 'Report file missing on disk' });
+  res.download(filePath, entry.originalName || (entry.title + '.pdf'));
+});
+
+// ─── Automatic Daily Report at 6:30 PM IST ────────────────────────────────────
+function generateDailyReportBuffer() {
+  const now = new Date();
+  const istNow = new Date(now.getTime() + 5.5 * 60 * 60 * 1000);
+  const dateStr = istNow.toISOString().slice(0, 10);
+
+  const stats = getAdminStats();
+  const summaryRows = [
+    ['Ruralift CRM — Daily Report', dateStr],
+    [],
+    ['Metric', 'Count'],
+    ['Total Numbers', stats.total],
+    ['Dialed', stats.dialed],
+    ['Remaining', stats.remaining],
+    ['Interested', stats.interestedCount],
+    ['Follow-up', stats.followupCount],
+    ['Not Interested', stats.notInterestedCount],
+    ['Discard / Not Eligible', stats.discardCount],
+    ['DND', stats.dndCount],
+  ];
+
+  const agentRows = [['Agent ID', 'Name', 'Dialed Today', 'First Login', 'Late Login', 'Break (min)', 'Washroom (min)', 'Meeting (min)']];
+  stats.agentStats.forEach(a => {
+    agentRows.push([
+      a.id, a.name || '', a.totalDialedToday || 0,
+      a.firstLoginToday || '-', a.lateLogin ? 'Yes' : 'No',
+      Math.round((a.totalBreakMs || 0) / 60000),
+      Math.round((a.totalWashroomMs || 0) / 60000),
+      Math.round((a.totalMeetingMs || 0) / 60000),
+    ]);
+  });
+
+  const leadRows = [['Phone', 'Name', 'Disposition', 'Dialed By', 'Dialed At', 'File']];
+  appState.numbers.forEach(n => {
+    const agentName = n.dialedBy && appState.agents[n.dialedBy] ? appState.agents[n.dialedBy].name : (n.dialedBy || '');
+    const fileName = (appState.uploadedFiles.find(f => f.id === n.file) || {}).name || n.file || '';
+    leadRows.push([n.phone || '', n.name || '', n.disposition || 'Pending', agentName, n.dialedAt || '', fileName]);
+  });
+
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(summaryRows), 'Summary');
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(agentRows), 'Agents');
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(leadRows), 'All Leads');
+  return { buf: XLSX.write(wb, { type: 'base64', bookType: 'xlsx' }), dateStr };
+}
+
+app.get('/api/admin/daily-report', (req, res) => {
+  const { buf, dateStr } = generateDailyReportBuffer();
+  const filename = `CRM_Daily_Report_${dateStr}.xlsx`;
+  res.setHeader('Content-Disposition', 'attachment; filename=' + encodeURIComponent(filename));
+  res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+  res.send(Buffer.from(buf, 'base64'));
+});
+
+let lastAutoReportDate = '';
+setInterval(() => {
+  const now = new Date();
+  const istNow = new Date(now.getTime() + 5.5 * 60 * 60 * 1000);
+  const hh = istNow.getUTCHours();
+  const mm = istNow.getUTCMinutes();
+  const dateStr = istNow.toISOString().slice(0, 10);
+  if (hh === 18 && mm === 30 && lastAutoReportDate !== dateStr) {
+    lastAutoReportDate = dateStr;
+    console.log(`[AutoReport] Generating daily report for ${dateStr}...`);
+    try {
+      io.to('admin-room').emit('auto-report', { date: dateStr, url: '/api/admin/daily-report' });
+      io.to('agent-room').emit('auto-report', { date: dateStr, url: '/api/admin/daily-report' });
+      console.log(`[AutoReport] Broadcast sent for ${dateStr}`);
+    } catch (e) { console.error('[AutoReport] Error:', e.message); }
+  }
+}, 60 * 1000);
 
 // ─── Page Routes ──────────────────────────────────────────────────────────────
 app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'public/admin/index.html')));
 app.get('/agent', (req, res) => res.sendFile(path.join(__dirname, 'public/agent/index.html')));
-app.get('/tl', (req, res) => res.sendFile(path.join(__dirname, 'public/tl/index.html')));
 app.get('/client', (req, res) => res.sendFile(path.join(__dirname, 'public/client/index.html')));
+// Backward-compatible alias for old bookmarks/links pointing at the previous TL panel URL.
+app.get('/tl', (req, res) => res.redirect(301, '/client'));
 
 // ─── Start ─────────────────────────────────────────────────────────────────────
 server.listen(PORT, '0.0.0.0', () => {
   console.log(`\n✅  Ruralift CRM running on http://0.0.0.0:${PORT}`);
   console.log(`   Admin Panel  : http://YOUR-LAN-IP:${PORT}/admin`);
   console.log(`   Agent Panel  : http://YOUR-LAN-IP:${PORT}/agent`);
-  console.log(`   TL Panel     : http://YOUR-LAN-IP:${PORT}/tl`);
   console.log(`   Client Panel : http://YOUR-LAN-IP:${PORT}/client\n`);
 });
 

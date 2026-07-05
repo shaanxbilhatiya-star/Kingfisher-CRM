@@ -3,80 +3,175 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kingfisher x Ruralift CRM — Client Dashboard</title>
+<title>Kingfisher x Ruralift CRM — Client Panel</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #060b14; --surface: #0d1525; --surface2: #17162a; --border: #1a2d45;
-    --accent: #7c3aed; --accent2: #9333ea; --danger: #F44336;
-    --warn: #FF9800; --text: #E0E0E0; --muted: #9E9E9E;
-    --green: #4CAF50; --mono: 'JetBrains Mono', monospace; --sans: 'Space Grotesk', sans-serif;
+    /* CLIENT theme: bright Kingfisher x TaskUs — colorful light */
+    --bg: #eef4fc; --surface: #ffffff; --surface2: #f2f8ff; --border: #d5e6f5;
+    --accent: #0aa6c2; --accent2: #1668d6; --magenta: #e6157b; --orange: #ff7a18;
+    --danger: #ef4444; --warn: #f59e0b; --text: #12293f; --muted: #5b7488;
+    --green: #10b981; --mono: 'JetBrains Mono', monospace; --sans: 'Space Grotesk', sans-serif;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: var(--bg); color: var(--text); font-family: var(--sans); min-height: 100vh; }
+  body { background: linear-gradient(160deg, #eaf3fd 0%, #f2ecfb 46%, #fdeef5 100%); background-attachment: fixed; color: var(--text); font-family: var(--sans); min-height: 100vh; }
 
-  header { background: linear-gradient(135deg, #080810 0%, #100f1e 100%); border-bottom: 1px solid var(--border); padding: 14px 32px; display: flex; align-items: center; justify-content: space-between; }
+  header { background: linear-gradient(120deg, #0aa6c2 0%, #1668d6 42%, #7b2ff7 70%, #e6157b 100%); border-bottom: 3px solid var(--orange); box-shadow: 0 6px 24px rgba(22,104,214,.30); padding: 14px 32px; display: flex; align-items: center; justify-content: space-between; }
   .logo { display: flex; flex-direction: column; align-items: center; gap: 5px; flex: 1; }
+  .logo h1 { font-size: 15px; font-weight: 700; letter-spacing: -0.5px; color: var(--accent); }
   .logo-img {
     width: 272px; height: 70px; object-fit: contain; padding: 10px 18px; border-radius: 14px;
-    border: 2px solid rgba(124,58,237,.4); background: rgba(255,255,255,.04);
-    filter: drop-shadow(0 0 12px rgba(124,58,237,.65));
+    border: 2px solid rgba(37,99,235,.4); background: rgba(255,255,255,.04);
+    filter: drop-shadow(0 0 12px rgba(37,99,235,.65)) drop-shadow(0 0 24px rgba(37,99,235,.3));
+    animation: logo-glow 2.5s ease-in-out infinite;
+    box-shadow: 0 4px 16px rgba(37,99,235,.2), 0 1px 4px rgba(0,0,0,.3);
   }
-  .logo h1 { font-size: 15px; font-weight: 700; color: var(--accent); }
-  .badge { background: var(--accent); color: #fff; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; letter-spacing: 1px; }
-  .today-badge { background: rgba(124,58,237,.08); color: var(--accent); border: 1px solid rgba(124,58,237,.15); border-radius: 6px; padding: 4px 12px; font-size: 12px; font-family: var(--mono); }
+  @keyframes logo-glow {
+    0%,100% { filter: drop-shadow(0 0 8px rgba(37,99,235,.55)) drop-shadow(0 0 18px rgba(37,99,235,.25)); }
+    50%      { filter: drop-shadow(0 0 20px rgba(37,99,235,.95)) drop-shadow(0 0 40px rgba(29,78,216,.55)); }
+  }
+  .badge { background: var(--accent); color: #fff; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; letter-spacing: 1px; box-shadow: 0 0 10px rgba(37,99,235,.4); }
+  .today-badge { background: rgba(37,99,235,.1); color: var(--accent); border: 1px solid rgba(37,99,235,.2); border-radius: 6px; padding: 4px 12px; font-size: 12px; font-family: var(--mono); }
 
-  .main { padding: 28px 32px; max-width: 1200px; margin: 0 auto; }
+  .main { padding: 28px 32px; max-width: 1400px; margin: 0 auto; }
 
-  /* Login Screen */
-  #loginScreen { min-height: calc(100vh - 100px); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 24px; }
-  .login-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 36px; max-width: 420px; width: 100%; box-shadow: 0 4px 20px rgba(124,58,237,.15); }
-  .login-card h2 { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
-  .login-card .sub { color: var(--muted); font-size: 14px; margin-bottom: 28px; }
-  .login-card .auto-note { background: rgba(76,175,80,.1); border: 1px solid rgba(76,175,80,.3); border-radius: 8px; padding: 10px 14px; font-size: 12px; color: var(--green); margin-bottom: 16px; text-align: center; }
-  .login-spinner { text-align: center; padding: 20px; }
-  .login-spinner .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); margin: 0 4px; animation: bounce 1.4s infinite ease-in-out both; }
-  .login-spinner .dot:nth-child(1) { animation-delay: -0.32s; }
-  .login-spinner .dot:nth-child(2) { animation-delay: -0.16s; }
-  @keyframes bounce { 0%,80%,100%{transform:scale(0)} 40%{transform:scale(1)} }
-
-  /* Dashboard */
-  #dashboardScreen { display: none; }
   .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; margin-bottom: 28px; }
-  .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px 24px; display: flex; flex-direction: column; gap: 6px; }
+  .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px 24px; display: flex; flex-direction: column; gap: 6px; box-shadow: 0 2px 12px rgba(0,0,0,.4); transition: transform .2s, box-shadow .2s; }
+  .stat-card:hover { transform: translateY(-2px); box-shadow: 0 4px 20px rgba(37,99,235,.2); }
   .stat-label { font-size: 12px; font-weight: 600; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
-  .stat-value { font-family: var(--mono); font-size: 36px; font-weight: 700; color: var(--accent); }
+  .stat-value { font-family: var(--mono); font-size: 36px; font-weight: 700; }
+  .stat-value.green { color: var(--green); }
+  .stat-value.blue { color: var(--accent2); }
+  .stat-value.amber { color: var(--warn); }
+  .stat-value.accent { color: var(--accent); }
+  .stat-value.red { color: var(--danger); }
 
-  .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 20px; }
+  .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,.4); margin-bottom: 20px; }
   .panel-header { padding: 16px 20px; background: var(--surface2); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
   .panel-header h2 { font-size: 14px; font-weight: 600; letter-spacing: .5px; text-transform: uppercase; color: var(--muted); }
   .panel-body { padding: 20px; }
 
-  .report-section { margin-bottom: 20px; }
-  .report-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 10px; }
-  .report-header h3 { font-size: 16px; font-weight: 700; color: var(--accent); }
-  .report-time { font-size: 12px; color: var(--muted); font-family: var(--mono); }
-  .report-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(76,175,80,.1); border: 1px solid rgba(76,175,80,.3); border-radius: 20px; padding: 4px 12px; font-size: 11px; font-weight: 700; color: var(--green); }
-  .report-badge.pending { background: rgba(255,152,0,.1); border-color: rgba(255,152,0,.3); color: var(--warn); }
+  .empty { color: var(--muted); font-size: 13px; text-align: center; padding: 24px; }
+  .btn-del { background: none; border: 1px solid var(--danger); color: var(--danger); padding: 6px 14px; border-radius: 6px; font-size: 12px; cursor: pointer; font-family: var(--sans); transition: all .2s; }
+  .btn-del:hover { background: var(--danger); color: #fff; }
 
-  .report-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 14px 18px; margin-bottom: 10px; }
-  .report-card .label { font-size: 13px; font-weight: 700; margin-bottom: 6px; }
-  .report-card .phones { font-family: var(--mono); font-size: 11px; color: var(--muted); word-break: break-all; max-height: 80px; overflow-y: auto; }
-  .report-card .count { font-size: 12px; color: var(--accent); font-weight: 700; margin-left: 8px; }
+  .panel-interested .panel-header { background: rgba(76,175,80,.06); }
+  .panel-interested .panel-header h2 { color: var(--green); }
+  .panel-followups .panel-header { background: rgba(37,99,235,.06); }
+  .panel-followups .panel-header h2 { color: var(--accent); }
+  .panel-completed .panel-header { background: rgba(76,175,80,.06); }
+  .panel-completed .panel-header h2 { color: var(--accent); }
 
-  .no-report { text-align: center; padding: 30px; color: var(--muted); font-size: 14px; }
-  .no-report .icon { font-size: 40px; margin-bottom: 10px; display: block; opacity: .5; }
+  .leads-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .leads-table th { padding: 10px 12px; text-align: left; font-size: 11px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; background: var(--surface2); color: var(--muted); border-bottom: 1px solid var(--border); }
+  .leads-table td { padding: 11px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  .leads-table tr:last-child td { border-bottom: none; }
+  .leads-table tr.overdue-row { background: rgba(244,67,54,.06); }
+  .leads-table tr.overdue-row:hover { background: rgba(244,67,54,.10); }
+  .phone-number { font-family: var(--mono); font-weight: 700; color: var(--accent); }
+  .overdue-text { color: var(--danger); font-weight: 700; font-family: var(--mono); font-size: 12px; letter-spacing: .5px; }
+  .time-remaining { font-family: var(--mono); font-size: 12px; font-weight: 600; color: var(--text); }
 
-  .countdown { font-family: var(--mono); font-size: 14px; color: var(--warn); font-weight: 700; }
+  .doc-badge { display: inline-block; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; letter-spacing: .5px; }
+  .doc-badge.complete { background: rgba(76,175,80,.1); color: var(--green); border: 1px solid rgba(76,175,80,.25); }
+  .doc-badge.pending { background: rgba(255,152,0,.08); color: var(--warn); border: 1px solid rgba(255,152,0,.2); }
 
-  @media(max-width:600px) { .main { padding: 16px; } .stats-grid { grid-template-columns: 1fr 1fr; } }
+  .admin-stats-tabs { display: flex; gap: 4px; }
+  .admin-stats-tab { padding: 5px 14px; border-radius: 6px; border: 1.5px solid var(--border); background: var(--surface); color: var(--muted); font-family: var(--sans); font-size: 12px; font-weight: 700; cursor: pointer; transition: all .2s; }
+  .admin-stats-tab:hover { border-color: var(--accent2); color: var(--accent); }
+  .admin-stats-tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .dispo-stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 14px; }
+  .dispo-stat-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 16px; text-align: center; position: relative; }
+  .dispo-stat-card.dispo-stat-total { background: rgba(37,99,235,.08); border-color: rgba(37,99,235,.3); }
+  .dispo-stat-indicator { width: 8px; height: 8px; border-radius: 50%; position: absolute; top: 12px; left: 12px; }
+  .dispo-stat-val { font-family: var(--mono); font-size: 28px; font-weight: 700; color: var(--accent); }
+  .dispo-stat-card.dispo-stat-total .dispo-stat-val { font-size: 36px; }
+  .dispo-stat-lbl { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-top: 4px; }
+
+  input, select, textarea { background: var(--surface2) !important; color: var(--text) !important; border-color: var(--border) !important; }
+  input:focus, select:focus, textarea:focus { border-color: var(--accent) !important; outline: none !important; }
+
+  /* ── Login screen ── */
+  #loginScreen {
+    min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 24px;
+  }
+  .login-wrap { width: 100%; max-width: 420px; }
+  .login-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 36px; box-shadow: 0 2px 16px rgba(0,0,0,.5); }
+  .login-card h2 { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+  .login-card .sub { color: var(--muted); font-size: 14px; margin-bottom: 28px; }
+  .field { margin-bottom: 18px; }
+  .field label { display: block; font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 7px; }
+  .field input { width: 100%; padding: 12px 16px; border-radius: 8px; background: var(--surface2); border: 1px solid var(--border); color: var(--text); font-family: var(--sans); font-size: 15px; outline: none; transition: border-color .2s; }
+  .field input:focus { border-color: var(--accent); }
+  .err { color: var(--danger); font-size: 12px; margin-top: 5px; display: none; }
+  .btn-login { width: 100%; padding: 14px; border-radius: 10px; border: none; background: var(--accent); color: #fff; font-family: var(--sans); font-size: 16px; font-weight: 700; cursor: pointer; transition: all .2s; margin-top: 4px; }
+  .btn-login:hover { background: var(--accent2); transform: translateY(-1px); }
+
+  #mainScreen { display: none; }
+
+  #toast { position: fixed; bottom: 28px; right: 28px; background: var(--surface); border: 1px solid var(--border); color: var(--text); border-radius: 10px; padding: 14px 20px; font-size: 14px; transform: translateY(100px); opacity: 0; transition: all .3s; z-index: 999; box-shadow: 0 4px 20px rgba(0,0,0,.5); }
+  #toast.show { transform: translateY(0); opacity: 1; }
+  #toast.success { border-color: var(--accent); }
+  #toast.error { border-color: var(--danger); }
+
+  @media(max-width:900px){ .stats-grid{grid-template-columns:1fr 1fr} }
+
+  /* ============================================================
+     KINGFISHER x TASKUS — COLORFUL THEME OVERRIDES (light)
+     ============================================================ */
+  header .logo h1 { color: #ffffff; text-shadow: 0 1px 8px rgba(0,0,0,.28); }
+  header .today-badge { background: rgba(255,255,255,.20); color: #ffffff; border: 1px solid rgba(255,255,255,.45); backdrop-filter: blur(4px); }
+  header .badge, .badge { background: #ffffff; color: var(--magenta); box-shadow: 0 2px 10px rgba(0,0,0,.18); letter-spacing: 1px; }
+  .logo-img { border: 2px solid rgba(255,255,255,.55); background: rgba(255,255,255,.14);
+    filter: drop-shadow(0 0 12px rgba(255,255,255,.55)); animation: none;
+    box-shadow: 0 4px 18px rgba(0,0,0,.22); }
+  .logo-dot { background: var(--orange); box-shadow: 0 0 10px var(--orange); }
+
+  .stat-card { position: relative; overflow: hidden; box-shadow: 0 4px 16px rgba(22,104,214,.08); }
+  .stat-card::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: var(--accent); }
+  .stat-card:nth-child(4n+1)::before { background: linear-gradient(90deg, #0aa6c2, #22d3ee); }
+  .stat-card:nth-child(4n+2)::before { background: linear-gradient(90deg, #1668d6, #60a5fa); }
+  .stat-card:nth-child(4n+3)::before { background: linear-gradient(90deg, #e6157b, #ff7ab6); }
+  .stat-card:nth-child(4n+4)::before { background: linear-gradient(90deg, #ff7a18, #ffb454); }
+  .stat-card:hover { box-shadow: 0 8px 26px rgba(22,104,214,.20); }
+
+  .panel-header { background: linear-gradient(90deg, rgba(10,166,194,.10), rgba(230,21,123,.06)); }
+  .panel-header h2 { color: var(--accent2); }
+
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #0aa6c2, #1668d6); border-radius: 10px; }
+  ::-webkit-scrollbar-track { background: #e6eef8; }
+
 </style>
 </head>
 <body>
+
+<!-- ═══════════════════════════════════════════════════════
+     LOGIN SCREEN
+═══════════════════════════════════════════════════════ -->
+<div id="loginScreen">
+  <div class="login-wrap">
+    <div class="login-card">
+      <h2>Client Login</h2>
+      <p class="sub">Enter your Employee ID to view the dashboard</p>
+      <div class="field">
+        <label>Employee ID</label>
+        <input type="number" id="clientEmpId" placeholder="e.g. 9000" min="1" autocomplete="off" value="9000">
+        <div class="err" id="clientErrEmpId">Please enter a valid Employee ID</div>
+      </div>
+      <button class="btn-login" onclick="clientLogin()">Enter Dashboard &rarr;</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MAIN DASHBOARD SCREEN
+═══════════════════════════════════════════════════════ -->
+<div id="mainScreen">
 <header>
-  <div style="min-width:80px;display:flex;align-items:center">
-    <span class="today-badge" id="todayBadge">—</span>
+  <div style="min-width:80px;display:flex;align-items:center;">
+    <span class="today-badge" id="todayBadge">&#8212;</span>
   </div>
   <div class="logo">
     <img src="/logo.png" alt="Ruralift" class="logo-img">
@@ -85,224 +180,524 @@
   <div style="display:flex;align-items:center;gap:14px">
     <span class="today-badge" id="liveClock" style="min-width:96px;text-align:center">--:--:--</span>
     <span class="badge">CLIENT</span>
+    <button onclick="clientLogout()" style="background:none;border:1px solid var(--border);color:var(--muted);padding:5px 12px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--sans)">Logout</button>
   </div>
 </header>
 
-<!-- LOGIN SCREEN -->
-<div id="loginScreen">
-  <div class="login-card">
-    <h2>Client Login</h2>
-    <p class="sub">Enter your Employee ID to view the dashboard</p>
-    <div class="auto-note">&#9989; Autofill 9000 — No manual fill required</div>
-    <div class="login-spinner">
-      <span class="dot"></span>
-      <span class="dot"></span>
-      <span class="dot"></span>
-    </div>
-    <p style="text-align:center;font-size:12px;color:var(--muted);margin-top:10px">Auto-logging in...</p>
-  </div>
-</div>
+<div class="main">
 
-<!-- DASHBOARD SCREEN -->
-<div id="dashboardScreen">
-  <div class="main">
-    <!-- Stats Overview -->
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-label">Total Numbers</div>
-        <div class="stat-value" id="statTotal">0</div>
+  <!-- DISPOSITION STATS -->
+  <div class="panel dispo-stats-panel">
+    <div class="panel-header" style="background:rgba(76,175,80,.04)">
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;flex:1;min-width:0">
+        <h2 style="color:var(--accent);margin:0">&#128202; Disposition Stats</h2>
       </div>
-      <div class="stat-card">
-        <div class="stat-label">Dialed Today</div>
-        <div class="stat-value" id="statDialed">0</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Interested</div>
-        <div class="stat-value" id="statInterested" style="color:var(--green)">0</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Follow-ups</div>
-        <div class="stat-value" id="statFollowup" style="color:var(--warn)">0</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Remaining</div>
-        <div class="stat-value" id="statRemaining">0</div>
+      <div class="admin-stats-tabs">
+        <button class="admin-stats-tab active" data-period="daily" onclick="switchStatsPeriod('daily')">Daily</button>
+        <button class="admin-stats-tab" data-period="weekly" onclick="switchStatsPeriod('weekly')">Weekly</button>
+        <button class="admin-stats-tab" data-period="monthly" onclick="switchStatsPeriod('monthly')">Monthly</button>
+        <button class="admin-stats-tab" data-period="yearly" onclick="switchStatsPeriod('yearly')">Yearly</button>
       </div>
     </div>
-
-    <!-- Auto Report Panel -->
-    <div class="panel">
-      <div class="panel-header">
-        <h2>&#128202; Daily Auto-Report (6:30 PM IST)</h2>
-        <div id="reportStatus"></div>
-      </div>
-      <div class="panel-body" id="reportBody">
-        <div class="no-report">
-          <span class="icon">&#128337;</span>
-          Loading report data...
+    <div class="panel-body">
+      <div class="dispo-stats-grid">
+        <div class="dispo-stat-card dispo-stat-total">
+          <div class="dispo-stat-val" id="statsTotalCalls">0</div>
+          <div class="dispo-stat-lbl">Total Calls</div>
+        </div>
+        <div class="dispo-stat-card">
+          <div class="dispo-stat-indicator" style="background:var(--danger)"></div>
+          <div class="dispo-stat-val" id="statsDead">0</div>
+          <div class="dispo-stat-lbl">Call Not Connected</div>
+        </div>
+        <div class="dispo-stat-card">
+          <div class="dispo-stat-indicator" style="background:var(--warn)"></div>
+          <div class="dispo-stat-val" id="statsNotReceived">0</div>
+          <div class="dispo-stat-lbl">Call Not Received</div>
+        </div>
+        <div class="dispo-stat-card">
+          <div class="dispo-stat-indicator" style="background:var(--muted)"></div>
+          <div class="dispo-stat-val" id="statsNotInterested">0</div>
+          <div class="dispo-stat-lbl">Not Interested</div>
+        </div>
+        <div class="dispo-stat-card">
+          <div class="dispo-stat-indicator" style="background:#2563eb"></div>
+          <div class="dispo-stat-val" id="statsFollowup">0</div>
+          <div class="dispo-stat-lbl">Followup</div>
+        </div>
+        <div class="dispo-stat-card">
+          <div class="dispo-stat-indicator" style="background:#f59e0b"></div>
+          <div class="dispo-stat-val" id="statsSwitchOff">0</div>
+          <div class="dispo-stat-lbl">Switch OFF</div>
+        </div>
+        <div class="dispo-stat-card">
+          <div class="dispo-stat-indicator" style="background:#78350f"></div>
+          <div class="dispo-stat-val" id="statsDiscard">0</div>
+          <div class="dispo-stat-lbl">Not-Eligible</div>
+        </div>
+        <div class="dispo-stat-card">
+          <div class="dispo-stat-indicator" style="background:var(--green)"></div>
+          <div class="dispo-stat-val" id="statsInterested">0</div>
+          <div class="dispo-stat-lbl">Interested</div>
+        </div>
+        <div class="dispo-stat-card">
+          <div class="dispo-stat-indicator" style="background:#c62828"></div>
+          <div class="dispo-stat-val" id="statsDnd">0</div>
+          <div class="dispo-stat-lbl">DND</div>
         </div>
       </div>
     </div>
+  </div>
 
-    <!-- Disposition Summary -->
-    <div class="panel">
-      <div class="panel-header">
-        <h2>&#128200; Disposition Summary (Today)</h2>
+  <!-- STATS GRID: Interested / Overdue / Followups / Redialing Tomorrow -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <span class="stat-label">Interested</span>
+      <span class="stat-value green" id="statInterested">0</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-label">Overdue</span>
+      <span class="stat-value red" id="statOverdue">0</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-label">Followups</span>
+      <span class="stat-value blue" id="statFollowups">0</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-label">Redialing Tomorrow</span>
+      <span class="stat-value amber" id="statComingBack">0</span>
+    </div>
+  </div>
+
+  <!-- CONVERTED CUSTOMERS -->
+  <div class="panel panel-completed">
+    <div class="panel-header">
+      <h2>Converted Customers</h2>
+      <span style="font-size:12px;color:var(--muted)" id="completedCountBadge">0 leads</span>
+    </div>
+    <div class="panel-body" style="padding:0;overflow-x:auto">
+      <table class="leads-table">
+        <thead>
+          <tr>
+            <th>Phone</th>
+            <th>Name</th>
+            <th>Agent</th>
+            <th>Package Type</th>
+            <th>Converted At</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="completedTable">
+          <tr><td colspan="6" class="empty">No converted customers yet</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- FOLLOWUPS -->
+  <div class="panel panel-followups">
+    <div class="panel-header">
+      <h2>Followups</h2>
+      <span style="font-size:12px;color:var(--muted)" id="followupsCountBadge">0 followups</span>
+    </div>
+    <div class="panel-body" style="padding:0;overflow-x:auto">
+      <table class="leads-table">
+        <thead>
+          <tr>
+            <th>Phone</th>
+            <th>Name</th>
+            <th>Agent</th>
+            <th>Date</th>
+            <th>Time</th>
+          </tr>
+        </thead>
+        <tbody id="followupsTable">
+          <tr><td colspan="5" class="empty">No followups yet</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- GENERATED REPORTS ARCHIVE (permanent PDF storage, searchable by date) -->
+  <div class="panel">
+    <div class="panel-header" style="background:rgba(230,21,123,.06)">
+      <h2 style="color:var(--magenta)">&#128196; Generated Reports Archive</h2>
+    </div>
+    <div class="panel-body">
+      <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center">
+        <label style="font-size:12px;color:var(--muted);font-weight:600">From</label>
+        <input type="date" id="reportFromDate" style="padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:var(--mono);font-size:13px;outline:none">
+        <label style="font-size:12px;color:var(--muted);font-weight:600">To</label>
+        <input type="date" id="reportToDate" style="padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:var(--mono);font-size:13px;outline:none">
+        <button onclick="searchReports()" style="padding:8px 18px;border-radius:8px;border:none;background:var(--accent);color:#fff;font-size:13px;font-weight:700;cursor:pointer">&#128269; Search</button>
+        <button onclick="clearReportSearch()" style="padding:8px 14px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--muted);font-size:13px;font-weight:600;cursor:pointer">Clear</button>
       </div>
-      <div class="panel-body" id="dispoSummary">
-        <div style="color:var(--muted);font-size:13px;text-align:center;padding:16px">Loading...</div>
+      <div id="reportsList" style="display:flex;flex-direction:column;gap:8px;max-height:340px;overflow-y:auto">
+        <div class="empty">No reports available yet</div>
       </div>
     </div>
   </div>
-</div>
 
-<script src="/socket.io/socket.io.js"></script>
+  <!-- DND NUMBERS -->
+  <div class="panel">
+    <div class="panel-header" style="background:rgba(198,40,40,.06)">
+      <h2 style="color:#c62828">&#128277; DND (Do Not Disturb) Numbers</h2>
+      <span style="font-size:12px;color:var(--muted)" id="dndCountBadge">0 numbers</span>
+    </div>
+    <div class="panel-body">
+      <div id="dndList" style="display:flex;flex-direction:column;gap:6px;max-height:300px;overflow-y:auto;">
+        <div class="empty">No DND numbers</div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end .main -->
+</div><!-- end #mainScreen -->
+
+<div id="toast"></div>
+
 <script>
-const CLIENT_EID = '9000';
-let socket;
-
-// IST Clock
-function tickClock() {
-  const el = document.getElementById('liveClock');
-  if (el) el.textContent = new Date().toLocaleTimeString('en-US', { timeZone: 'Asia/Kolkata', hour12: true }) + ' IST';
-  const tb = document.getElementById('todayBadge');
-  if (tb) tb.textContent = new Date().toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata', day: '2-digit', month: 'short', year: 'numeric' });
+// ── XSS Protection ────────────────────────────────────────────────────────────
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
-tickClock();
-setInterval(tickClock, 1000);
 
-// Auto-login on page load
-window.addEventListener('DOMContentLoaded', () => {
-  setTimeout(autoLogin, 800);
-});
+function formatPhone(phone) {
+  if (!phone) return '—';
+  const str = String(phone);
+  if (str.length === 10) return str.slice(0,5) + ' ' + str.slice(5);
+  if (str.length > 10) return str.slice(0, str.length-10) + ' ' + str.slice(str.length-10, str.length-5) + ' ' + str.slice(str.length-5);
+  return str;
+}
 
-async function autoLogin() {
+function formatTimestamp(iso) {
+  if (!iso) return '—';
   try {
-    const r = await fetch('/api/agent/register', {
+    const d = new Date(iso);
+    return d.toLocaleDateString('en-IN', { day:'2-digit', month:'short' }) + ' ' + d.toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit', hour12:true });
+  } catch(e) { return iso; }
+}
+
+function formatTimeAmPm(timeStr) {
+  if (!timeStr) return '';
+  try {
+    const [h, m] = timeStr.split(':').map(Number);
+    const period = h >= 12 ? 'PM' : 'AM';
+    const hour12 = h === 0 ? 12 : h > 12 ? h - 12 : h;
+    return hour12 + ':' + String(m).padStart(2,'0') + ' ' + period;
+  } catch(e) { return timeStr; }
+}
+
+function showToast(msg, type='success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'show ' + type;
+  setTimeout(() => t.className = '', 3000);
+}
+
+const PKG_LABELS = {Kitty_Party:'Kitty Party', Family_Fun_Day:'Family Fun Day- Water Park', Dream_Wedding:'Dream Wedding', Pool_Party:'Private Pool Party'};
+
+// ── Client Login ──────────────────────────────────────────────────────────────
+let clientEmpIdVal = sessionStorage.getItem('clientEmpId') || '';
+let clientAgentId  = sessionStorage.getItem('clientAgentId') || '';
+let clientName     = sessionStorage.getItem('clientName') || '';
+
+async function clientLogin() {
+  const empVal = document.getElementById('clientEmpId').value.trim();
+  const errEl = document.getElementById('clientErrEmpId');
+  errEl.style.display = 'none';
+  if (!empVal || !/^\d+$/.test(empVal)) {
+    errEl.textContent = 'Please enter a valid numeric Employee ID';
+    errEl.style.display = 'block';
+    return;
+  }
+  try {
+    const r = await fetch('/api/client/auth', {
       method: 'POST', headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ name: '', employeeId: CLIENT_EID })
+      body: JSON.stringify({ employeeId: empVal })
     });
     const d = await r.json();
     if (d.error) {
-      document.getElementById('loginScreen').innerHTML = '<div class="login-card"><h2>Access Denied</h2><p class="sub" style="color:var(--danger)">'+d.error+'</p></div>';
+      errEl.textContent = d.error;
+      errEl.style.display = 'block';
       return;
     }
-    // Login successful — show dashboard
-    document.getElementById('loginScreen').style.display = 'none';
-    document.getElementById('dashboardScreen').style.display = 'block';
-    // Connect socket and load data
-    socket = io();
-    socket.on('connect', () => { socket.emit('join-admin'); });
-    socket.on('stats-update', (stats) => { updateDashboard(stats); });
-    loadStats();
-    loadAutoReport();
-    loadDispoSummary();
-    // Refresh every 30 seconds
-    setInterval(loadStats, 30000);
-    setInterval(loadAutoReport, 60000);
-    setInterval(loadDispoSummary, 60000);
-  } catch(e) {
-    document.getElementById('loginScreen').innerHTML = '<div class="login-card"><h2>Connection Error</h2><p class="sub" style="color:var(--danger)">Could not connect to server. Please try again.</p></div>';
+    clientEmpIdVal = empVal;
+    clientAgentId = d.agentId;
+    clientName = d.name;
+    sessionStorage.setItem('clientEmpId', empVal);
+    sessionStorage.setItem('clientAgentId', clientAgentId);
+    sessionStorage.setItem('clientName', clientName);
+    showMainScreen();
+  } catch (e) {
+    errEl.textContent = 'Connection error. Please try again.';
+    errEl.style.display = 'block';
   }
 }
 
-async function loadStats() {
+function clientLogout() {
+  if (!confirm('Are you sure you want to logout?')) return;
+  sessionStorage.removeItem('clientEmpId');
+  sessionStorage.removeItem('clientAgentId');
+  sessionStorage.removeItem('clientName');
+  location.reload();
+}
+
+function showMainScreen() {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('mainScreen').style.display = 'block';
+  initDashboard();
+}
+
+document.getElementById('clientEmpId').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') clientLogin();
+});
+
+// ── Auto-login (no manual entry required) ──────────────────────────────────────
+// The Employee ID field is pre-filled with the default "9000" client login and the
+// page logs in automatically on load — no click required. A URL override like
+// /client?eid=1234 is still honored for handing out a different login via link/bookmark.
+const DEFAULT_CLIENT_EID = '9000';
+
+async function autoLogin(eid) {
+  try {
+    const r = await fetch('/api/client/auth', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ employeeId: eid })
+    });
+    const d = await r.json();
+    if (d.error) {
+      const errEl = document.getElementById('clientErrEmpId');
+      errEl.textContent = d.error;
+      errEl.style.display = 'block';
+      return false;
+    }
+    clientEmpIdVal = eid;
+    clientAgentId = d.agentId;
+    clientName = d.name;
+    sessionStorage.setItem('clientEmpId', eid);
+    sessionStorage.setItem('clientAgentId', clientAgentId);
+    sessionStorage.setItem('clientName', clientName);
+    showMainScreen();
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+if (clientEmpIdVal && clientAgentId) {
+  showMainScreen();
+} else {
+  const params = new URLSearchParams(window.location.search);
+  const urlEid = params.get('eid');
+  const eidToUse = (urlEid && /^\d+$/.test(urlEid)) ? urlEid : DEFAULT_CLIENT_EID;
+  document.getElementById('clientEmpId').value = eidToUse;
+  autoLogin(eidToUse);
+}
+
+// ── Dashboard init ────────────────────────────────────────────────────────────
+let _dashboardInitialized = false;
+function initDashboard() {
+  if (_dashboardInitialized) return;
+  _dashboardInitialized = true;
+
+  fetchTopStats();
+  fetchFollowups();
+  fetchCompletedLeads();
+  fetchDispoStats();
+  loadDndNumbers();
+  loadReports();
+  tickLiveClock();
+
+  setInterval(fetchTopStats, 5000);
+  setInterval(fetchFollowups, 5000);
+  setInterval(fetchCompletedLeads, 5000);
+  setInterval(fetchDispoStats, 5000);
+  setInterval(loadDndNumbers, 15000);
+  setInterval(tickLiveClock, 1000);
+}
+
+// ── Top stats (Interested / Overdue / Followups / Redialing Tomorrow) ────────
+async function fetchTopStats() {
   try {
     const r = await fetch('/api/admin/stats');
     const d = await r.json();
-    updateDashboard(d);
-  } catch(e) {}
+    document.getElementById('statInterested').textContent = d.interestedCount || 0;
+    document.getElementById('statOverdue').textContent = d.overdueInterestedCount || 0;
+    document.getElementById('statFollowups').textContent = d.followupCount || 0;
+    document.getElementById('statComingBack').textContent = d.comingBackTomorrow || 0;
+    document.getElementById('todayBadge').textContent = d.today || '\u2014';
+  } catch (e) { /* silent */ }
 }
 
-function updateDashboard(stats) {
-  if (!stats) return;
-  document.getElementById('statTotal').textContent = stats.total || 0;
-  document.getElementById('statDialed').textContent = stats.dialed || 0;
-  document.getElementById('statInterested').textContent = stats.interestedCount || 0;
-  document.getElementById('statFollowup').textContent = stats.followupCount || 0;
-  document.getElementById('statRemaining').textContent = stats.remaining || 0;
-}
-
-async function loadAutoReport() {
+// ── Converted Customers ───────────────────────────────────────────────────────
+async function fetchCompletedLeads() {
   try {
-    const r = await fetch('/api/report/auto');
-    const d = await r.json();
-    renderReport(d);
-  } catch(e) {
-    document.getElementById('reportBody').innerHTML = '<div class="no-report"><span class="icon">&#9888;</span>Failed to load report</div>';
-  }
+    const r = await fetch('/api/admin/completed');
+    const leads = await r.json();
+    renderCompletedLeads(leads);
+  } catch (e) { /* silent */ }
 }
 
-function renderReport(data) {
-  const container = document.getElementById('reportBody');
-  const statusEl = document.getElementById('reportStatus');
-
-  if (data.generated) {
-    statusEl.innerHTML = '<span class="report-badge">&#9989; Generated at ' + data.generatedAt + '</span>';
-    let html = '<div class="report-header"><h3>Report for ' + data.date + '</h3><span class="report-time">' + data.timeRange + '</span></div>';
-    if (data.groups && Object.keys(data.groups).length > 0) {
-      const LABELS = {dead:'☠️ CNC',not_received:'📵 CNR',not_interested:'🚫 Not Interested',followup:'📅 Follow-up',switch_off:'📴 Switch OFF',interested:'⭐ Interested',discard:'🚫 Not-Eligible',dnd:'🔕 DND'};
-      Object.entries(data.groups).forEach(([dispo, phones]) => {
-        if (dispo === '_isDummy') return;
-        const label = LABELS[dispo] || dispo;
-        html += '<div class="report-card"><div class="label">' + label + '<span class="count">(' + phones.length + ')</span></div>';
-        html += '<div class="phones">' + phones.join(', ') + '</div></div>';
-      });
-    } else {
-      html += '<div style="color:var(--muted);font-size:13px;padding:10px">No calls recorded in this period.</div>';
-    }
-    html += '<div style="margin-top:14px;font-size:11px;color:var(--muted)">Total calls in report: ' + (data.totalCalls || 0) + '</div>';
-    container.innerHTML = html;
-  } else {
-    // Report not yet generated — show countdown
-    statusEl.innerHTML = '<span class="report-badge pending">&#9203; Pending — Generates at 6:30 PM IST</span>';
-    const now = new Date();
-    const istNow = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
-    const target = new Date(istNow);
-    target.setHours(18, 30, 0, 0);
-    if (istNow > target) {
-      statusEl.innerHTML = '<span class="report-badge pending">&#9203; Generating soon...</span>';
-    }
-    let html = '<div class="no-report"><span class="icon">&#128337;</span>';
-    html += 'Daily report auto-generates at <strong>6:30 PM IST</strong><br>';
-    html += '<span style="font-size:12px;color:var(--muted);margin-top:8px;display:block">Report includes all calls from 10:00 AM to 6:30 PM grouped by disposition.</span>';
-    html += '</div>';
-    container.innerHTML = html;
+function renderCompletedLeads(leads) {
+  const tbody = document.getElementById('completedTable');
+  const badge = document.getElementById('completedCountBadge');
+  badge.textContent = leads.length + ' lead' + (leads.length !== 1 ? 's' : '');
+  if (!leads || leads.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" class="empty">No converted customers yet</td></tr>';
+    return;
   }
+  tbody.innerHTML = leads.map(l => {
+    const completedAt = l.documentationCompletedAt ? formatTimestamp(l.documentationCompletedAt) : '\u2014';
+    const displayStatus = l.adminStatus || 'In Process';
+    return '<tr>' +
+      '<td><span class="phone-number">' + escapeHtml(formatPhone(l.phone)) + '</span></td>' +
+      '<td>' + (escapeHtml(l.name) || '\u2014') + '</td>' +
+      '<td style="font-weight:500">' + (escapeHtml(l.interestedBy) || '\u2014') + '</td>' +
+      '<td>' + escapeHtml(PKG_LABELS[l.loanType] || l.loanType || '\u2014') + '</td>' +
+      '<td style="font-size:12px;font-family:var(--mono)">' + completedAt + '</td>' +
+      '<td><span class="doc-badge complete">' + escapeHtml(displayStatus) + '</span></td>' +
+    '</tr>';
+  }).join('');
 }
 
-async function loadDispoSummary() {
+// ── Followups ─────────────────────────────────────────────────────────────────
+async function fetchFollowups() {
   try {
-    const r = await fetch('/api/stats/dispositions?period=daily');
-    const d = await r.json();
-    renderDispoSummary(d);
-  } catch(e) {
-    document.getElementById('dispoSummary').innerHTML = '<div style="color:var(--muted);font-size:13px;text-align:center;padding:16px">Failed to load</div>';
-  }
+    const r = await fetch('/api/admin/followups');
+    const followups = await r.json();
+    renderFollowups(followups);
+  } catch (e) { /* silent */ }
 }
 
-function renderDispoSummary(stats) {
-  if (!stats) return;
-  const items = [
-    { label: 'Total Calls', value: stats.totalCalls || 0, color: 'var(--accent)' },
-    { label: 'CNC (Dead)', value: stats.dead || 0, color: 'var(--danger)' },
-    { label: 'CNR', value: stats.not_received || 0, color: 'var(--warn)' },
-    { label: 'Not Interested', value: stats.not_interested || 0, color: 'var(--muted)' },
-    { label: 'Followup', value: stats.followup || 0, color: '#2563eb' },
-    { label: 'Switch Off', value: stats.switch_off || 0, color: '#f97316' },
-    { label: 'Interested', value: stats.interested || 0, color: 'var(--green)' },
-    { label: 'Not-Eligible', value: stats.discard || 0, color: 'var(--danger)' },
-    { label: 'DND', value: stats.dnd || 0, color: 'var(--muted)' }
-  ];
-  let html = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px">';
-  items.forEach(item => {
-    html += '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center">';
-    html += '<div style="font-family:var(--mono);font-size:28px;font-weight:700;color:' + item.color + '">' + item.value + '</div>';
-    html += '<div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:4px">' + item.label + '</div>';
-    html += '</div>';
-  });
-  html += '</div>';
-  document.getElementById('dispoSummary').innerHTML = html;
+function renderFollowups(followups) {
+  const tbody = document.getElementById('followupsTable');
+  const badge = document.getElementById('followupsCountBadge');
+  badge.textContent = followups.length + ' followup' + (followups.length !== 1 ? 's' : '');
+  if (!followups || followups.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="5" class="empty">No followups yet</td></tr>';
+    return;
+  }
+  tbody.innerHTML = followups.map(f => {
+    const overdueTag = f.overdue ? ' <span style="background:#3d1a1a;color:#ff8a80;font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;margin-left:4px">OVERDUE</span>' : '';
+    return '<tr>' +
+      '<td><span class="phone-number">' + escapeHtml(formatPhone(f.phone)) + '</span></td>' +
+      '<td>' + (escapeHtml(f.name) || '\u2014') + '</td>' +
+      '<td style="font-weight:500">' + (escapeHtml(f.followupLockedBy) || '\u2014') + '</td>' +
+      '<td>' + (escapeHtml(f.followupDate) || '\u2014') + overdueTag + '</td>' +
+      '<td style="font-family:var(--mono);font-size:12px">' + formatTimeAmPm(f.followupTime) + '</td>' +
+    '</tr>';
+  }).join('');
+}
+
+// ── DND Numbers ────────────────────────────────────────────────────────────────
+async function loadDndNumbers() {
+  try {
+    const r = await fetch('/api/admin/dnd');
+    const d = await r.json();
+    renderDndList(d.dndNumbers || []);
+  } catch(e) { /* silent */ }
+}
+
+function renderDndList(dndNumbers) {
+  const el = document.getElementById('dndList');
+  const badge = document.getElementById('dndCountBadge');
+  badge.textContent = dndNumbers.length + ' number' + (dndNumbers.length !== 1 ? 's' : '');
+  if (!dndNumbers || dndNumbers.length === 0) {
+    el.innerHTML = '<div class="empty">No DND numbers</div>';
+    return;
+  }
+  const roleColors = { tl: '#60a5fa', admin: '#94a3b8', agent: '#2563eb', client: '#60a5fa' };
+  const roleLabels = { tl: 'TL', admin: 'Admin', agent: 'Agent', client: 'Client' };
+  el.innerHTML = dndNumbers.map(d => {
+    const addedDate = d.addedAt ? formatTimestamp(d.addedAt) : '';
+    const role = d.addedByRole || 'admin';
+    const who = escapeHtml(d.addedByName || (role === 'admin' ? 'Admin' : d.addedBy || 'Unknown'));
+    const noteColor = roleColors[role] || '#2563eb';
+    const noteLabel = roleLabels[role] || 'Agent';
+    return '<div style="display:flex;align-items:center;justify-content:space-between;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 14px;">' +
+      '<div><span style="font-family:var(--mono);font-weight:700;color:var(--accent)">' + escapeHtml(formatPhone(d.phone)) + '</span>' +
+      '<span style="font-size:11px;color:var(--muted);margin-left:10px">' + addedDate + '</span>' +
+      '<div style="font-size:11px;margin-top:3px;color:' + noteColor + '">&#128221; Added by ' + who + ' &middot; <b>' + noteLabel + '</b></div></div>' +
+    '</div>';
+  }).join('');
+}
+
+// ── Disposition Stats ─────────────────────────────────────────────────────────
+let statsPeriod = 'daily';
+
+function switchStatsPeriod(period) {
+  statsPeriod = period;
+  document.querySelectorAll('.admin-stats-tab').forEach(t => t.classList.remove('active'));
+  document.querySelector('.admin-stats-tab[data-period="' + period + '"]').classList.add('active');
+  fetchDispoStats();
+}
+
+async function fetchDispoStats() {
+  try {
+    const r = await fetch('/api/stats/dispositions?period=' + statsPeriod);
+    const d = await r.json();
+    document.getElementById('statsTotalCalls').textContent    = d.totalCalls    || 0;
+    document.getElementById('statsDead').textContent          = d.dead          || 0;
+    document.getElementById('statsNotReceived').textContent   = d.not_received  || 0;
+    document.getElementById('statsNotInterested').textContent = d.not_interested|| 0;
+    document.getElementById('statsFollowup').textContent      = d.followup      || 0;
+    document.getElementById('statsSwitchOff').textContent     = d.switch_off    || 0;
+    document.getElementById('statsDiscard').textContent       = d.discard       || 0;
+    document.getElementById('statsInterested').textContent    = d.interested    || 0;
+    document.getElementById('statsDnd').textContent           = d.dnd           || 0;
+  } catch (e) { /* silent */ }
+}
+
+// ─── Live IST Clock (header) ───────────────────────────────────────────────
+function tickLiveClock() {
+  const el = document.getElementById('liveClock');
+  if (!el) return;
+  const now = new Date();
+  el.textContent = now.toLocaleTimeString('en-US', { timeZone: 'Asia/Kolkata', hour12: true }) + ' IST';
+}
+
+// ── Generated Reports Archive (read-only search + download) ──────────────────
+async function loadReports(fromDate, toDate) {
+  try {
+    let url = '/api/reports?';
+    if (fromDate) url += 'from=' + encodeURIComponent(fromDate) + '&';
+    if (toDate) url += 'to=' + encodeURIComponent(toDate) + '&';
+    const r = await fetch(url);
+    const reports = await r.json();
+    renderReportsList(reports);
+  } catch (e) { /* silent */ }
+}
+
+function renderReportsList(reports) {
+  const el = document.getElementById('reportsList');
+  if (!el) return;
+  if (!reports || reports.length === 0) {
+    el.innerHTML = '<div class="empty">No reports found</div>';
+    return;
+  }
+  el.innerHTML = reports.map(r => {
+    const sizeKb = r.sizeBytes ? Math.round(r.sizeBytes / 1024) + ' KB' : '';
+    return '<div style="display:flex;align-items:center;justify-content:space-between;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 16px;">' +
+      '<div><span style="font-family:var(--mono);font-weight:700;color:var(--magenta)">' + escapeHtml(r.reportDate) + '</span>' +
+      '<span style="font-size:13px;font-weight:600;margin-left:12px">' + escapeHtml(r.title) + '</span>' +
+      '<span style="font-size:11px;color:var(--muted);margin-left:10px">' + escapeHtml(r.scope || '') + (sizeKb ? ' &middot; ' + sizeKb : '') + '</span></div>' +
+      '<a href="/api/reports/' + escapeHtml(r.id) + '/download" download style="padding:6px 14px;border-radius:6px;font-size:12px;font-weight:700;border:1px solid var(--accent);background:rgba(37,99,235,.1);color:var(--accent);text-decoration:none">&#128229; Download</a>' +
+    '</div>';
+  }).join('');
+}
+
+function searchReports() {
+  const from = document.getElementById('reportFromDate').value;
+  const to = document.getElementById('reportToDate').value;
+  loadReports(from, to);
+}
+
+function clearReportSearch() {
+  document.getElementById('reportFromDate').value = '';
+  document.getElementById('reportToDate').value = '';
+  loadReports();
 }
 </script>
 </body>
