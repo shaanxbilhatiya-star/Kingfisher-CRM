@@ -192,6 +192,17 @@
 
 <div class="main">
 
+  <!-- PAGE INTRO (Hindi) -->
+  <div class="panel" style="margin-bottom:20px">
+    <div class="panel-body" style="padding:16px 20px">
+      <p style="margin:0;font-size:14px;line-height:1.7;color:var(--text)">
+        👋 <strong>यह पेज क्या है?</strong> यहाँ आप अपने Kingfisher कॉलिंग टीम का रोज़ का काम लाइव देख सकते हैं —
+        किस नंबर पर कॉल हुई, कौन Interested है, किसका Followup बाकी है, कौन ग्राहक बन चुका है, और रोज़ की PDF Report भी यहीं से मिलेगी।
+        सब कुछ अपने आप अपडेट होता रहता है, कुछ भी manually refresh करने की ज़रूरत नहीं।
+      </p>
+    </div>
+  </div>
+
   <!-- DISPOSITION STATS -->
   <div class="panel dispo-stats-panel">
     <div class="panel-header" style="background:rgba(76,175,80,.04)">
@@ -206,6 +217,9 @@
       </div>
     </div>
     <div class="panel-body">
+      <p style="margin:0 0 14px;font-size:13px;color:var(--muted);line-height:1.6">
+        यहाँ टीम ने आज (या हफ़्ते/महीने/साल में) कितनी कॉल की और हर कॉल का नतीजा क्या रहा — यह सब दिखता है। ऊपर Daily/Weekly/Monthly/Yearly बटन से समय बदल सकते हैं।
+      </p>
       <div class="dispo-stats-grid">
         <div class="dispo-stat-card dispo-stat-total">
           <div class="dispo-stat-val" id="statsTotalCalls">0</div>
@@ -256,6 +270,9 @@
   </div>
 
   <!-- STATS GRID: Interested / Overdue / Followups / Redialing Tomorrow -->
+  <p style="margin:16px 4px 8px;font-size:13px;color:var(--muted);line-height:1.6">
+    इस समय टीम की स्थिति एक नज़र में — कितने ग्राहक Interested हैं, कितने Overdue (72 घंटे से ज़्यादा पुराने) हैं, कितने Followup बाकी हैं, और कितने कल दोबारा डायल होंगे।
+  </p>
   <div class="stats-grid">
     <div class="stat-card">
       <span class="stat-label">Interested</span>
@@ -282,6 +299,9 @@
       <span style="font-size:12px;color:var(--muted)" id="completedCountBadge">0 leads</span>
     </div>
     <div class="panel-body" style="padding:0;overflow-x:auto">
+      <p style="margin:14px 20px 10px;font-size:13px;color:var(--muted);line-height:1.6">
+        जो ग्राहक इंटरेस्टेड होने के बाद पूरी तरह बुकिंग/डील कन्फर्म कर चुके हैं, उनकी लिस्ट — किस एजेंट ने डील की, कौन सा पैकेज लिया, कब कन्फर्म हुआ।
+      </p>
       <table class="leads-table">
         <thead>
           <tr>
@@ -307,6 +327,9 @@
       <span style="font-size:12px;color:var(--muted)" id="followupsCountBadge">0 followups</span>
     </div>
     <div class="panel-body" style="padding:0;overflow-x:auto">
+      <p style="margin:14px 20px 10px;font-size:13px;color:var(--muted);line-height:1.6">
+        जिन नंबरों पर बाद में दोबारा कॉल करनी है (ग्राहक ने अभी हाँ/ना नहीं बताया), उनकी लिस्ट — किस दिन और किस समय दोबारा कॉल होगी।
+      </p>
       <table class="leads-table">
         <thead>
           <tr>
@@ -330,6 +353,9 @@
       <h2 style="color:var(--magenta)">&#128196; Generated Reports Archive</h2>
     </div>
     <div class="panel-body">
+      <p style="margin:0 0 14px;font-size:13px;color:var(--muted);line-height:1.6">
+        हर दिन शाम 6:30 बजे (IST) एक PDF रिपोर्ट अपने आप बन जाती है जिसमें उस दिन की पूरी कॉलिंग का सारांश होता है। नीचे तारीख डालकर पुरानी रिपोर्ट भी ढूँढ और डाउनलोड कर सकते हैं।
+      </p>
       <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center">
         <label style="font-size:12px;color:var(--muted);font-weight:600">From</label>
         <input type="date" id="reportFromDate" style="padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:var(--mono);font-size:13px;outline:none">
@@ -351,6 +377,9 @@
       <span style="font-size:12px;color:var(--muted)" id="dndCountBadge">0 numbers</span>
     </div>
     <div class="panel-body">
+      <p style="margin:0 0 12px;font-size:13px;color:var(--muted);line-height:1.6">
+        जिन नंबरों ने कॉल न करने के लिए मना किया है, उनकी लिस्ट — इन नंबरों पर दोबारा कॉल नहीं की जाती।
+      </p>
       <div id="dndList" style="display:flex;flex-direction:column;gap:6px;max-height:300px;overflow-y:auto;">
         <div class="empty">No DND numbers</div>
       </div>
