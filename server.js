@@ -73,9 +73,12 @@ const BACKUPS_DIR        = path.join(DATA_ROOT, 'backups');
 // as uploaded — they used to be parsed then deleted; now they're retained so the
 // admin can always pull back the exact original file later.
 const NUMBER_SHEETS_DIR  = path.join(UPLOADS_DIR, 'number_sheets');
+// PDF report archive — generated reports (admin/client dashboards) are stored here
+// FOREVER (never auto-deleted), so any party can search by date and re-download later.
+const REPORTS_DIR        = path.join(UPLOADS_DIR, 'reports');
 
 // Ensure directories exist
-[path.dirname(DATA_FILE), UPLOADS_DIR, LEAD_DOCS_DIR, AGENT_PHOTOS_DIR, SCRIPTS_DIR, BACKUPS_DIR, NUMBER_SHEETS_DIR].forEach(ensureDir);
+[path.dirname(DATA_FILE), UPLOADS_DIR, LEAD_DOCS_DIR, AGENT_PHOTOS_DIR, SCRIPTS_DIR, BACKUPS_DIR, NUMBER_SHEETS_DIR, REPORTS_DIR].forEach(ensureDir);
 
 function copyRecursiveSync(src, dest) {
   const stat = fs.statSync(src);
@@ -151,7 +154,8 @@ function createFreshState(preserveAllowedEids) {
     uploadedFiles: [],
     dialedLog: [],
     lastReset: getTodayStr(),
-    allowedEids: eids
+    allowedEids: eids,
+    reports: []
   };
 }
 
@@ -248,6 +252,11 @@ if (!appState.allowedEids) {
 }
 if (!appState.dndNumbers) {
   appState.dndNumbers = [];
+}
+// PDF report archive metadata — reports themselves are kept on disk forever;
+// this array just indexes them so they can be searched/downloaded by date.
+if (!appState.reports) {
+  appState.reports = [];
 }
 
 // ─── Auto-create the default "kingfisher" client-panel user ───────────────────
@@ -825,7 +834,9 @@ app.post('/api/agent/upload-doc-zip/:numberId', docUpload.single('docZip'), (req
     num.docZipUploadedAt = new Date().toISOString();
     num.documentationComplete = true;
     num.documentationCompletedAt = new Date().toISOString();
-    num.adminStatus = num.adminStatus || 'In Process';
+    // Auto-mark as Completed the moment documentation is uploaded — admin can still
+    // override the status later (e.g. Rejected/On Hold) via the dropdown if needed.
+    num.adminStatus = num.adminStatus || 'Completed';
 
     saveState(appState);
     broadcastAdminStats();
@@ -995,6 +1006,7 @@ app.post('/api/agent/mark-documentation-complete', (req, res) => {
   if (num.interestedBy !== agentId) return res.status(403).json({ error: 'This lead is not assigned to you' });
   num.documentationComplete = true;
   num.documentationCompletedAt = new Date().toISOString();
+  num.adminStatus = num.adminStatus || 'Completed';
   saveState(appState);
   broadcastAdminStats();
   res.json({ success: true, numberId, documentationComplete: true, documentationCompletedAt: num.documentationCompletedAt });
@@ -1399,11 +1411,13 @@ app.post('/api/admin/hard-reset', (req, res) => {
   // Agent photos are also preserved (they belong to allowedEids, not to a session).
   const savedEids = appState.allowedEids || {};
   const savedInterested = appState.numbers.filter(n => n.disposition === 'interested');
+  const savedReports = appState.reports || []; // reports are permanent — always preserved, even on hard reset
   (appState.uploadedFiles || []).forEach(f => {
     if (f.sheetPath) { try { fs.unlinkSync(f.sheetPath); } catch {} }
   });
   appState = createFreshState(savedEids);
   appState.numbers = savedInterested; // restore interested leads
+  appState.reports = savedReports; // restore permanent report archive
   // Only delete lead doc ZIPs for leads that no longer exist (orphaned files)
   // We do NOT delete agent photos — those belong to the employee records
   const keptDocPaths = new Set(savedInterested.map(n => n.docZipPath).filter(Boolean));
@@ -1761,16 +1775,40 @@ app.get('/api/admin/eids', (req, res) => {
   res.json({ eids: list });
 });
 
+const VALID_ROLES = ['agent', 'tl', 'client', 'admin'];
+
 app.post('/api/admin/eids', (req, res) => {
-  const { eid, name } = req.body;
+  const { eid, name, role } = req.body;
   if (!eid || !/^\d+$/.test(eid)) return res.status(400).json({ error: 'Valid numeric EID required' });
   if (!name || !name.trim()) return res.status(400).json({ error: 'Name required' });
   const existing = appState.allowedEids[eid];
   const existingPhoto = getEidPhoto(existing);
-  const existingRole = getEidRole(existing); // PRESERVE existing role (tl / agent)
-  appState.allowedEids[eid] = { name: name.trim(), photo: existingPhoto || null, role: existingRole };
+  const existingRole = getEidRole(existing); // fallback: preserve existing role if none supplied
+  let finalRole = existingRole;
+  if (role !== undefined && role !== null && String(role).trim() !== '') {
+    if (!VALID_ROLES.includes(role)) return res.status(400).json({ error: 'Invalid role. Must be one of: ' + VALID_ROLES.join(', ') });
+    finalRole = role;
+  }
+  appState.allowedEids[eid] = { name: name.trim(), photo: existingPhoto || null, role: finalRole };
   saveState(appState);
-  res.json({ success: true, eid, name: name.trim(), role: existingRole });
+  res.json({ success: true, eid, name: name.trim(), role: finalRole });
+});
+
+// Assign / change a user's role (e.g. promote an EID to "client" so they can log into
+// the Client Panel, or assign them as "agent"/"tl"/"admin"). Used by the admin's
+// "Add User & Assign Role" UI so admin.html can manage client access without needing
+// to delete+recreate the EID.
+app.put('/api/admin/eids/:eid/role', (req, res) => {
+  const eid = req.params.eid;
+  const { role } = req.body;
+  if (!appState.allowedEids[eid]) return res.status(404).json({ error: 'EID not found' });
+  if (!role || !VALID_ROLES.includes(role)) return res.status(400).json({ error: 'Invalid role. Must be one of: ' + VALID_ROLES.join(', ') });
+  const existing = appState.allowedEids[eid];
+  const name = getEidName(existing);
+  const photo = getEidPhoto(existing);
+  appState.allowedEids[eid] = { name, photo: photo || null, role };
+  saveState(appState);
+  res.json({ success: true, eid, name, role });
 });
 
 app.delete('/api/admin/eids/:eid', (req, res) => {
@@ -2414,6 +2452,72 @@ app.delete('/api/agent/number/:numberId', (req, res) => {
   saveState(appState);
   broadcastAdminStats();
   res.json({ success: true });
+});
+
+// ─── PDF Report Archive (permanent, searchable by date) ───────────────────────
+// Reports are generated client-side (browser builds the PDF with jsPDF, same as
+// agent.html's "Daily Report" feature) then uploaded here to be stored FOREVER
+// so admin.html and client.html can search by date and re-download at any time.
+const reportUpload = multer({
+  storage: multer.diskStorage({
+    destination: (req, file, cb) => cb(null, REPORTS_DIR),
+    filename: (req, file, cb) => cb(null, uuidv4() + '.pdf')
+  }),
+  limits: { fileSize: 20 * 1024 * 1024 }, // 20MB
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype === 'application/pdf' || file.originalname.toLowerCase().endsWith('.pdf')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only PDF files are allowed'));
+    }
+  }
+});
+
+app.post('/api/reports/upload', reportUpload.single('report'), (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ error: 'No PDF file uploaded' });
+    const { reportDate, title, generatedBy, scope } = req.body;
+    const dateStr = (reportDate && /^\d{4}-\d{2}-\d{2}$/.test(reportDate)) ? reportDate : getTodayStr();
+    const entry = {
+      id: uuidv4(),
+      fileName: req.file.filename,
+      originalName: req.file.originalname || 'report.pdf',
+      title: (title && String(title).trim()) || 'Report',
+      reportDate: dateStr,
+      generatedBy: generatedBy || 'unknown',
+      scope: scope || 'general', // 'admin' | 'client' | 'agent' | 'general'
+      uploadedAt: new Date().toISOString(),
+      sizeBytes: req.file.size
+    };
+    if (!appState.reports) appState.reports = [];
+    appState.reports.push(entry);
+    saveState(appState);
+    res.json({ success: true, report: entry });
+  } catch (e) {
+    if (req.file) { try { fs.unlinkSync(req.file.path); } catch {} }
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// List / search reports — optional query params: date=YYYY-MM-DD, from=YYYY-MM-DD, to=YYYY-MM-DD, scope=
+app.get('/api/reports', (req, res) => {
+  const { date, from, to, scope } = req.query;
+  let list = (appState.reports || []).slice();
+  if (date) list = list.filter(r => r.reportDate === date);
+  if (from) list = list.filter(r => r.reportDate >= from);
+  if (to) list = list.filter(r => r.reportDate <= to);
+  if (scope) list = list.filter(r => r.scope === scope);
+  // Newest first
+  list.sort((a, b) => (b.reportDate + b.uploadedAt).localeCompare(a.reportDate + a.uploadedAt));
+  res.json(list);
+});
+
+app.get('/api/reports/:id/download', (req, res) => {
+  const entry = (appState.reports || []).find(r => r.id === req.params.id);
+  if (!entry) return res.status(404).json({ error: 'Report not found' });
+  const filePath = path.join(REPORTS_DIR, entry.fileName);
+  if (!fs.existsSync(filePath)) return res.status(404).json({ error: 'Report file missing on disk' });
+  res.download(filePath, entry.originalName || (entry.title + '.pdf'));
 });
 
 // ─── Page Routes ──────────────────────────────────────────────────────────────

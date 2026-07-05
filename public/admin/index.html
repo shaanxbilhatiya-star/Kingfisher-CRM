@@ -376,6 +376,28 @@
     </div>
   </div>
 
+  <!-- Generated Reports Archive (permanent PDF storage, searchable by date) -->
+  <div class="panel" style="margin-bottom:20px">
+    <div class="panel-header" style="background:rgba(230,21,123,.06)">
+      <h2 style="color:var(--magenta)">&#128196; Generated Reports Archive</h2>
+      <button class="btn" style="padding:7px 16px;font-size:12px;background:rgba(230,21,123,.12);color:var(--magenta);border:1px solid rgba(230,21,123,.3);border-radius:6px;font-weight:700;cursor:pointer" onclick="generateAdminReport()">&#10133; Generate Today's Report</button>
+    </div>
+    <div class="panel-body">
+      <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center">
+        <label style="font-size:12px;color:var(--muted);font-weight:600">From</label>
+        <input type="date" id="reportFromDate" style="padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:var(--mono);font-size:13px;outline:none">
+        <label style="font-size:12px;color:var(--muted);font-weight:600">To</label>
+        <input type="date" id="reportToDate" style="padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:var(--mono);font-size:13px;outline:none">
+        <button onclick="searchReports()" style="padding:8px 18px;border-radius:8px;border:none;background:var(--accent);color:#fff;font-size:13px;font-weight:700;cursor:pointer">&#128269; Search</button>
+        <button onclick="clearReportSearch()" style="padding:8px 14px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--muted);font-size:13px;font-weight:600;cursor:pointer">Clear</button>
+        <span id="reportGenStatus" style="font-size:12px;color:var(--muted);display:none"></span>
+      </div>
+      <div id="reportsList" style="display:flex;flex-direction:column;gap:8px;max-height:340px;overflow-y:auto">
+        <div class="empty">No reports generated yet</div>
+      </div>
+    </div>
+  </div>
+
   <div class="panel" style="margin-bottom:20px">
     <div class="panel-header">
       <h2>Number Files</h2>
@@ -396,31 +418,10 @@
     </div>
   </div>
 
-  <!-- Active Agents Panel (full width) -->
+  <!-- System Controls Panel (Clear All / Hard Reset retained after Active Agents panel removal) -->
   <div class="panel" style="margin-bottom:20px">
     <div class="panel-header">
-      <h2>Active Agents</h2>
-      <span id="agentCount" style="font-size:12px;color:var(--muted)">0 agents</span>
-    </div>
-    <div class="panel-body" style="padding:0;overflow-x:auto">
-      <table class="agents-table" style="min-width:900px">
-        <thead>
-          <tr>
-            <th>Agent</th>
-            <th>Login</th>
-            <th>Status</th>
-            <th>Total No. Dialed</th>
-            <th>Net Dialing Time <span title="Net Dialing Time = 8h shift - Break - Meeting - Washroom - TL Mode (time available for actual calling)" style="cursor:help;opacity:.7">&#9432;</span></th>
-            <th>Break Used</th>
-            <th>&#128699; Washroom</th>
-            <th>&#128203; Meeting</th>
-            <th>&#128203; TL Mode</th>
-          </tr>
-        </thead>
-        <tbody id="agentTable">
-          <tr><td colspan="9" class="empty">No agents registered</td></tr>
-        </tbody>
-      </table>
+      <h2>System Controls</h2>
     </div>
     <div class="panel-body">
       <div class="btn-row">
@@ -574,9 +575,15 @@
       </div>
       <div class="eid-add-form">
         <input type="number" id="newEid" placeholder="Employee ID" min="1" autocomplete="off">
-        <input type="text"   id="newEidName" placeholder="Agent Name" autocomplete="off">
+        <input type="text"   id="newEidName" placeholder="User Name" autocomplete="off">
+        <select id="newEidRole" style="padding:9px 14px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:var(--sans);font-size:14px;outline:none">
+          <option value="agent">Agent</option>
+          <option value="tl">TL</option>
+          <option value="client">Client</option>
+          <option value="admin">Admin</option>
+        </select>
         <input type="file"   id="newEidPhoto" accept="image/*" style="font-size:12px;max-width:180px;">
-        <button class="btn-add-eid" onclick="addEid()">+ Add Agent</button>
+        <button class="btn-add-eid" onclick="addEid()">+ Add User</button>
         <div class="eid-err" id="eidErr"></div>
       </div>
     </div>
@@ -798,87 +805,29 @@ function renderStats(data) {
     }).join('');
   }
 
-  // Agents
-  const at = document.getElementById('agentTable');
-  document.getElementById('agentCount').textContent = data.agentStats.length + ' agents';
+  // Agents (Active Agents panel removed — keep just enough bookkeeping for the
+  // break/washroom/meeting summary pill bar below, plus live timer tracking).
   const breakAgents = data.agentStats.filter(a => a.onBreak);
   const washroomAgents = data.agentStats.filter(a => a.onWashroom);
   const meetingAgents  = data.agentStats.filter(a => a.onMeeting);
-
-  if (!data.agentStats.length) {
-    at.innerHTML = '<tr><td colspan="9" class="empty">No agents registered</td></tr>';
-  } else {
-    at.innerHTML = data.agentStats.map(a => {
-      let statusDot, statusText;
-      if (a.onBreak)    { statusDot = 'break';  statusText = `<span class="break-badge">&#9749; Break</span>`; }
-      else if (a.onWashroom) { statusDot = 'break'; statusText = `<span class="break-badge" style="background:rgba(99,102,241,.1);color:#6366f1;border-color:rgba(99,102,241,.3)">&#128699; Washroom</span>`; }
-      else if (a.onMeeting)  { statusDot = 'break'; statusText = `<span class="break-badge" style="background:rgba(8,145,178,.1);color:#0891b2;border-color:rgba(8,145,178,.3)">&#128203; Meeting</span>`; }
-      else { statusDot = a.active ? 'active' : 'idle'; statusText = a.active ? 'Dialing' : 'Idle'; }
-
-      if (a.onBreak) {
-        window._breakStartTimes[a.id] = Date.now();
-        window._breakMsAtRender[a.id] = a.totalBreakMs || 0;
-      }
-      if (a.onWashroom) {
-        window._washroomStartTimes[a.id] = Date.now();
-        window._washroomMsAtRender[a.id] = a.totalWashroomMs || 0;
-      }
-      if (a.onMeeting) {
-        window._meetingStartTimes[a.id] = Date.now();
-        window._meetingMsAtRender[a.id] = a.totalMeetingMs || 0;
-      }
-      if (a.onTlMode) {
-        window._tlModeStartTimes[a.id] = Date.now();
-        window._tlModeMsAtRender[a.id] = a.totalTlModeMs || 0;
-      }
-
-      const remaining = Math.max(0, (a.breakAllowedMs || 3600000) - (a.totalBreakMs || 0));
-
-      const breakCell = a.onBreak
-        ? `<div>
-            <span class="break-timer-admin" id="break-timer-${a.id}">${formatMs(remaining)}</span>
-            <div class="break-bar-mini"><div class="break-bar-mini-fill" id="break-bar-${a.id}" style="width:${(remaining/(a.breakAllowedMs||3600000)*100)}%"></div></div>
-           </div>`
-        : `<span style="font-family:var(--mono);font-size:12px;color:var(--muted)">${formatMs(a.totalBreakMs||0)} used</span>`;
-
-      const washroomCell = a.onWashroom
-        ? `<span id="washroom-timer-${a.id}" style="font-family:var(--mono);font-size:12px;color:#6366f1;font-weight:700">${formatMs(a.totalWashroomMs||0)} &#9654;</span>`
-        : `<span style="font-family:var(--mono);font-size:12px;color:var(--muted)">${formatMs(a.totalWashroomMs||0)}</span>`;
-
-      const meetingCell = a.onMeeting
-        ? `<span id="meeting-timer-${a.id}" style="font-family:var(--mono);font-size:12px;color:#0891b2;font-weight:700">${formatMs(a.totalMeetingMs||0)} &#9654;</span>`
-        : `<span style="font-family:var(--mono);font-size:12px;color:var(--muted)">${formatMs(a.totalMeetingMs||0)}</span>`;
-
-      const loginCell = a.firstLoginToday
-        ? `<span class="login-time ${a.lateLogin ? 'login-late' : 'login-ok'}">
-             ${formatLoginTime(a.firstLoginToday)}${a.lateLogin ? ' (Late)' : ''}
-           </span>`
-        : `<span class="login-absent">&#8212;</span>`;
-
-      // Net Dialing Time calculation — Xh Ym format
-      const SHIFT_MS = 8 * 60 * 60 * 1000;
-      const netMs = Math.max(0, SHIFT_MS - (a.totalBreakMs || 0) - (a.totalMeetingMs || 0) - (a.totalWashroomMs || 0) - (a.totalTlModeMs || 0));
-      const netH = Math.floor(netMs / (60 * 60 * 1000));
-      const netM = Math.floor((netMs % (60 * 60 * 1000)) / (60 * 1000));
-      const netDialingTime = netH + 'h ' + netM + 'm';
-
-      const tlModeCell = a.onTlMode
-        ? `<span id="tlmode-timer-${a.id}" style="font-family:var(--mono);font-size:12px;color:#60a5fa;font-weight:700">${formatMs(a.totalTlModeMs||0)} &#9654;</span>`
-        : `<span style="font-family:var(--mono);font-size:12px;color:var(--muted)">${formatMs(a.totalTlModeMs||0)}</span>`;
-
-      return `<tr>
-        <td style="font-weight:600">${escapeHtml(a.name)}</td>
-        <td>${loginCell}</td>
-        <td><span class="status-dot ${statusDot}"></span>${statusText}</td>
-        <td><span class="dialed-count">${a.totalDialedToday}</span></td>
-        <td style="font-family:var(--mono);font-size:12px;font-weight:700;color:var(--accent)" id="net-dialing-${a.id}">${netDialingTime}</td>
-        <td>${breakCell}</td>
-        <td>${washroomCell}</td>
-        <td>${meetingCell}</td>
-        <td>${tlModeCell}</td>
-      </tr>`;
-    }).join('');
-  }
+  data.agentStats.forEach(a => {
+    if (a.onBreak) {
+      window._breakStartTimes[a.id] = Date.now();
+      window._breakMsAtRender[a.id] = a.totalBreakMs || 0;
+    }
+    if (a.onWashroom) {
+      window._washroomStartTimes[a.id] = Date.now();
+      window._washroomMsAtRender[a.id] = a.totalWashroomMs || 0;
+    }
+    if (a.onMeeting) {
+      window._meetingStartTimes[a.id] = Date.now();
+      window._meetingMsAtRender[a.id] = a.totalMeetingMs || 0;
+    }
+    if (a.onTlMode) {
+      window._tlModeStartTimes[a.id] = Date.now();
+      window._tlModeMsAtRender[a.id] = a.totalTlModeMs || 0;
+    }
+  });
 
   // Break/Washroom/Meeting summary bar
   const bs = document.getElementById('breakSummary');
@@ -1508,11 +1457,17 @@ function renderEids(eids) {
     const photoHtml = e.photo
       ? '<img class="eid-photo-thumb" src="/api/admin/agent-photo/' + escapeHtml(e.eid) + '?t=' + Date.now() + '" alt="">'
       : '';
-    const roleHtml = '<span class="role-badge role-' + escapeHtml(e.role || 'agent') + '">' + escapeHtml((e.role || 'agent').toUpperCase()) + '</span>';
+    const curRole = e.role || 'agent';
+    const roles = ['agent','tl','client','admin'];
+    const roleSelectHtml = '<select onchange="changeEidRole(\'' + escapeHtml(e.eid) + '\', this.value)" ' +
+      'class="role-badge role-' + escapeHtml(curRole) + '" ' +
+      'style="border:none;font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;letter-spacing:.5px;cursor:pointer;appearance:none;-webkit-appearance:none;text-align:center">' +
+      roles.map(r => '<option value="' + r + '" ' + (r === curRole ? 'selected' : '') + '>' + r.toUpperCase() + '</option>').join('') +
+      '</select>';
     return '<div class="eid-row" id="eid-row-' + escapeHtml(e.eid) + '">' +
       '<div style="display:flex;align-items:center;gap:8px;">' + photoHtml +
       '<div class="eid-info"><span class="eid-code">' + escapeHtml(e.eid) + '</span><span class="eid-name">' + escapeHtml(e.name) + '</span></div>' +
-      roleHtml +
+      roleSelectHtml +
       '</div>' +
       '<div style="display:flex;align-items:center;gap:8px;">' +
       '<label class="btn-replace-photo" title="Replace Photo"><input type="file" accept="image/*" onchange="replaceAgentPhoto(\'' + escapeHtml(e.eid) + '\', this)" style="display:none;">&#128247; Replace</label>' +
@@ -1524,16 +1479,17 @@ function renderEids(eids) {
 async function addEid() {
   const eidVal  = document.getElementById('newEid').value.trim();
   const nameVal = document.getElementById('newEidName').value.trim();
+  const roleVal = document.getElementById('newEidRole').value;
   const photoInput = document.getElementById('newEidPhoto');
   const errEl   = document.getElementById('eidErr');
   errEl.style.display = 'none';
 
   if (!eidVal || !/^\d+$/.test(eidVal)) { errEl.textContent = 'Enter a valid numeric Employee ID'; errEl.style.display = 'block'; return; }
-  if (!nameVal) { errEl.textContent = 'Enter agent name'; errEl.style.display = 'block'; return; }
+  if (!nameVal) { errEl.textContent = 'Enter user name'; errEl.style.display = 'block'; return; }
 
   const r = await fetch('/api/admin/eids', {
     method: 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ eid: eidVal, name: nameVal })
+    body: JSON.stringify({ eid: eidVal, name: nameVal, role: roleVal })
   });
   const d = await r.json();
   if (d.error) { errEl.textContent = d.error; errEl.style.display = 'block'; return; }
@@ -1543,14 +1499,33 @@ async function addEid() {
     formData.append('photo', photoInput.files[0]);
     try {
       await fetch('/api/admin/agent-photo/' + eidVal, { method: 'POST', body: formData });
-    } catch (e) { /* photo upload failed but agent was added */ }
+    } catch (e) { /* photo upload failed but user was added */ }
   }
 
   document.getElementById('newEid').value = '';
   document.getElementById('newEidName').value = '';
+  document.getElementById('newEidRole').value = 'agent';
   photoInput.value = '';
-  showToast('Added: ' + nameVal + ' (' + eidVal + ')', 'success');
+  showToast('Added: ' + nameVal + ' (' + eidVal + ') as ' + roleVal, 'success');
   loadEids();
+}
+
+// Change an existing user's role — this is how admin "assigns" a user as Client
+// (or TL/Agent/Admin) after the fact, without deleting and re-adding their EID.
+async function changeEidRole(eid, newRole) {
+  try {
+    const r = await fetch('/api/admin/eids/' + eid + '/role', {
+      method: 'PUT', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ role: newRole })
+    });
+    const d = await r.json();
+    if (d.error) { showToast('Role change failed: ' + d.error, 'error'); loadEids(); return; }
+    showToast('EID ' + eid + ' assigned as ' + newRole, 'success');
+    loadEids();
+  } catch (e) {
+    showToast('Role change failed', 'error');
+    loadEids();
+  }
 }
 
 async function removeEid(eid) {
@@ -1705,6 +1680,108 @@ function tickLiveClock() {
 }
 tickLiveClock();
 setInterval(tickLiveClock, 1000);
+
+// ── Generated Reports Archive ─────────────────────────────────────────────────
+async function loadReports(fromDate, toDate) {
+  try {
+    let url = '/api/reports?';
+    if (fromDate) url += 'from=' + encodeURIComponent(fromDate) + '&';
+    if (toDate) url += 'to=' + encodeURIComponent(toDate) + '&';
+    const r = await fetch(url);
+    const reports = await r.json();
+    renderReportsList(reports);
+  } catch (e) { /* silent */ }
+}
+
+function renderReportsList(reports) {
+  const el = document.getElementById('reportsList');
+  if (!reports || reports.length === 0) {
+    el.innerHTML = '<div class="empty">No reports found</div>';
+    return;
+  }
+  el.innerHTML = reports.map(r => {
+    const sizeKb = r.sizeBytes ? Math.round(r.sizeBytes / 1024) + ' KB' : '';
+    return '<div style="display:flex;align-items:center;justify-content:space-between;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 16px;">' +
+      '<div><span style="font-family:var(--mono);font-weight:700;color:var(--magenta)">' + escapeHtml(r.reportDate) + '</span>' +
+      '<span style="font-size:13px;font-weight:600;margin-left:12px">' + escapeHtml(r.title) + '</span>' +
+      '<span style="font-size:11px;color:var(--muted);margin-left:10px">' + escapeHtml(r.scope || '') + (sizeKb ? ' &middot; ' + sizeKb : '') + '</span></div>' +
+      '<a href="/api/reports/' + escapeHtml(r.id) + '/download" download style="padding:6px 14px;border-radius:6px;font-size:12px;font-weight:700;border:1px solid var(--accent);background:rgba(37,99,235,.1);color:var(--accent);text-decoration:none">&#128229; Download</a>' +
+    '</div>';
+  }).join('');
+}
+
+function searchReports() {
+  const from = document.getElementById('reportFromDate').value;
+  const to = document.getElementById('reportToDate').value;
+  loadReports(from, to);
+}
+
+function clearReportSearch() {
+  document.getElementById('reportFromDate').value = '';
+  document.getElementById('reportToDate').value = '';
+  loadReports();
+}
+
+async function generateAdminReport() {
+  const status = document.getElementById('reportGenStatus');
+  status.style.display = 'inline';
+  status.textContent = '\u23F3 Generating report...';
+  try {
+    if (typeof window.jspdf === 'undefined') { throw new Error('PDF library not loaded'); }
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    const today = new Date();
+    const ist = new Date(today.getTime() + 5.5 * 60 * 60 * 1000);
+    const dateStr = ist.toISOString().slice(0, 10);
+    const dispoRes = await fetch('/api/stats/dispositions?period=daily');
+    const dispo = await dispoRes.json();
+    const statsRes = await fetch('/api/admin/stats');
+    const stats = await statsRes.json();
+
+    doc.setFontSize(18);
+    doc.setTextColor(230, 21, 123);
+    doc.text('Kingfisher x Ruralift CRM — Admin Daily Report', 14, 20);
+    doc.setFontSize(11);
+    doc.setTextColor(30, 41, 59);
+    doc.text('Date: ' + dateStr, 14, 30);
+    doc.text('Total Numbers: ' + (stats.total || 0), 14, 40);
+    doc.text('Remaining: ' + (stats.remaining || 0), 14, 47);
+    doc.text('Interested: ' + (stats.interestedCount || 0), 14, 54);
+    doc.text('Followups: ' + (stats.followupCount || 0), 14, 61);
+    doc.text('Overdue: ' + (stats.overdueInterestedCount || 0), 14, 68);
+    doc.text('--- Disposition Breakdown (Today) ---', 14, 80);
+    doc.text('Total Calls: ' + (dispo.totalCalls || 0), 14, 88);
+    doc.text('Interested: ' + (dispo.interested || 0), 14, 95);
+    doc.text('Followup: ' + (dispo.followup || 0), 14, 102);
+    doc.text('Not Interested: ' + (dispo.not_interested || 0), 14, 109);
+    doc.text('CNC (Dead): ' + (dispo.dead || 0), 14, 116);
+    doc.text('CNR: ' + (dispo.not_received || 0), 14, 123);
+    doc.text('Switch Off: ' + (dispo.switch_off || 0), 14, 130);
+    doc.text('DND: ' + (dispo.dnd || 0), 14, 137);
+    doc.text('Discard: ' + (dispo.discard || 0), 14, 144);
+
+    const blob = doc.output('blob');
+    const fd = new FormData();
+    fd.append('report', blob, dateStr + '_Admin_Report.pdf');
+    fd.append('reportDate', dateStr);
+    fd.append('title', 'Admin Daily Report');
+    fd.append('generatedBy', 'admin');
+    fd.append('scope', 'admin');
+    const upRes = await fetch('/api/reports/upload', { method: 'POST', body: fd });
+    const upData = await upRes.json();
+    if (upData.error) throw new Error(upData.error);
+    status.textContent = '\u2705 Report generated and saved';
+    showToast('Report saved to archive', 'success');
+    loadReports();
+    setTimeout(() => { status.style.display = 'none'; }, 3000);
+  } catch (e) {
+    status.textContent = '\u274C Failed: ' + e.message;
+    showToast('Report generation failed: ' + e.message, 'error');
+  }
+}
+
+loadReports();
 </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </body>
 </html>

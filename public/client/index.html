@@ -269,34 +269,6 @@
     </div>
   </div>
 
-  <!-- INTERESTED LEADS -->
-  <div class="panel panel-interested">
-    <div class="panel-header">
-      <h2>Interested Leads</h2>
-      <div style="display:flex;align-items:center;gap:10px">
-        <span style="font-size:12px;color:var(--muted)" id="interestedCountBadge">0 leads</span>
-        <span id="overdueCountBadge" style="font-size:11px;font-weight:700;color:var(--danger);display:none"></span>
-      </div>
-    </div>
-    <div class="panel-body" style="padding:0;overflow-x:auto">
-      <table class="leads-table">
-        <thead>
-          <tr>
-            <th>Phone</th>
-            <th>Name</th>
-            <th>Agent</th>
-            <th>Package Type</th>
-            <th>Revenue Generated</th>
-            <th>Time Left</th>
-          </tr>
-        </thead>
-        <tbody id="interestedTable">
-          <tr><td colspan="6" class="empty">No interested leads yet</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
   <!-- CONVERTED CUSTOMERS -->
   <div class="panel panel-completed">
     <div class="panel-header">
@@ -343,6 +315,26 @@
           <tr><td colspan="5" class="empty">No followups yet</td></tr>
         </tbody>
       </table>
+    </div>
+  </div>
+
+  <!-- GENERATED REPORTS ARCHIVE (permanent PDF storage, searchable by date) -->
+  <div class="panel">
+    <div class="panel-header" style="background:rgba(230,21,123,.06)">
+      <h2 style="color:var(--magenta)">&#128196; Generated Reports Archive</h2>
+    </div>
+    <div class="panel-body">
+      <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center">
+        <label style="font-size:12px;color:var(--muted);font-weight:600">From</label>
+        <input type="date" id="reportFromDate" style="padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:var(--mono);font-size:13px;outline:none">
+        <label style="font-size:12px;color:var(--muted);font-weight:600">To</label>
+        <input type="date" id="reportToDate" style="padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:var(--mono);font-size:13px;outline:none">
+        <button onclick="searchReports()" style="padding:8px 18px;border-radius:8px;border:none;background:var(--accent);color:#fff;font-size:13px;font-weight:700;cursor:pointer">&#128269; Search</button>
+        <button onclick="clearReportSearch()" style="padding:8px 14px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--muted);font-size:13px;font-weight:600;cursor:pointer">Clear</button>
+      </div>
+      <div id="reportsList" style="display:flex;flex-direction:column;gap:8px;max-height:340px;overflow-y:auto">
+        <div class="empty">No reports available yet</div>
+      </div>
     </div>
   </div>
 
@@ -462,8 +454,42 @@ document.getElementById('clientEmpId').addEventListener('keydown', function(e) {
   if (e.key === 'Enter') clientLogin();
 });
 
+// ── Auto-login via URL (?eid=XXXX) ─────────────────────────────────────────────
+// Lets a link like  /client?eid=9000  skip the login screen entirely — useful for
+// bookmarks/shortcuts handed out to clients/TLs so they never have to type an EID.
+async function autoLoginFromUrl() {
+  const params = new URLSearchParams(window.location.search);
+  const urlEid = params.get('eid');
+  if (!urlEid || !/^\d+$/.test(urlEid)) return false;
+  try {
+    const r = await fetch('/api/client/auth', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ employeeId: urlEid })
+    });
+    const d = await r.json();
+    if (d.error) {
+      const errEl = document.getElementById('clientErrEmpId');
+      errEl.textContent = d.error;
+      errEl.style.display = 'block';
+      return false;
+    }
+    clientEmpIdVal = urlEid;
+    clientAgentId = d.agentId;
+    clientName = d.name;
+    sessionStorage.setItem('clientEmpId', urlEid);
+    sessionStorage.setItem('clientAgentId', clientAgentId);
+    sessionStorage.setItem('clientName', clientName);
+    showMainScreen();
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
 if (clientEmpIdVal && clientAgentId) {
   showMainScreen();
+} else {
+  autoLoginFromUrl();
 }
 
 // ── Dashboard init ────────────────────────────────────────────────────────────
@@ -473,20 +499,18 @@ function initDashboard() {
   _dashboardInitialized = true;
 
   fetchTopStats();
-  fetchInterestedLeads();
   fetchFollowups();
   fetchCompletedLeads();
   fetchDispoStats();
   loadDndNumbers();
+  loadReports();
   tickLiveClock();
 
   setInterval(fetchTopStats, 5000);
-  setInterval(fetchInterestedLeads, 5000);
   setInterval(fetchFollowups, 5000);
   setInterval(fetchCompletedLeads, 5000);
   setInterval(fetchDispoStats, 5000);
   setInterval(loadDndNumbers, 15000);
-  setInterval(tickInterestedTimers, 1000);
   setInterval(tickLiveClock, 1000);
 }
 
@@ -501,81 +525,6 @@ async function fetchTopStats() {
     document.getElementById('statComingBack').textContent = d.comingBackTomorrow || 0;
     document.getElementById('todayBadge').textContent = d.today || '\u2014';
   } catch (e) { /* silent */ }
-}
-
-// ── Interested Leads ──────────────────────────────────────────────────────────
-async function fetchInterestedLeads() {
-  try {
-    const r = await fetch('/api/admin/interested');
-    const leads = await r.json();
-    renderInterestedLeads(leads);
-  } catch (e) { /* silent */ }
-}
-
-function renderInterestedLeads(leads) {
-  const tbody = document.getElementById('interestedTable');
-  const badge = document.getElementById('interestedCountBadge');
-  const overdueBadge = document.getElementById('overdueCountBadge');
-  badge.textContent = leads.length + ' lead' + (leads.length !== 1 ? 's' : '');
-
-  const overdueCount = leads.filter(l => l.overdue).length;
-  if (overdueCount > 0) {
-    overdueBadge.style.display = 'inline';
-    overdueBadge.textContent = overdueCount + ' overdue';
-  } else {
-    overdueBadge.style.display = 'none';
-  }
-
-  if (!leads || leads.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="6" class="empty">No interested leads yet</td></tr>';
-    return;
-  }
-  tbody.innerHTML = leads.map(l => {
-    const isOverdue = l.overdue;
-    const rowClass = isOverdue ? ' class="overdue-row"' : '';
-    const revenueDisplay = l.revenueGenerated ? '\u20B9' + Number(l.revenueGenerated).toLocaleString('en-IN') : '\u2014';
-    const timeCell = isOverdue
-      ? '<span class="overdue-text">OVERDUE</span>'
-      : '<span class="time-remaining" data-interested-at="' + escapeHtml(l.interestedAt || '') + '">' + escapeHtml(formatHoursRemaining(l.hoursRemaining)) + '</span>';
-    return '<tr' + rowClass + '>' +
-      '<td><span class="phone-number">' + escapeHtml(formatPhone(l.phone)) + '</span></td>' +
-      '<td>' + (escapeHtml(l.name) || '\u2014') + '</td>' +
-      '<td style="font-weight:500">' + (escapeHtml(l.interestedBy) || '\u2014') + '</td>' +
-      '<td>' + escapeHtml(PKG_LABELS[l.loanType] || l.loanType || '\u2014') + '</td>' +
-      '<td style="font-family:var(--mono);font-weight:700;color:var(--green)">' + revenueDisplay + '</td>' +
-      '<td>' + timeCell + '</td>' +
-    '</tr>';
-  }).join('');
-}
-
-function formatHoursRemaining(hours) {
-  if (hours === undefined || hours === null || hours <= 0) return '0h 0m';
-  const h = Math.floor(hours);
-  const m = Math.round((hours - h) * 60);
-  return h + 'h ' + m + 'm';
-}
-
-function tickInterestedTimers() {
-  const spans = document.querySelectorAll('.time-remaining[data-interested-at]');
-  const now = Date.now();
-  spans.forEach(span => {
-    const interestedAt = span.getAttribute('data-interested-at');
-    if (!interestedAt) return;
-    const elapsed = now - new Date(interestedAt).getTime();
-    const total72h = 72 * 60 * 60 * 1000;
-    const remaining = total72h - elapsed;
-    if (remaining <= 0) {
-      span.className = 'overdue-text';
-      span.textContent = 'OVERDUE';
-      span.removeAttribute('data-interested-at');
-      const row = span.closest('tr');
-      if (row) row.classList.add('overdue-row');
-    } else {
-      const h = Math.floor(remaining / (60 * 60 * 1000));
-      const m = Math.floor((remaining % (60 * 60 * 1000)) / (60 * 1000));
-      span.textContent = h + 'h ' + m + 'm';
-    }
-  });
 }
 
 // ── Converted Customers ───────────────────────────────────────────────────────
@@ -703,6 +652,48 @@ function tickLiveClock() {
   if (!el) return;
   const now = new Date();
   el.textContent = now.toLocaleTimeString('en-US', { timeZone: 'Asia/Kolkata', hour12: true }) + ' IST';
+}
+
+// ── Generated Reports Archive (read-only search + download) ──────────────────
+async function loadReports(fromDate, toDate) {
+  try {
+    let url = '/api/reports?';
+    if (fromDate) url += 'from=' + encodeURIComponent(fromDate) + '&';
+    if (toDate) url += 'to=' + encodeURIComponent(toDate) + '&';
+    const r = await fetch(url);
+    const reports = await r.json();
+    renderReportsList(reports);
+  } catch (e) { /* silent */ }
+}
+
+function renderReportsList(reports) {
+  const el = document.getElementById('reportsList');
+  if (!el) return;
+  if (!reports || reports.length === 0) {
+    el.innerHTML = '<div class="empty">No reports found</div>';
+    return;
+  }
+  el.innerHTML = reports.map(r => {
+    const sizeKb = r.sizeBytes ? Math.round(r.sizeBytes / 1024) + ' KB' : '';
+    return '<div style="display:flex;align-items:center;justify-content:space-between;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 16px;">' +
+      '<div><span style="font-family:var(--mono);font-weight:700;color:var(--magenta)">' + escapeHtml(r.reportDate) + '</span>' +
+      '<span style="font-size:13px;font-weight:600;margin-left:12px">' + escapeHtml(r.title) + '</span>' +
+      '<span style="font-size:11px;color:var(--muted);margin-left:10px">' + escapeHtml(r.scope || '') + (sizeKb ? ' &middot; ' + sizeKb : '') + '</span></div>' +
+      '<a href="/api/reports/' + escapeHtml(r.id) + '/download" download style="padding:6px 14px;border-radius:6px;font-size:12px;font-weight:700;border:1px solid var(--accent);background:rgba(37,99,235,.1);color:var(--accent);text-decoration:none">&#128229; Download</a>' +
+    '</div>';
+  }).join('');
+}
+
+function searchReports() {
+  const from = document.getElementById('reportFromDate').value;
+  const to = document.getElementById('reportToDate').value;
+  loadReports(from, to);
+}
+
+function clearReportSearch() {
+  document.getElementById('reportFromDate').value = '';
+  document.getElementById('reportToDate').value = '';
+  loadReports();
 }
 </script>
 </body>
