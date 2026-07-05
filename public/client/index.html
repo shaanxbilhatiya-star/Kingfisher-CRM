@@ -157,7 +157,7 @@
       <p class="sub">Enter your Employee ID to view the dashboard</p>
       <div class="field">
         <label>Employee ID</label>
-        <input type="number" id="clientEmpId" placeholder="e.g. 9000" min="1" autocomplete="off">
+        <input type="number" id="clientEmpId" placeholder="e.g. 9000" min="1" autocomplete="off" value="9000">
         <div class="err" id="clientErrEmpId">Please enter a valid Employee ID</div>
       </div>
       <button class="btn-login" onclick="clientLogin()">Enter Dashboard &rarr;</button>
@@ -454,17 +454,17 @@ document.getElementById('clientEmpId').addEventListener('keydown', function(e) {
   if (e.key === 'Enter') clientLogin();
 });
 
-// ── Auto-login via URL (?eid=XXXX) ─────────────────────────────────────────────
-// Lets a link like  /client?eid=9000  skip the login screen entirely — useful for
-// bookmarks/shortcuts handed out to clients/TLs so they never have to type an EID.
-async function autoLoginFromUrl() {
-  const params = new URLSearchParams(window.location.search);
-  const urlEid = params.get('eid');
-  if (!urlEid || !/^\d+$/.test(urlEid)) return false;
+// ── Auto-login (no manual entry required) ──────────────────────────────────────
+// The Employee ID field is pre-filled with the default "9000" client login and the
+// page logs in automatically on load — no click required. A URL override like
+// /client?eid=1234 is still honored for handing out a different login via link/bookmark.
+const DEFAULT_CLIENT_EID = '9000';
+
+async function autoLogin(eid) {
   try {
     const r = await fetch('/api/client/auth', {
       method: 'POST', headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ employeeId: urlEid })
+      body: JSON.stringify({ employeeId: eid })
     });
     const d = await r.json();
     if (d.error) {
@@ -473,10 +473,10 @@ async function autoLoginFromUrl() {
       errEl.style.display = 'block';
       return false;
     }
-    clientEmpIdVal = urlEid;
+    clientEmpIdVal = eid;
     clientAgentId = d.agentId;
     clientName = d.name;
-    sessionStorage.setItem('clientEmpId', urlEid);
+    sessionStorage.setItem('clientEmpId', eid);
     sessionStorage.setItem('clientAgentId', clientAgentId);
     sessionStorage.setItem('clientName', clientName);
     showMainScreen();
@@ -489,7 +489,11 @@ async function autoLoginFromUrl() {
 if (clientEmpIdVal && clientAgentId) {
   showMainScreen();
 } else {
-  autoLoginFromUrl();
+  const params = new URLSearchParams(window.location.search);
+  const urlEid = params.get('eid');
+  const eidToUse = (urlEid && /^\d+$/.test(urlEid)) ? urlEid : DEFAULT_CLIENT_EID;
+  document.getElementById('clientEmpId').value = eidToUse;
+  autoLogin(eidToUse);
 }
 
 // ── Dashboard init ────────────────────────────────────────────────────────────
