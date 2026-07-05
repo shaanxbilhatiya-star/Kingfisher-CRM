@@ -1227,17 +1227,6 @@ socket.on('force-stop', () => {
   showIdle();
 });
 
-// ── Auto Daily Report at 6:30 PM IST ────────────────────────────────────────
-socket.on('auto-report', function(data) {
-  showToast('📊 Daily Report ready! Downloading…', 'success');
-  var a = document.createElement('a');
-  a.href = data.url;
-  a.download = 'CRM_Daily_Report_' + data.date + '.xlsx';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-});
-
 function showIdle() {
   document.getElementById('numberDisplay').style.display     = 'none';
   document.getElementById('idleOverlay').style.display       = 'block';
