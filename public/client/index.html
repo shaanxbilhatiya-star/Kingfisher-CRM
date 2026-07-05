@@ -174,13 +174,15 @@
     <span class="today-badge" id="todayBadge">&#8212;</span>
   </div>
   <div class="logo">
-    <img src="/logo.png" alt="Ruralift" class="logo-img">
+    <div style="display:flex;align-items:center;gap:16px">
+      <img src="/logo.png" alt="Ruralift" class="logo-img">
+      <img src="/kingfisher-logo.png" alt="Kingfisher" style="height:44px;object-fit:contain;padding:6px 12px;border-radius:10px;background:#fff;border:2px solid rgba(255,255,255,.55)">
+    </div>
     <h1>Kingfisher x Ruralift CRM</h1>
   </div>
   <div style="display:flex;align-items:center;gap:14px">
     <span class="today-badge" id="liveClock" style="min-width:96px;text-align:center">--:--:--</span>
     <span class="badge">CLIENT</span>
-    <button onclick="clientLogout()" style="background:none;border:1px solid var(--border);color:var(--muted);padding:5px 12px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--sans)">Logout</button>
   </div>
 </header>
 
@@ -434,14 +436,6 @@ async function clientLogin() {
     errEl.textContent = 'Connection error. Please try again.';
     errEl.style.display = 'block';
   }
-}
-
-function clientLogout() {
-  if (!confirm('Are you sure you want to logout?')) return;
-  sessionStorage.removeItem('clientEmpId');
-  sessionStorage.removeItem('clientAgentId');
-  sessionStorage.removeItem('clientName');
-  location.reload();
 }
 
 function showMainScreen() {
