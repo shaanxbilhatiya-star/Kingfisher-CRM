@@ -2423,16 +2423,113 @@ app.delete('/api/agent/number/:numberId', (req, res) => {
   res.json({ success: true });
 });
 
+// ─── Automatic Report Generation (6:30 PM IST daily) ──────────────────────────
+// Stores the last auto-generated report so clients/admin can fetch it instantly.
+let lastAutoReport = null;
+
+function generateAutoReport() {
+  const now = new Date();
+  const istNow = new Date(now.getTime() + (5.5 * 60 * 60 * 1000));
+  const istTodayStr = istNow.toISOString().slice(0, 10);
+
+  // Report covers 10:00 AM to 6:30 PM IST
+  const startIST = new Date(istTodayStr + 'T10:00:00.000+05:30');
+  const endIST = new Date(istTodayStr + 'T18:30:00.000+05:30');
+
+  const filteredLogs = appState.dialedLog.filter(entry => {
+    if (!entry.timestamp) return false;
+    const entryDate = new Date(entry.timestamp);
+    return entryDate >= startIST && entryDate <= endIST;
+  });
+
+  // Group by disposition
+  const groups = {};
+  filteredLogs.forEach(entry => {
+    const dispo = entry.disposition || 'unknown';
+    if (!groups[dispo]) groups[dispo] = [];
+    if (!groups[dispo].includes(entry.phone)) {
+      groups[dispo].push(entry.phone);
+    }
+  });
+
+  const istTimeStr = istNow.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+
+  lastAutoReport = {
+    generated: true,
+    date: istTodayStr,
+    generatedAt: istTimeStr + ' IST',
+    timeRange: '10:00 AM - 6:30 PM IST',
+    groups,
+    totalCalls: filteredLogs.length
+  };
+
+  console.log('📊 Auto-report generated at ' + istTimeStr + ' IST for ' + istTodayStr + ' — ' + filteredLogs.length + ' calls');
+  // Broadcast to connected admin/client sockets
+  io.to('admin-room').emit('auto-report-ready', lastAutoReport);
+}
+
+// Schedule auto-report at 6:30 PM IST every day
+function scheduleAutoReport() {
+  const check = () => {
+    const now = new Date();
+    const istNow = new Date(now.getTime() + (5.5 * 60 * 60 * 1000));
+    const hours = istNow.getUTCHours();
+    const minutes = istNow.getUTCMinutes();
+    const todayStr = istNow.toISOString().slice(0, 10);
+
+    // Trigger at 18:30 IST (which is already in IST since we added 5:30 offset)
+    if (hours === 18 && minutes === 30) {
+      // Only generate once per day
+      if (!lastAutoReport || lastAutoReport.date !== todayStr) {
+        generateAutoReport();
+      }
+    }
+  };
+  // Check every 30 seconds
+  setInterval(check, 30000);
+  // Also check immediately on boot in case it's already past 6:30 PM
+  const now = new Date();
+  const istNow = new Date(now.getTime() + (5.5 * 60 * 60 * 1000));
+  const todayStr = istNow.toISOString().slice(0, 10);
+  const istHour = istNow.getUTCHours();
+  const istMin = istNow.getUTCMinutes();
+  if (istHour > 18 || (istHour === 18 && istMin >= 30)) {
+    if (!lastAutoReport || lastAutoReport.date !== todayStr) {
+      generateAutoReport();
+    }
+  }
+}
+scheduleAutoReport();
+
+// API endpoint for fetching the auto-generated report
+app.get('/api/report/auto', (req, res) => {
+  const now = new Date();
+  const istNow = new Date(now.getTime() + (5.5 * 60 * 60 * 1000));
+  const todayStr = istNow.toISOString().slice(0, 10);
+
+  if (lastAutoReport && lastAutoReport.date === todayStr) {
+    return res.json(lastAutoReport);
+  }
+  // Not generated yet today
+  res.json({
+    generated: false,
+    date: todayStr,
+    message: 'Report auto-generates at 6:30 PM IST daily'
+  });
+});
+
 // ─── Page Routes ──────────────────────────────────────────────────────────────
 app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'public/admin/index.html')));
 app.get('/agent', (req, res) => res.sendFile(path.join(__dirname, 'public/agent/index.html')));
 app.get('/tl', (req, res) => res.sendFile(path.join(__dirname, 'public/tl/index.html')));
+app.get('/client', (req, res) => res.sendFile(path.join(__dirname, 'public/client/index.html')));
 
 // ─── Start ─────────────────────────────────────────────────────────────────────
 server.listen(PORT, '0.0.0.0', () => {
   console.log(`\n✅  Ruralift CRM running on http://0.0.0.0:${PORT}`);
-  console.log(`   Admin Panel : http://YOUR-LAN-IP:${PORT}/admin`);
-  console.log(`   Agent Panel : http://YOUR-LAN-IP:${PORT}/agent`);
-  console.log(`   TL Panel    : http://YOUR-LAN-IP:${PORT}/tl\n`);
+  console.log(`   Admin Panel  : http://YOUR-LAN-IP:${PORT}/admin`);
+  console.log(`   Agent Panel  : http://YOUR-LAN-IP:${PORT}/agent`);
+  console.log(`   TL Panel     : http://YOUR-LAN-IP:${PORT}/tl`);
+  console.log(`   Client Panel : http://YOUR-LAN-IP:${PORT}/client\n`);
 });
 

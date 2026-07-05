@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kingfisher x Ruralift CRM — Client Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #060b14; --surface: #0d1525; --surface2: #17162a; --border: #1a2d45;
+    --accent: #7c3aed; --accent2: #9333ea; --danger: #F44336;
+    --warn: #FF9800; --text: #E0E0E0; --muted: #9E9E9E;
+    --green: #4CAF50; --mono: 'JetBrains Mono', monospace; --sans: 'Space Grotesk', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: var(--sans); min-height: 100vh; }
+
+  header { background: linear-gradient(135deg, #080810 0%, #100f1e 100%); border-bottom: 1px solid var(--border); padding: 14px 32px; display: flex; align-items: center; justify-content: space-between; }
+  .logo { display: flex; flex-direction: column; align-items: center; gap: 5px; flex: 1; }
+  .logo-img {
+    width: 272px; height: 70px; object-fit: contain; padding: 10px 18px; border-radius: 14px;
+    border: 2px solid rgba(124,58,237,.4); background: rgba(255,255,255,.04);
+    filter: drop-shadow(0 0 12px rgba(124,58,237,.65));
+  }
+  .logo h1 { font-size: 15px; font-weight: 700; color: var(--accent); }
+  .badge { background: var(--accent); color: #fff; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; letter-spacing: 1px; }
+  .today-badge { background: rgba(124,58,237,.08); color: var(--accent); border: 1px solid rgba(124,58,237,.15); border-radius: 6px; padding: 4px 12px; font-size: 12px; font-family: var(--mono); }
+
+  .main { padding: 28px 32px; max-width: 1200px; margin: 0 auto; }
+
+  /* Login Screen */
+  #loginScreen { min-height: calc(100vh - 100px); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 24px; }
+  .login-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 36px; max-width: 420px; width: 100%; box-shadow: 0 4px 20px rgba(124,58,237,.15); }
+  .login-card h2 { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+  .login-card .sub { color: var(--muted); font-size: 14px; margin-bottom: 28px; }
+  .login-card .auto-note { background: rgba(76,175,80,.1); border: 1px solid rgba(76,175,80,.3); border-radius: 8px; padding: 10px 14px; font-size: 12px; color: var(--green); margin-bottom: 16px; text-align: center; }
+  .login-spinner { text-align: center; padding: 20px; }
+  .login-spinner .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); margin: 0 4px; animation: bounce 1.4s infinite ease-in-out both; }
+  .login-spinner .dot:nth-child(1) { animation-delay: -0.32s; }
+  .login-spinner .dot:nth-child(2) { animation-delay: -0.16s; }
+  @keyframes bounce { 0%,80%,100%{transform:scale(0)} 40%{transform:scale(1)} }
+
+  /* Dashboard */
+  #dashboardScreen { display: none; }
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; margin-bottom: 28px; }
+  .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px 24px; display: flex; flex-direction: column; gap: 6px; }
+  .stat-label { font-size: 12px; font-weight: 600; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
+  .stat-value { font-family: var(--mono); font-size: 36px; font-weight: 700; color: var(--accent); }
+
+  .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 20px; }
+  .panel-header { padding: 16px 20px; background: var(--surface2); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+  .panel-header h2 { font-size: 14px; font-weight: 600; letter-spacing: .5px; text-transform: uppercase; color: var(--muted); }
+  .panel-body { padding: 20px; }
+
+  .report-section { margin-bottom: 20px; }
+  .report-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 10px; }
+  .report-header h3 { font-size: 16px; font-weight: 700; color: var(--accent); }
+  .report-time { font-size: 12px; color: var(--muted); font-family: var(--mono); }
+  .report-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(76,175,80,.1); border: 1px solid rgba(76,175,80,.3); border-radius: 20px; padding: 4px 12px; font-size: 11px; font-weight: 700; color: var(--green); }
+  .report-badge.pending { background: rgba(255,152,0,.1); border-color: rgba(255,152,0,.3); color: var(--warn); }
+
+  .report-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 14px 18px; margin-bottom: 10px; }
+  .report-card .label { font-size: 13px; font-weight: 700; margin-bottom: 6px; }
+  .report-card .phones { font-family: var(--mono); font-size: 11px; color: var(--muted); word-break: break-all; max-height: 80px; overflow-y: auto; }
+  .report-card .count { font-size: 12px; color: var(--accent); font-weight: 700; margin-left: 8px; }
+
+  .no-report { text-align: center; padding: 30px; color: var(--muted); font-size: 14px; }
+  .no-report .icon { font-size: 40px; margin-bottom: 10px; display: block; opacity: .5; }
+
+  .countdown { font-family: var(--mono); font-size: 14px; color: var(--warn); font-weight: 700; }
+
+  @media(max-width:600px) { .main { padding: 16px; } .stats-grid { grid-template-columns: 1fr 1fr; } }
+</style>
+</head>
+<body>
+<header>
+  <div style="min-width:80px;display:flex;align-items:center">
+    <span class="today-badge" id="todayBadge">—</span>
+  </div>
+  <div class="logo">
+    <img src="/logo.png" alt="Ruralift" class="logo-img">
+    <h1>Kingfisher x Ruralift CRM</h1>
+  </div>
+  <div style="display:flex;align-items:center;gap:14px">
+    <span class="today-badge" id="liveClock" style="min-width:96px;text-align:center">--:--:--</span>
+    <span class="badge">CLIENT</span>
+  </div>
+</header>
+
+<!-- LOGIN SCREEN -->
+<div id="loginScreen">
+  <div class="login-card">
+    <h2>Client Login</h2>
+    <p class="sub">Enter your Employee ID to view the dashboard</p>
+    <div class="auto-note">&#9989; Autofill 9000 — No manual fill required</div>
+    <div class="login-spinner">
+      <span class="dot"></span>
+      <span class="dot"></span>
+      <span class="dot"></span>
+    </div>
+    <p style="text-align:center;font-size:12px;color:var(--muted);margin-top:10px">Auto-logging in...</p>
+  </div>
+</div>
+
+<!-- DASHBOARD SCREEN -->
+<div id="dashboardScreen">
+  <div class="main">
+    <!-- Stats Overview -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Total Numbers</div>
+        <div class="stat-value" id="statTotal">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Dialed Today</div>
+        <div class="stat-value" id="statDialed">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Interested</div>
+        <div class="stat-value" id="statInterested" style="color:var(--green)">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Follow-ups</div>
+        <div class="stat-value" id="statFollowup" style="color:var(--warn)">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Remaining</div>
+        <div class="stat-value" id="statRemaining">0</div>
+      </div>
+    </div>
+
+    <!-- Auto Report Panel -->
+    <div class="panel">
+      <div class="panel-header">
+        <h2>&#128202; Daily Auto-Report (6:30 PM IST)</h2>
+        <div id="reportStatus"></div>
+      </div>
+      <div class="panel-body" id="reportBody">
+        <div class="no-report">
+          <span class="icon">&#128337;</span>
+          Loading report data...
+        </div>
+      </div>
+    </div>
+
+    <!-- Disposition Summary -->
+    <div class="panel">
+      <div class="panel-header">
+        <h2>&#128200; Disposition Summary (Today)</h2>
+      </div>
+      <div class="panel-body" id="dispoSummary">
+        <div style="color:var(--muted);font-size:13px;text-align:center;padding:16px">Loading...</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+const CLIENT_EID = '9000';
+let socket;
+
+// IST Clock
+function tickClock() {
+  const el = document.getElementById('liveClock');
+  if (el) el.textContent = new Date().toLocaleTimeString('en-US', { timeZone: 'Asia/Kolkata', hour12: true }) + ' IST';
+  const tb = document.getElementById('todayBadge');
+  if (tb) tb.textContent = new Date().toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata', day: '2-digit', month: 'short', year: 'numeric' });
+}
+tickClock();
+setInterval(tickClock, 1000);
+
+// Auto-login on page load
+window.addEventListener('DOMContentLoaded', () => {
+  setTimeout(autoLogin, 800);
+});
+
+async function autoLogin() {
+  try {
+    const r = await fetch('/api/agent/register', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ name: '', employeeId: CLIENT_EID })
+    });
+    const d = await r.json();
+    if (d.error) {
+      document.getElementById('loginScreen').innerHTML = '<div class="login-card"><h2>Access Denied</h2><p class="sub" style="color:var(--danger)">'+d.error+'</p></div>';
+      return;
+    }
+    // Login successful — show dashboard
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('dashboardScreen').style.display = 'block';
+    // Connect socket and load data
+    socket = io();
+    socket.on('connect', () => { socket.emit('join-admin'); });
+    socket.on('stats-update', (stats) => { updateDashboard(stats); });
+    loadStats();
+    loadAutoReport();
+    loadDispoSummary();
+    // Refresh every 30 seconds
+    setInterval(loadStats, 30000);
+    setInterval(loadAutoReport, 60000);
+    setInterval(loadDispoSummary, 60000);
+  } catch(e) {
+    document.getElementById('loginScreen').innerHTML = '<div class="login-card"><h2>Connection Error</h2><p class="sub" style="color:var(--danger)">Could not connect to server. Please try again.</p></div>';
+  }
+}
+
+async function loadStats() {
+  try {
+    const r = await fetch('/api/admin/stats');
+    const d = await r.json();
+    updateDashboard(d);
+  } catch(e) {}
+}
+
+function updateDashboard(stats) {
+  if (!stats) return;
+  document.getElementById('statTotal').textContent = stats.total || 0;
+  document.getElementById('statDialed').textContent = stats.dialed || 0;
+  document.getElementById('statInterested').textContent = stats.interestedCount || 0;
+  document.getElementById('statFollowup').textContent = stats.followupCount || 0;
+  document.getElementById('statRemaining').textContent = stats.remaining || 0;
+}
+
+async function loadAutoReport() {
+  try {
+    const r = await fetch('/api/report/auto');
+    const d = await r.json();
+    renderReport(d);
+  } catch(e) {
+    document.getElementById('reportBody').innerHTML = '<div class="no-report"><span class="icon">&#9888;</span>Failed to load report</div>';
+  }
+}
+
+function renderReport(data) {
+  const container = document.getElementById('reportBody');
+  const statusEl = document.getElementById('reportStatus');
+
+  if (data.generated) {
+    statusEl.innerHTML = '<span class="report-badge">&#9989; Generated at ' + data.generatedAt + '</span>';
+    let html = '<div class="report-header"><h3>Report for ' + data.date + '</h3><span class="report-time">' + data.timeRange + '</span></div>';
+    if (data.groups && Object.keys(data.groups).length > 0) {
+      const LABELS = {dead:'☠️ CNC',not_received:'📵 CNR',not_interested:'🚫 Not Interested',followup:'📅 Follow-up',switch_off:'📴 Switch OFF',interested:'⭐ Interested',discard:'🚫 Not-Eligible',dnd:'🔕 DND'};
+      Object.entries(data.groups).forEach(([dispo, phones]) => {
+        if (dispo === '_isDummy') return;
+        const label = LABELS[dispo] || dispo;
+        html += '<div class="report-card"><div class="label">' + label + '<span class="count">(' + phones.length + ')</span></div>';
+        html += '<div class="phones">' + phones.join(', ') + '</div></div>';
+      });
+    } else {
+      html += '<div style="color:var(--muted);font-size:13px;padding:10px">No calls recorded in this period.</div>';
+    }
+    html += '<div style="margin-top:14px;font-size:11px;color:var(--muted)">Total calls in report: ' + (data.totalCalls || 0) + '</div>';
+    container.innerHTML = html;
+  } else {
+    // Report not yet generated — show countdown
+    statusEl.innerHTML = '<span class="report-badge pending">&#9203; Pending — Generates at 6:30 PM IST</span>';
+    const now = new Date();
+    const istNow = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
+    const target = new Date(istNow);
+    target.setHours(18, 30, 0, 0);
+    if (istNow > target) {
+      statusEl.innerHTML = '<span class="report-badge pending">&#9203; Generating soon...</span>';
+    }
+    let html = '<div class="no-report"><span class="icon">&#128337;</span>';
+    html += 'Daily report auto-generates at <strong>6:30 PM IST</strong><br>';
+    html += '<span style="font-size:12px;color:var(--muted);margin-top:8px;display:block">Report includes all calls from 10:00 AM to 6:30 PM grouped by disposition.</span>';
+    html += '</div>';
+    container.innerHTML = html;
+  }
+}
+
+async function loadDispoSummary() {
+  try {
+    const r = await fetch('/api/stats/dispositions?period=daily');
+    const d = await r.json();
+    renderDispoSummary(d);
+  } catch(e) {
+    document.getElementById('dispoSummary').innerHTML = '<div style="color:var(--muted);font-size:13px;text-align:center;padding:16px">Failed to load</div>';
+  }
+}
+
+function renderDispoSummary(stats) {
+  if (!stats) return;
+  const items = [
+    { label: 'Total Calls', value: stats.totalCalls || 0, color: 'var(--accent)' },
+    { label: 'CNC (Dead)', value: stats.dead || 0, color: 'var(--danger)' },
+    { label: 'CNR', value: stats.not_received || 0, color: 'var(--warn)' },
+    { label: 'Not Interested', value: stats.not_interested || 0, color: 'var(--muted)' },
+    { label: 'Followup', value: stats.followup || 0, color: '#2563eb' },
+    { label: 'Switch Off', value: stats.switch_off || 0, color: '#f97316' },
+    { label: 'Interested', value: stats.interested || 0, color: 'var(--green)' },
+    { label: 'Not-Eligible', value: stats.discard || 0, color: 'var(--danger)' },
+    { label: 'DND', value: stats.dnd || 0, color: 'var(--muted)' }
+  ];
+  let html = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px">';
+  items.forEach(item => {
+    html += '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center">';
+    html += '<div style="font-family:var(--mono);font-size:28px;font-weight:700;color:' + item.color + '">' + item.value + '</div>';
+    html += '<div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:4px">' + item.label + '</div>';
+    html += '</div>';
+  });
+  html += '</div>';
+  document.getElementById('dispoSummary').innerHTML = html;
+}
+</script>
+</body>
+</html>
