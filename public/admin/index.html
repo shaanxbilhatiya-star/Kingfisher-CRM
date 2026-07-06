@@ -1022,9 +1022,7 @@ function doAdminLogin() {
 
 function adminLogout() {
   sessionStorage.removeItem('adminAuth');
-  document.getElementById('adminLoginGate').style.display = 'flex';
-  document.getElementById('adminPwInput').value = '';
-  document.getElementById('adminLoginErr').textContent = '';
+  window.location.href = '/';
 }
 
 // Check on load
