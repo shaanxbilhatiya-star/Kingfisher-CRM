@@ -1179,10 +1179,14 @@ app.get('/api/admin/agents-list', (req, res) => {
   const agentMap = {};
   for (const [id, a] of Object.entries(appState.agents)) {
     const eidMatch = id.match(/^emp_(\d+)$/);
-    if (eidMatch && !appState.allowedEids[eidMatch[1]]) continue; // agent removed
+    if (eidMatch) {
+      if (!appState.allowedEids[eidMatch[1]]) continue; // agent removed
+      if (getEidRole(appState.allowedEids[eidMatch[1]]) === 'client') continue; // exclude client logins
+    }
     agentMap[id] = { id, name: a.name };
   }
   for (const [eid, val] of Object.entries(appState.allowedEids)) {
+    if (getEidRole(val) === 'client') continue; // exclude client logins (e.g. EID 9000)
     const virtualId = 'emp_' + eid;
     if (!agentMap[virtualId]) {
       agentMap[virtualId] = { id: virtualId, name: getEidName(val) };
