@@ -2322,6 +2322,8 @@ app.post('/api/admin/agent/break/end', (req, res) => {
   const result = endBreak(agentId);
   // Broadcast to ALL connected clients so agent sees the update
   io.emit('timer-update', { agentId, type: 'break', action: 'end', ...result });
+  // Force a full page reload on the agent's browser so dialing resumes immediately
+  io.emit('force-page-reload', { agentId, reason: 'break-removed-by-admin' });
   broadcastAdminStats();
   res.json(result);
 });
@@ -2736,4 +2738,5 @@ server.listen(PORT, '0.0.0.0', () => {
   console.log(`   Agent Panel  : http://YOUR-LAN-IP:${PORT}/agent`);
   console.log(`   Client Panel : http://YOUR-LAN-IP:${PORT}/client\n`);
 });
+
 
