@@ -2968,21 +2968,7 @@ setInterval(tickLiveClock, 1000);
         totalBreakMsUsed = remote.totalBreakMs || totalBreakMsUsed;
         breakExhausted   = totalBreakMsUsed >= breakAllowedMs;
         stopBreakCountdown(); updateBreakUsedDisplay(); hideBreakMode();
-        if (currentNumberId) {
-          document.getElementById('numberDisplay').style.display    = 'block';
-          document.getElementById('dispositionPanel').style.display = 'block';
-          if (!breakExhausted) {
-            document.getElementById('btnBreak').style.display = 'block';
-            document.getElementById('btnBreak').disabled      = false;
-            document.getElementById('btnBreak').textContent   = '☕ Take a Break';
-          } else {
-            document.getElementById('btnBreak').style.display = 'block';
-            document.getElementById('btnBreak').disabled      = true;
-            document.getElementById('btnBreak').textContent   = '☕ No Break Time Left';
-          }
-          document.getElementById('btnWashroom').style.display = 'block';
-          document.getElementById('btnMeeting').style.display  = 'block';
-        } else { showIdle(); }
+        restoreButtonsAfterSync();
       } else if (remote.onBreak && onBreak) {
         totalBreakMsUsed = remote.totalBreakMs || totalBreakMsUsed;
         if (remote.breakStartedAt && Math.abs((breakStartedAt || 0) - remote.breakStartedAt) > 5000) {
@@ -3001,13 +2987,7 @@ setInterval(tickLiveClock, 1000);
         onWashroom = false; washroomStartedAt = null;
         totalWashroomMsUsed = remote.totalWashroomMs || totalWashroomMsUsed;
         stopWashroomTimer(); updateWashroomUsedDisplay(); hideWashroomMode();
-        if (currentNumberId) {
-          document.getElementById('numberDisplay').style.display    = 'block';
-          document.getElementById('dispositionPanel').style.display = 'block';
-          if (!breakExhausted) { document.getElementById('btnBreak').style.display = 'block'; document.getElementById('btnBreak').disabled = false; }
-          document.getElementById('btnWashroom').style.display = 'block';
-          document.getElementById('btnMeeting').style.display  = 'block';
-        } else { showIdle(); }
+        restoreButtonsAfterSync();
       } else if (remote.onWashroom && onWashroom) {
         totalWashroomMsUsed = remote.totalWashroomMs || totalWashroomMsUsed;
       }
@@ -3023,13 +3003,7 @@ setInterval(tickLiveClock, 1000);
         onMeeting = false; meetingStartedAt = null;
         totalMeetingMsUsed = remote.totalMeetingMs || totalMeetingMsUsed;
         stopMeetingTimer(); updateMeetingUsedDisplay(); hideMeetingMode();
-        if (currentNumberId) {
-          document.getElementById('numberDisplay').style.display    = 'block';
-          document.getElementById('dispositionPanel').style.display = 'block';
-          if (!breakExhausted) { document.getElementById('btnBreak').style.display = 'block'; document.getElementById('btnBreak').disabled = false; }
-          document.getElementById('btnWashroom').style.display = 'block';
-          document.getElementById('btnMeeting').style.display  = 'block';
-        } else { showIdle(); }
+        restoreButtonsAfterSync();
       } else if (remote.onMeeting && onMeeting) {
         totalMeetingMsUsed = remote.totalMeetingMs || totalMeetingMsUsed;
       }
@@ -3041,6 +3015,28 @@ setInterval(tickLiveClock, 1000);
 
     } finally {
       _syncLocked = false;
+    }
+  }
+
+  // ── Helper: restore buttons after a timer ends via sync ───────────────────
+  // Never calls showIdle() — each CRM's dialer state is independent.
+  function restoreButtonsAfterSync() {
+    if (!breakExhausted && !onBreak && !onWashroom && !onMeeting) {
+      if (currentNumberId || dialerWasActive) {
+        document.getElementById('btnBreak').style.display    = 'block';
+        document.getElementById('btnBreak').disabled         = false;
+        document.getElementById('btnBreak').textContent      = '☕ Take a Break';
+        document.getElementById('btnWashroom').style.display = 'block';
+        document.getElementById('btnMeeting').style.display  = 'block';
+      }
+    } else if (breakExhausted && !onBreak && !onWashroom && !onMeeting) {
+      if (currentNumberId || dialerWasActive) {
+        document.getElementById('btnBreak').style.display    = 'block';
+        document.getElementById('btnBreak').disabled         = true;
+        document.getElementById('btnBreak').textContent      = '☕ No Break Time Left';
+        document.getElementById('btnWashroom').style.display = 'block';
+        document.getElementById('btnMeeting').style.display  = 'block';
+      }
     }
   }
 
