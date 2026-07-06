@@ -249,10 +249,110 @@
   ::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #0aa6c2, #1668d6); border-radius: 10px; }
   ::-webkit-scrollbar-track { background: #e6eef8; }
 
+  /* ── Login Gate ── */
+  #adminLoginGate {
+    position: fixed; inset: 0; z-index: 99999;
+    background: linear-gradient(160deg,#eaf3fd 0%,#f2ecfb 46%,#fdeef5 100%);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .login-card {
+    background: #fff; border: 1px solid var(--border); border-radius: 20px;
+    padding: 40px 36px; width: 100%; max-width: 400px; text-align: center;
+    box-shadow: 0 20px 60px rgba(22,104,214,.18);
+  }
+  .login-card .login-logos { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 24px; }
+  .login-card .login-logos div { width: 110px; height: 48px; display: flex; align-items: center; justify-content: center; padding: 4px 8px; background: #f2f8ff; border-radius: 8px; border: 1px solid var(--border); }
+  .login-card .login-logos img { max-width: 100%; max-height: 100%; object-fit: contain; }
+  .login-card h2 { font-size: 20px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  .login-card p { font-size: 13px; color: var(--muted); margin-bottom: 28px; }
+  .login-card input[type=password] {
+    width: 100%; padding: 12px 16px; border-radius: 10px;
+    border: 1.5px solid var(--border); background: var(--surface2);
+    color: var(--text); font-family: var(--mono); font-size: 15px;
+    outline: none; margin-bottom: 14px; letter-spacing: 2px;
+    transition: border-color .2s;
+  }
+  .login-card input[type=password]:focus { border-color: var(--accent); }
+  .login-card .btn-login {
+    width: 100%; padding: 12px; border-radius: 10px; border: none;
+    background: linear-gradient(120deg,var(--accent),var(--accent2));
+    color: #fff; font-size: 15px; font-weight: 700; cursor: pointer;
+    font-family: var(--sans); transition: opacity .2s;
+  }
+  .login-card .btn-login:hover { opacity: .9; }
+  .login-card .login-err { color: var(--danger); font-size: 13px; margin-top: 10px; min-height: 18px; }
+
+  /* ── Logout button ── */
+  .btn-logout {
+    padding: 7px 16px; border-radius: 8px; border: 1.5px solid rgba(255,255,255,.55);
+    background: rgba(255,255,255,.12); color: #fff; font-size: 13px; font-weight: 700;
+    cursor: pointer; font-family: var(--sans); transition: all .2s;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .btn-logout:hover { background: rgba(255,255,255,.25); border-color: rgba(255,255,255,.8); }
+
+  /* ── Admin password confirm modal ── */
+  #adminConfirmModal {
+    position: fixed; inset: 0; background: rgba(0,0,0,.65); z-index: 10001;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none; transition: opacity .2s;
+  }
+  #adminConfirmModal.active { opacity: 1; pointer-events: all; }
+  .admin-confirm-box {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+    padding: 28px 32px; min-width: 340px; max-width: 420px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.5);
+  }
+  .admin-confirm-box h3 { font-size: 16px; font-weight: 700; margin-bottom: 6px; color: var(--danger); }
+  .admin-confirm-box p { font-size: 13px; color: var(--muted); margin-bottom: 18px; }
+  .admin-confirm-box input {
+    width: 100%; padding: 10px 14px; border-radius: 8px;
+    border: 1.5px solid var(--border); background: var(--surface2);
+    color: var(--text); font-family: var(--mono); font-size: 14px;
+    outline: none; margin-bottom: 16px; letter-spacing: 1px;
+    transition: border-color .2s;
+  }
+  .admin-confirm-box input:focus { border-color: var(--danger); }
+  .admin-confirm-box .confirm-err { color: var(--danger); font-size: 12px; margin-bottom: 12px; min-height: 16px; }
+  .admin-confirm-box .confirm-actions { display: flex; gap: 10px; justify-content: flex-end; }
+  .admin-confirm-box .confirm-actions button { padding: 9px 18px; border-radius: 8px; font-family: var(--sans); font-size: 13px; font-weight: 700; cursor: pointer; }
+  .admin-confirm-box .confirm-cancel { border: 1px solid var(--border); background: var(--surface2); color: var(--muted); }
+  .admin-confirm-box .confirm-proceed { border: none; background: var(--danger); color: #fff; }
+
 </style>
 
 </head>
 <body>
+
+<!-- ── Admin Login Gate ── -->
+<div id="adminLoginGate">
+  <div class="login-card">
+    <div class="login-logos">
+      <div><img src="/logo.png" alt="Ruralift"></div>
+      <div><img src="/kingfisher-logo.png" alt="Kingfisher"></div>
+    </div>
+    <h2>&#128274; Admin Access</h2>
+    <p>Enter your admin password to continue</p>
+    <input type="password" id="adminPwInput" placeholder="Password" onkeydown="if(event.key==='Enter')doAdminLogin()">
+    <button class="btn-login" onclick="doAdminLogin()">&#128275; Unlock Panel</button>
+    <div class="login-err" id="adminLoginErr"></div>
+  </div>
+</div>
+
+<!-- ── Admin Password Confirm Modal (for destructive actions) ── -->
+<div id="adminConfirmModal">
+  <div class="admin-confirm-box">
+    <h3 id="confirmModalTitle">&#9888; Confirm Action</h3>
+    <p id="confirmModalDesc">Please enter admin password to proceed.</p>
+    <input type="password" id="confirmPwInput" placeholder="Admin password" onkeydown="if(event.key==='Enter')doConfirmAction()">
+    <div class="confirm-err" id="confirmErr"></div>
+    <div class="confirm-actions">
+      <button class="confirm-cancel" onclick="closeConfirmModal()">Cancel</button>
+      <button class="confirm-proceed" id="confirmProceedBtn" onclick="doConfirmAction()">Confirm</button>
+    </div>
+  </div>
+</div>
+
 <header>
   <div style="min-width:80px;display:flex;align-items:center;">
     <span class="today-badge" id="todayBadge">&#8212;</span>
@@ -271,6 +371,7 @@
   <div style="display:flex;align-items:center;gap:14px">
     <span class="today-badge" id="liveClock" style="min-width:96px;text-align:center">--:--:--</span>
     <span class="badge">ADMIN</span>
+    <button class="btn-logout" onclick="adminLogout()">&#128682; Logout</button>
   </div>
 </header>
 
@@ -403,40 +504,6 @@
     </div>
   </div>
 
-  <!-- Generated Reports Archive (permanent PDF storage, searchable by date) -->
-  <div class="panel" style="margin-bottom:20px">
-    <div class="panel-header" style="background:rgba(230,21,123,.06)">
-      <h2 style="color:var(--magenta)">&#128196; Generated Reports Archive</h2>
-      <span style="font-size:11px;color:var(--muted);font-style:italic">&#9203; Auto-generates daily at 6:30 PM (IST) — no manual action needed</span>
-    </div>
-    <div class="panel-body">
-      <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center">
-        <label style="font-size:12px;color:var(--muted);font-weight:600">From</label>
-        <input type="date" id="reportFromDate" style="padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:var(--mono);font-size:13px;outline:none">
-        <label style="font-size:12px;color:var(--muted);font-weight:600">To</label>
-        <input type="date" id="reportToDate" style="padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:var(--mono);font-size:13px;outline:none">
-        <button onclick="searchReports()" style="padding:8px 18px;border-radius:8px;border:none;background:var(--accent);color:#fff;font-size:13px;font-weight:700;cursor:pointer">&#128269; Search</button>
-        <button onclick="clearReportSearch()" style="padding:8px 14px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--muted);font-size:13px;font-weight:600;cursor:pointer">Clear</button>
-      </div>
-      <div id="reportsList" style="display:flex;flex-direction:column;gap:8px;max-height:340px;overflow-y:auto">
-        <div class="empty">No reports generated yet</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- System Controls Panel (Clear All / Hard Reset retained after Active Agents panel removal) -->
-  <div class="panel" style="margin-bottom:20px">
-    <div class="panel-header">
-      <h2>System Controls</h2>
-    </div>
-    <div class="panel-body">
-      <div class="btn-row">
-        <button class="btn btn-danger" onclick="clearAll()">&#128465; Clear All Numbers</button>
-        <button class="btn btn-danger" onclick="hardReset()" style="background:rgba(244,67,54,.25);border:2px solid var(--danger);font-weight:800;letter-spacing:.5px">&#128163; HARD RESET (Factory Reset)</button>
-      </div>
-    </div>
-  </div>
-
   <!-- Interested Leads Panel -->
   <div class="panel panel-interested">
     <div class="panel-header">
@@ -488,6 +555,27 @@
           <tr><td colspan="7" class="empty">No converted customers yet</td></tr>
         </tbody>
       </table>
+    </div>
+  </div>
+
+  <!-- Generated Reports Archive (permanent PDF storage, searchable by date) -->
+  <div class="panel" style="margin-bottom:20px">
+    <div class="panel-header" style="background:rgba(230,21,123,.06)">
+      <h2 style="color:var(--magenta)">&#128196; Generated Reports Archive</h2>
+      <span style="font-size:11px;color:var(--muted);font-style:italic">&#9203; Auto-generates daily at 6:30 PM (IST) — no manual action needed</span>
+    </div>
+    <div class="panel-body">
+      <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center">
+        <label style="font-size:12px;color:var(--muted);font-weight:600">From</label>
+        <input type="date" id="reportFromDate" style="padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:var(--mono);font-size:13px;outline:none">
+        <label style="font-size:12px;color:var(--muted);font-weight:600">To</label>
+        <input type="date" id="reportToDate" style="padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:var(--mono);font-size:13px;outline:none">
+        <button onclick="searchReports()" style="padding:8px 18px;border-radius:8px;border:none;background:var(--accent);color:#fff;font-size:13px;font-weight:700;cursor:pointer">&#128269; Search</button>
+        <button onclick="clearReportSearch()" style="padding:8px 14px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--muted);font-size:13px;font-weight:600;cursor:pointer">Clear</button>
+      </div>
+      <div id="reportsList" style="display:flex;flex-direction:column;gap:8px;max-height:340px;overflow-y:auto">
+        <div class="empty">No reports generated yet</div>
+      </div>
     </div>
   </div>
 
@@ -570,7 +658,7 @@
   </div>
 
   <!-- EID Whitelist Management Panel -->
-  <div class="panel eid-panel">
+  <div class="panel eid-panel" style="margin-bottom:20px">
     <div class="panel-header">
       <h2>&#128274; Allowed Agent EIDs</h2>
       <span style="font-size:12px;color:var(--muted)">Only these Employee IDs can log into the Agent panel</span>
@@ -591,6 +679,19 @@
         <input type="file"   id="newEidPhoto" accept="image/*" style="font-size:12px;max-width:180px;">
         <button class="btn-add-eid" onclick="addEid()">+ Add User</button>
         <div class="eid-err" id="eidErr"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- System Controls Panel -->
+  <div class="panel" style="margin-bottom:20px;border:1.5px solid rgba(244,67,54,.25)">
+    <div class="panel-header" style="background:rgba(244,67,54,.05)">
+      <h2 style="color:var(--danger)">&#9881;&#65039; System Controls</h2>
+    </div>
+    <div class="panel-body">
+      <div class="btn-row">
+        <button class="btn btn-danger" onclick="clearAll()">&#128465; Clear All Numbers</button>
+        <button class="btn btn-danger" onclick="hardReset()" style="background:rgba(244,67,54,.25);border:2px solid var(--danger);font-weight:800;letter-spacing:.5px">&#128163; HARD RESET (Factory Reset)</button>
       </div>
     </div>
   </div>
@@ -902,27 +1003,103 @@ async function deleteFile(id) {
   showToast('File deleted', 'success');
 }
 
+// ── Admin password gate ──────────────────────────────────────────────────────
+const ADMIN_PW = 'Jaimatadi02"';
+
+function doAdminLogin() {
+  const pw = document.getElementById('adminPwInput').value;
+  const err = document.getElementById('adminLoginErr');
+  if (pw === ADMIN_PW) {
+    sessionStorage.setItem('adminAuth', '1');
+    document.getElementById('adminLoginGate').style.display = 'none';
+    err.textContent = '';
+  } else {
+    err.textContent = '❌ Incorrect password. Try again.';
+    document.getElementById('adminPwInput').value = '';
+    document.getElementById('adminPwInput').focus();
+  }
+}
+
+function adminLogout() {
+  sessionStorage.removeItem('adminAuth');
+  document.getElementById('adminLoginGate').style.display = 'flex';
+  document.getElementById('adminPwInput').value = '';
+  document.getElementById('adminLoginErr').textContent = '';
+}
+
+// Check on load
+(function checkAdminAuth() {
+  if (sessionStorage.getItem('adminAuth') !== '1') {
+    document.getElementById('adminLoginGate').style.display = 'flex';
+  } else {
+    document.getElementById('adminLoginGate').style.display = 'none';
+  }
+})();
+
+// ── Admin confirm modal (for destructive actions) ────────────────────────────
+let _confirmCallback = null;
+
+function openConfirmModal(title, desc, proceedLabel, callback) {
+  _confirmCallback = callback;
+  document.getElementById('confirmModalTitle').textContent = title;
+  document.getElementById('confirmModalDesc').textContent = desc;
+  document.getElementById('confirmProceedBtn').textContent = proceedLabel;
+  document.getElementById('confirmPwInput').value = '';
+  document.getElementById('confirmErr').textContent = '';
+  document.getElementById('adminConfirmModal').classList.add('active');
+  setTimeout(() => document.getElementById('confirmPwInput').focus(), 100);
+}
+
+function closeConfirmModal() {
+  document.getElementById('adminConfirmModal').classList.remove('active');
+  _confirmCallback = null;
+}
+
+function doConfirmAction() {
+  const pw = document.getElementById('confirmPwInput').value;
+  if (pw !== ADMIN_PW) {
+    document.getElementById('confirmErr').textContent = '❌ Incorrect admin password.';
+    document.getElementById('confirmPwInput').value = '';
+    document.getElementById('confirmPwInput').focus();
+    return;
+  }
+  closeConfirmModal();
+  if (_confirmCallback) _confirmCallback();
+}
+
+// ── System control actions (password-gated) ──────────────────────────────────
 async function clearAll() {
-  if (!confirm('⚠️ This will delete ALL numbers! Continue?')) return;
-  await fetch('/api/admin/clear-all', { method: 'POST' });
-  showToast('All numbers cleared', 'success');
+  openConfirmModal(
+    '🗑 Clear All Numbers',
+    'This will permanently delete ALL numbers from the system. Enter admin password to confirm.',
+    '🗑 Clear All Numbers',
+    async () => {
+      await fetch('/api/admin/clear-all', { method: 'POST' });
+      showToast('All numbers cleared', 'success');
+    }
+  );
 }
 
 async function hardReset() {
-  if (!confirm('⚠️ HARD RESET: This will permanently delete ALL data including:\n\n• All numbers & uploaded files\n• All agent registrations\n• All interested leads & followups\n• All dialed logs\n• All uploaded documents & photos\n\nThe system will be completely fresh.\n\nAre you sure?')) return;
-  if (!confirm('🚨 FINAL WARNING: This action CANNOT be undone!\n\nType OK in your head and click OK to proceed.')) return;
-  try {
-    const r = await fetch('/api/admin/hard-reset', { method: 'POST' });
-    const d = await r.json();
-    if (d.success) {
-      showToast('🔄 Hard reset complete — system is now fresh', 'success');
-      setTimeout(() => location.reload(), 1500);
-    } else {
-      showToast('Reset failed: ' + (d.error || 'Unknown error'), 'error');
+  openConfirmModal(
+    '💣 HARD RESET — Factory Reset',
+    'This will permanently delete ALL data: numbers, agents, leads, followups, logs, documents, and photos. The system will be completely wiped. Enter admin password to confirm.',
+    '💣 HARD RESET',
+    async () => {
+      try {
+        const r = await fetch('/api/admin/hard-reset', { method: 'POST' });
+        const d = await r.json();
+        if (d.success) {
+          showToast('🔄 Hard reset complete — system is now fresh', 'success');
+          setTimeout(() => location.reload(), 1500);
+        } else {
+          showToast('Reset failed: ' + (d.error || 'Unknown error'), 'error');
+        }
+      } catch (e) {
+        showToast('Reset failed: ' + e.message, 'error');
+      }
     }
-  } catch (e) {
-    showToast('Reset failed: ' + e.message, 'error');
-  }
+  );
 }
 
 function showToast(msg, type='success') {
