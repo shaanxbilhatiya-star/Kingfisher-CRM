@@ -204,6 +204,12 @@
   ::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #0aa6c2, #1668d6); border-radius: 10px; }
   ::-webkit-scrollbar-track { background: #e6eef8; }
 
+.recording-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
 </style>
 </head>
 <body>
@@ -405,6 +411,189 @@
           <tr><td colspan="5" class="empty">No followups yet</td></tr>
         </tbody>
       </table>
+  <!-- RECORDINGS SECTION -->
+  <style>
+    .filters-container {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      align-items: end;
+    }
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .filter-group label {
+      font-weight: 500;
+      color: #555;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .filter-group select,
+    .filter-group input[type="date"] {
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      min-width: 200px;
+      font-family: var(--sans);
+    }
+    .btn-secondary {
+      background: #6c757d;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: var(--sans);
+      font-weight: 600;
+    }
+    .btn-secondary:hover {
+      background: #5a6268;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: var(--sans);
+      font-weight: 600;
+    }
+    .btn-primary:hover {
+      background: var(--accent2);
+    }
+    .recording-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .recording-actions button {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.3s;
+      font-family: var(--sans);
+      font-weight: 600;
+    }
+    .btn-play {
+      background: #27ae60;
+      color: white;
+    }
+    .btn-play:hover {
+      background: #229954;
+    }
+    .btn-download {
+      background: #3498db;
+      color: white;
+    }
+    .btn-download:hover {
+      background: #2980b9;
+    }
+    .btn-important {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      font-size: 20px;
+      padding: 4px 8px;
+      transition: transform 0.2s;
+    }
+    .btn-important:hover {
+      transform: scale(1.2);
+    }
+    .important-badge {
+      display: inline-block;
+      background: #e74c3c;
+      color: white;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 11px;
+      margin-left: 8px;
+      font-weight: 700;
+    }
+  </style>
+  
+  <div class="panel" id="recordingsSection" style="display: none; margin-bottom: 20px;">
+    <div class="panel-header">
+      <h2 style="color: var(--accent)">🎙️ Call Recordings</h2>
+      <span style="font-size:12px;color:var(--muted)" id="recordingsCountBadge">0 recordings</span>
+    </div>
+    <div class="panel-body">
+      <p style="margin:0 0 14px;font-size:13px;color:var(--muted);line-height:1.6">
+        यहाँ सभी कॉल रिकॉर्डिंग्स देखें — एजेंट और तारीख के हिसाब से फ़िल्टर करें, सुनें और डाउनलोड करें।
+      </p>
+      
+      <div class="filters-container">
+        <div class="filter-group">
+          <label for="recAgentFilter">Filter by Agent:</label>
+          <select id="recAgentFilter">
+            <option value="all">All Agents</option>
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <label for="recDateFilter">Filter by Date:</label>
+          <input type="date" id="recDateFilter">
+          <small style="color:var(--muted);font-size:10px;margin-top:2px;">&#128197; Last 7 days only (auto-deleted after 7 days)</small>
+        </div>
+        
+        <div class="filter-group">
+          <label>
+            <input type="checkbox" id="recImportantFilter" style="margin-right: 5px;">
+            Show Important Only
+          </label>
+        </div>
+        
+        <button onclick="loadClientRecordings()" class="btn-primary">🔍 Apply Filters</button>
+        <button onclick="clearClientRecordingFilters()" class="btn-secondary">Clear</button>
+      </div>
+
+      <div class="stats-grid" style="margin: 20px 0;">
+        <div class="stat-card">
+          <span class="stat-label">Total</span>
+          <span class="stat-value accent" id="recTotalRecordings">0</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Today</span>
+          <span class="stat-value green" id="recTodayRecordings">0</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Important</span>
+          <span class="stat-value red" id="recImportantRecordings">0</span>
+        </div>
+      </div>
+
+      <div style="overflow-x: auto;">
+        <table class="leads-table">
+          <thead>
+            <tr>
+              <th>Date & Time</th>
+              <th>Agent</th>
+              <th>Lead Info</th>
+              <th>File Name</th>
+              <th>Size</th>
+              <th>Important</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="recordingsTableBody">
+            <tr><td colspan="7" class="empty">Loading recordings...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
     </div>
   </div>
 
@@ -828,6 +1017,257 @@ function clearReportSearch() {
   document.getElementById('reportToDate').value = '';
   loadReports();
 }
+
+// ── Client Recordings Management ─────────────────────────────────────────────
+async function loadClientRecordings() {
+  try {
+    const agentFilter = document.getElementById('recAgentFilter').value;
+    const dateFilter = document.getElementById('recDateFilter').value;
+    const importantFilter = document.getElementById('recImportantFilter').checked;
+
+    let url = '/api/recordings?';
+    if (agentFilter !== 'all') url += `agent=${encodeURIComponent(agentFilter)}&`;
+    if (dateFilter) url += `date=${dateFilter}&`;
+    if (importantFilter) url += `important=true&`;
+
+    const response = await fetch(url);
+    const data = await response.json();
+    const recordings = data.recordings || [];
+
+    displayClientRecordings(recordings);
+    updateClientRecordingStats(recordings);
+  } catch (error) {
+    console.error('Error loading recordings:', error);
+  }
+}
+
+function displayClientRecordings(recordings) {
+  const tbody = document.getElementById('recordingsTableBody');
+  const badge = document.getElementById('recordingsCountBadge');
+  badge.textContent = recordings.length + ' recording' + (recordings.length !== 1 ? 's' : '');
+  
+  if (recordings.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="7" class="empty">No recordings found</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = recordings.map(rec => {
+    // Auto-fill Date & Time
+    const uploadTs = rec.uploadDate || rec.uploadedAt || Date.now();
+    const date = new Date(typeof uploadTs === 'number' ? uploadTs : Date.parse(uploadTs));
+    const formattedDate = date.toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' });
+    const formattedTime = date.toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit', hour12:true });
+    
+    // Auto-fill Agent info
+    const agentDisplay = rec.agentName || rec.agentEmail || 'Unknown Agent';
+    const agentSub = rec.agentEmail && rec.agentName ? rec.agentEmail : '';
+    
+    // Auto-fill Lead Info
+    const leadPhone = rec.leadPhone ? formatPhone(rec.leadPhone) : '';
+    const leadName = rec.leadName || '';
+    const leadInfo = leadName 
+      ? escapeHtml(leadName) + (leadPhone ? '<br><small style="font-size:11px;color:var(--muted)">' + escapeHtml(leadPhone) + '</small>' : '')
+      : (leadPhone ? escapeHtml(leadPhone) : '<span style="color:var(--muted)">—</span>');
+    
+    // Auto-fill File Name
+    const fileName = rec.originalName || rec.filename || 'Unknown';
+    const fileExt = fileName.split('.').pop().toUpperCase();
+    
+    // Auto-fill Size
+    const rawSize = rec.fileSize || rec.size || 0;
+    let fileSize = '—';
+    if (rawSize > 0) {
+      if (rawSize < 1024) fileSize = rawSize + ' B';
+      else if (rawSize < 1024 * 1024) fileSize = (rawSize / 1024).toFixed(1) + ' KB';
+      else fileSize = (rawSize / (1024 * 1024)).toFixed(2) + ' MB';
+    }
+    
+    // Important indicator
+    const starIcon = rec.important ? '&#11088;' : '&#9734;';
+    const starTitle = rec.important ? 'Remove from Important' : 'Mark as Important';
+    const starColor = rec.important ? '#f59e0b' : '#d1d5db';
+    
+    // Safe strings for onclick handlers
+    const safeFilename = escapeHtml(rec.filename || '');
+    const safeOriginalName = escapeHtml(fileName.replace(/'/g, "\\'"));
+    const recId = escapeHtml(rec.id || '');
+    
+    return `<tr${rec.important ? ' style="background:rgba(245,158,11,.04)"' : ''}>
+      <td>
+        <strong style="font-size:13px;">${formattedDate}</strong><br>
+        <small style="font-size:11px;color:var(--muted);font-family:var(--mono)">${formattedTime}</small>
+      </td>
+      <td style="font-weight:600;font-size:13px;">
+        ${escapeHtml(agentDisplay)}
+        ${agentSub ? '<br><small style="font-size:11px;color:var(--muted)">' + escapeHtml(agentSub) + '</small>' : ''}
+      </td>
+      <td>${leadInfo}</td>
+      <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${escapeHtml(fileName)}">
+        <span style="font-size:12px;">${escapeHtml(fileName)}</span>
+        <br><span style="font-size:10px;font-weight:700;color:var(--accent);background:rgba(252,128,25,.08);padding:1px 5px;border-radius:3px;">${escapeHtml(fileExt)}</span>
+      </td>
+      <td style="font-family:var(--mono);font-size:12px;white-space:nowrap;">${fileSize}</td>
+      <td style="text-align:center;">
+        <button onclick="toggleClientRecordingImportant('${recId}')" title="${starTitle}" style="background:none;border:none;font-size:20px;cursor:pointer;color:${starColor};transition:transform .2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">
+          ${starIcon}
+        </button>
+      </td>
+      <td>
+        <div class="recording-actions">
+          <button class="btn-play" onclick="playClientRecording('${safeFilename}', '${safeOriginalName}')">&#9654; Play</button>
+          <button class="btn-download" onclick="downloadClientRecording('${safeFilename}', '${safeOriginalName}')">&#11015; Download</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function updateClientRecordingStats(recordings) {
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
+  const todayMs = todayStart.getTime();
+  
+  const todayRecordings = recordings.filter(rec => {
+    const uploadTs = rec.uploadDate || rec.uploadedAt || 0;
+    const recMs = typeof uploadTs === 'number' ? uploadTs : Date.parse(uploadTs);
+    return recMs >= todayMs;
+  });
+  const importantRecordings = recordings.filter(rec => rec.important);
+
+  document.getElementById('recTotalRecordings').textContent = recordings.length;
+  document.getElementById('recTodayRecordings').textContent = todayRecordings.length;
+  document.getElementById('recImportantRecordings').textContent = importantRecordings.length;
+}
+
+async function loadClientRecordingAgentFilters() {
+  try {
+    const response = await fetch('/api/recordings');
+    const data = await response.json();
+    const recordings = data.recordings || [];
+
+    // Get unique agents
+    const agents = [...new Set(recordings.map(rec => rec.agentName))];
+    
+    const agentFilter = document.getElementById('recAgentFilter');
+    agentFilter.innerHTML = '<option value="all">All Agents</option>' +
+      agents.map(agent => `<option value="${escapeHtml(agent)}">${escapeHtml(agent)}</option>`).join('');
+  } catch (error) {
+    console.error('Error loading agent filters:', error);
+  }
+}
+
+function clearClientRecordingFilters() {
+  document.getElementById('recAgentFilter').value = 'all';
+  document.getElementById('recDateFilter').value = '';
+  document.getElementById('recImportantFilter').checked = false;
+  loadClientRecordings();
+}
+
+function getAudioMimeType(filename) {
+  const ext = (filename || '').split('.').pop().toLowerCase();
+  const mimeMap = {
+    'mp3': 'audio/mpeg',
+    'wav': 'audio/wav',
+    'ogg': 'audio/ogg',
+    'webm': 'audio/webm',
+    'aac': 'audio/aac',
+    'm4a': 'audio/mp4',
+    'flac': 'audio/flac',
+    'amr': 'audio/amr',
+    '3gp': 'audio/3gpp',
+    'wma': 'audio/x-ms-wma',
+    'opus': 'audio/opus'
+  };
+  return mimeMap[ext] || 'audio/mpeg';
+}
+
+function playClientRecording(filename, originalName) {
+  // Remove any existing audio modal
+  const existingModal = document.getElementById('audioPlayerModal');
+  if (existingModal) existingModal.remove();
+
+  const mimeType = getAudioMimeType(originalName || filename);
+  const audioSrc = '/uploads/recordings/' + encodeURIComponent(filename);
+
+  // Create modal for playing audio
+  const modal = document.createElement('div');
+  modal.id = 'audioPlayerModal';
+  modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);display:flex;align-items:center;justify-content:center;z-index:10000;backdrop-filter:blur(4px);';
+  
+  modal.innerHTML = `
+    <div style="background:white;padding:30px;border-radius:16px;max-width:520px;width:92%;box-shadow:0 20px 60px rgba(0,0,0,.4);">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+        <h3 style="margin:0;font-family:var(--sans);font-size:16px;color:var(--text);display:flex;align-items:center;gap:8px;">
+          <span style="font-size:22px;">&#127911;</span> Now Playing
+        </h3>
+        <button onclick="document.getElementById('audioPlayerModal').remove()" style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--muted);padding:4px;">&#10005;</button>
+      </div>
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 16px;margin-bottom:16px;">
+        <p style="margin:0;font-size:13px;font-weight:600;color:var(--text);word-break:break-all;">${escapeHtml(originalName)}</p>
+        <p style="margin:4px 0 0;font-size:11px;color:var(--muted);">Format: ${escapeHtml(mimeType)}</p>
+      </div>
+      <audio id="audioPlayerElement" controls autoplay style="width:100%;margin:0 0 16px;border-radius:8px;">
+        <source src="${audioSrc}" type="${mimeType}">
+        <source src="${audioSrc}" type="audio/mpeg">
+        <source src="${audioSrc}" type="audio/wav">
+        <source src="${audioSrc}" type="audio/ogg">
+        <source src="${audioSrc}" type="audio/webm">
+        Your browser does not support the audio element.
+      </audio>
+      <div id="audioPlayerError" style="display:none;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);border-radius:8px;padding:10px 14px;margin-bottom:14px;">
+        <p style="margin:0;font-size:12px;color:#ef4444;font-weight:600;">&#9888; Unable to play this audio format in browser. Please download the file instead.</p>
+      </div>
+      <div style="display:flex;gap:10px;">
+        <button onclick="downloadClientRecording('${escapeHtml(filename)}', '${escapeHtml(originalName)}')" style="flex:1;padding:12px;border-radius:10px;border:none;background:var(--accent);color:#fff;font-family:var(--sans);font-size:14px;font-weight:700;cursor:pointer;">&#11015; Download</button>
+        <button onclick="document.getElementById('audioPlayerModal').remove()" style="flex:1;padding:12px;border-radius:10px;border:1px solid var(--border);background:#fff;color:var(--muted);font-family:var(--sans);font-size:14px;font-weight:700;cursor:pointer;">Close</button>
+      </div>
+    </div>
+  `;
+  
+  document.body.appendChild(modal);
+
+  // Handle audio error - show error message and suggest download
+  const audioEl = document.getElementById('audioPlayerElement');
+  audioEl.addEventListener('error', function() {
+    document.getElementById('audioPlayerError').style.display = 'block';
+  });
+
+  // Close on backdrop click
+  modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
+}
+
+function downloadClientRecording(filename, originalName) {
+  const link = document.createElement('a');
+  link.href = '/uploads/recordings/' + encodeURIComponent(filename);
+  link.download = originalName || filename;
+  link.style.display = 'none';
+  document.body.appendChild(link);
+  link.click();
+  setTimeout(() => link.remove(), 100);
+  showToast('⬇️ Download started: ' + (originalName || filename), 'success');
+}
+
+async function toggleClientRecordingImportant(recordingId) {
+  try {
+    const response = await fetch(`/api/recordings/${recordingId}/important`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' }
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to toggle important status');
+    }
+    
+    const data = await response.json();
+    showToast(data.important ? '⭐ Marked as Important' : 'Removed from Important', 'success');
+    loadClientRecordings();
+  } catch (error) {
+    console.error('Error toggling important:', error);
+    showToast('Failed to update recording status', 'error');
+  }
+}
+
+
 </script>
 </body>
 </html>
