@@ -204,13 +204,115 @@
   ::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #0aa6c2, #1668d6); border-radius: 10px; }
   ::-webkit-scrollbar-track { background: #e6eef8; }
 
-.recording-actions {
+    .filters-container {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      align-items: end;
+    }
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .filter-group label {
+      font-weight: 500;
+      color: #555;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .filter-group select,
+    .filter-group input[type="date"] {
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      min-width: 200px;
+      font-family: var(--sans);
+    }
+    .btn-secondary {
+      background: #6c757d;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: var(--sans);
+      font-weight: 600;
+    }
+    .btn-secondary:hover {
+      background: #5a6268;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: var(--sans);
+      font-weight: 600;
+    }
+    .btn-primary:hover {
+      background: var(--accent2);
+    }
+    .recording-actions {
       display: flex;
       gap: 8px;
       align-items: center;
       flex-wrap: wrap;
     }
-</style>
+    .recording-actions button {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.3s;
+      font-family: var(--sans);
+      font-weight: 600;
+    }
+    .btn-play {
+      background: #27ae60;
+      color: white;
+    }
+    .btn-play:hover {
+      background: #229954;
+    }
+    .btn-download {
+      background: #3498db;
+      color: white;
+    }
+    .btn-download:hover {
+      background: #2980b9;
+    }
+    .btn-important {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      font-size: 20px;
+      padding: 4px 8px;
+      transition: transform 0.2s;
+    }
+    .btn-important:hover {
+      transform: scale(1.2);
+    }
+    .important-badge {
+      display: inline-block;
+      background: #e74c3c;
+      color: white;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 11px;
+      margin-left: 8px;
+      font-weight: 700;
+    }
+  </style>
 </head>
 <body>
 
@@ -411,117 +513,49 @@
           <tr><td colspan="5" class="empty">No followups yet</td></tr>
         </tbody>
       </table>
+    </div>
+  </div>
+
+  <!-- GENERATED REPORTS ARCHIVE (permanent PDF storage, searchable by date) -->
+  <div class="panel">
+    <div class="panel-header" style="background:rgba(230,21,123,.06)">
+      <h2 style="color:var(--magenta)">&#128196; Generated Reports Archive</h2>
+    </div>
+    <div class="panel-body">
+      <p style="margin:0 0 14px;font-size:13px;color:var(--muted);line-height:1.6">
+        हर दिन शाम 6:30 बजे (IST) एक PDF रिपोर्ट अपने आप बन जाती है जिसमें उस दिन की पूरी कॉलिंग का सारांश होता है। नीचे तारीख डालकर पुरानी रिपोर्ट भी ढूँढ और डाउनलोड कर सकते हैं।
+      </p>
+      <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center">
+        <label style="font-size:12px;color:var(--muted);font-weight:600">From</label>
+        <input type="date" id="reportFromDate" style="padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:var(--mono);font-size:13px;outline:none">
+        <label style="font-size:12px;color:var(--muted);font-weight:600">To</label>
+        <input type="date" id="reportToDate" style="padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:var(--mono);font-size:13px;outline:none">
+        <button onclick="searchReports()" style="padding:8px 18px;border-radius:8px;border:none;background:var(--accent);color:#fff;font-size:13px;font-weight:700;cursor:pointer">&#128269; Search</button>
+        <button onclick="clearReportSearch()" style="padding:8px 14px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--muted);font-size:13px;font-weight:600;cursor:pointer">Clear</button>
+      </div>
+      <div id="reportsList" style="display:flex;flex-direction:column;gap:8px;max-height:340px;overflow-y:auto">
+        <div class="empty">No reports available yet</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DND NUMBERS -->
+  <div class="panel">
+    <div class="panel-header" style="background:rgba(198,40,40,.06)">
+      <h2 style="color:#c62828">&#128277; DND (Do Not Disturb) Numbers</h2>
+      <span style="font-size:12px;color:var(--muted)" id="dndCountBadge">0 numbers</span>
+    </div>
+    <div class="panel-body">
+      <p style="margin:0 0 12px;font-size:13px;color:var(--muted);line-height:1.6">
+        जिन नंबरों ने कॉल न करने के लिए मना किया है, उनकी लिस्ट — इन नंबरों पर दोबारा कॉल नहीं की जाती।
+      </p>
+      <div id="dndList" style="display:flex;flex-direction:column;gap:6px;max-height:300px;overflow-y:auto;">
+        <div class="empty">No DND numbers</div>
+      </div>
+    </div>
+  </div>
+
   <!-- RECORDINGS SECTION -->
-  <style>
-    .filters-container {
-      background: white;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      margin-bottom: 20px;
-      display: flex;
-      gap: 15px;
-      flex-wrap: wrap;
-      align-items: end;
-    }
-    .filter-group {
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-    }
-    .filter-group label {
-      font-weight: 500;
-      color: #555;
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    .filter-group select,
-    .filter-group input[type="date"] {
-      padding: 8px 12px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      min-width: 200px;
-      font-family: var(--sans);
-    }
-    .btn-secondary {
-      background: #6c757d;
-      color: white;
-      padding: 10px 20px;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-family: var(--sans);
-      font-weight: 600;
-    }
-    .btn-secondary:hover {
-      background: #5a6268;
-    }
-    .btn-primary {
-      background: var(--accent);
-      color: white;
-      padding: 10px 20px;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-family: var(--sans);
-      font-weight: 600;
-    }
-    .btn-primary:hover {
-      background: var(--accent2);
-    }
-    .recording-actions {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-    .recording-actions button {
-      padding: 6px 12px;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 14px;
-      transition: all 0.3s;
-      font-family: var(--sans);
-      font-weight: 600;
-    }
-    .btn-play {
-      background: #27ae60;
-      color: white;
-    }
-    .btn-play:hover {
-      background: #229954;
-    }
-    .btn-download {
-      background: #3498db;
-      color: white;
-    }
-    .btn-download:hover {
-      background: #2980b9;
-    }
-    .btn-important {
-      background: transparent;
-      border: none;
-      cursor: pointer;
-      font-size: 20px;
-      padding: 4px 8px;
-      transition: transform 0.2s;
-    }
-    .btn-important:hover {
-      transform: scale(1.2);
-    }
-    .important-badge {
-      display: inline-block;
-      background: #e74c3c;
-      color: white;
-      padding: 2px 8px;
-      border-radius: 12px;
-      font-size: 11px;
-      margin-left: 8px;
-      font-weight: 700;
-    }
-  </style>
   
   <div class="panel" id="recordingsSection" style="display: none; margin-bottom: 20px;">
     <div class="panel-header">
@@ -590,48 +624,6 @@
             <tr><td colspan="7" class="empty">Loading recordings...</td></tr>
           </tbody>
         </table>
-      </div>
-    </div>
-  </div>
-
-    </div>
-  </div>
-
-  <!-- GENERATED REPORTS ARCHIVE (permanent PDF storage, searchable by date) -->
-  <div class="panel">
-    <div class="panel-header" style="background:rgba(230,21,123,.06)">
-      <h2 style="color:var(--magenta)">&#128196; Generated Reports Archive</h2>
-    </div>
-    <div class="panel-body">
-      <p style="margin:0 0 14px;font-size:13px;color:var(--muted);line-height:1.6">
-        हर दिन शाम 6:30 बजे (IST) एक PDF रिपोर्ट अपने आप बन जाती है जिसमें उस दिन की पूरी कॉलिंग का सारांश होता है। नीचे तारीख डालकर पुरानी रिपोर्ट भी ढूँढ और डाउनलोड कर सकते हैं।
-      </p>
-      <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center">
-        <label style="font-size:12px;color:var(--muted);font-weight:600">From</label>
-        <input type="date" id="reportFromDate" style="padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:var(--mono);font-size:13px;outline:none">
-        <label style="font-size:12px;color:var(--muted);font-weight:600">To</label>
-        <input type="date" id="reportToDate" style="padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:var(--mono);font-size:13px;outline:none">
-        <button onclick="searchReports()" style="padding:8px 18px;border-radius:8px;border:none;background:var(--accent);color:#fff;font-size:13px;font-weight:700;cursor:pointer">&#128269; Search</button>
-        <button onclick="clearReportSearch()" style="padding:8px 14px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--muted);font-size:13px;font-weight:600;cursor:pointer">Clear</button>
-      </div>
-      <div id="reportsList" style="display:flex;flex-direction:column;gap:8px;max-height:340px;overflow-y:auto">
-        <div class="empty">No reports available yet</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- DND NUMBERS -->
-  <div class="panel">
-    <div class="panel-header" style="background:rgba(198,40,40,.06)">
-      <h2 style="color:#c62828">&#128277; DND (Do Not Disturb) Numbers</h2>
-      <span style="font-size:12px;color:var(--muted)" id="dndCountBadge">0 numbers</span>
-    </div>
-    <div class="panel-body">
-      <p style="margin:0 0 12px;font-size:13px;color:var(--muted);line-height:1.6">
-        जिन नंबरों ने कॉल न करने के लिए मना किया है, उनकी लिस्ट — इन नंबरों पर दोबारा कॉल नहीं की जाती।
-      </p>
-      <div id="dndList" style="display:flex;flex-direction:column;gap:6px;max-height:300px;overflow-y:auto;">
-        <div class="empty">No DND numbers</div>
       </div>
     </div>
   </div>
@@ -828,23 +820,18 @@ function initDashboard() {
   setInterval(loadDndNumbers, 15000);
   setInterval(tickLiveClock, 1000);
 
-  // Show recordings section and load data
-  const recSection = document.getElementById('recordingsSection');
-  if (recSection) recSection.style.display = 'block';
-  loadClientRecordingAgentFilters();
+  // ── Recordings ──────────────────────────────────────────────
+  document.getElementById('recordingsSection').style.display = 'block';
   loadClientRecordings();
+  loadClientRecordingAgentFilters();
   setInterval(loadClientRecordings, 30000);
-
-  // Limit date picker to last 7 days (recordings auto-delete after 7 days)
-  (function setRecDateLimits() {
-    const dateInput = document.getElementById('recDateFilter');
-    if (!dateInput) return;
+  const recDateEl = document.getElementById('filterRecDate');
+  if (recDateEl) {
     const today = new Date();
-    const sevenDaysAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
-    const toISO = d => d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
-    dateInput.max = toISO(today);
-    dateInput.min = toISO(sevenDaysAgo);
-  })();
+    recDateEl.max = today.toISOString().split('T')[0];
+    const d7 = new Date(today); d7.setDate(d7.getDate() - 6);
+    recDateEl.min = d7.toISOString().split('T')[0];
+  }
 }
 
 // ── Top stats (Interested / Overdue / Followups / Redialing Tomorrow) ────────
